@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - misc</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+ 
+
+    <div class='article'>
+        <a href="../zen-of-python.html"><h2>Meditations on the Zen of Python</h2></a>
+        <div class= "well small"> Mon 30 December 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(This is based on the series published in opensource.com as
+9 articles:
+<a class="reference external" href="https://opensource.com/article/19/12/zen-python-beauty-clarity">1</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-simplicity-complexity">2</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-flat-sparse">3</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-trade-offs">4</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-errors">5</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-consistency">6</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-timeliness">7</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-implementation">8</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-namespaces">9</a>)</p>
+<p>Python contributor Tim Peters introduced us to the
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0020/">Zen of Python</a>
+in 1999.
+Twenty years later,
+its 19 guiding principles continue to be relevant within the community.</p>
+<p>The …</p> <a class="btn btn-info xsmall" href="../zen-of-python.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../pyhamcrest.html"><h2>Precise Unit Tests with PyHamcrest</h2></a>
+        <div class= "well small"> Tue 17 December 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(This is based on my article on <a class="reference external" href="https://opensource.com/article/18/8/robust-unit-tests-hamcrest">opensource.com</a>)</p>
+<p>Unit test suites help maintain high-quality products by signaling problems
+early in the development process.
+An effective unit test catches bugs before the code has left the
+developer machine,
+or at least in a continuous integration environment on a dedicated branch …</p> <a class="btn btn-info xsmall" href="../pyhamcrest.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../raising-exceptions.html"><h2>Raise Better Exceptions in Python</h2></a>
+        <div class= "well small"> Sun 17 November 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>There is a lot of Python code in the wild which does something like:</p>
+<pre class="code literal-block">
+raise ValueError(&quot;Could not fraz the buzz:&quot;
+                 f&quot;{foo} is less than {quux}&quot;)
+</pre>
+<p>This is,
+in general,
+a bad idea.
+It does not matter if the exception is fairly generic,
+like
+<cite>ValueError</cite>
+or specific
+like
+<cite>CustomFormatParsingException …</cite></p> <a class="btn btn-info xsmall" href="../raising-exceptions.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../zope-interface.html"><h2>An introduction to zope.interface</h2></a>
+        <div class= "well small"> Thu 17 October 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>This has previously been published on
+<a class="reference external" href="https://opensource.com/article/19/9/zopeinterface-python-package">opensource.com</a>.</p>
+<p>The
+<a class="reference external" href="https://en.wikipedia.org/wiki/Zen_of_Python">Zen of Python</a>
+is loose enough and contradicts itself enough that you can prove anything from
+it.
+Let's meditate upon one of its most famous principles:
+&quot;Explicit is better than implicit.&quot;</p>
+<p>One thing that traditionally has been implicit in Python is …</p> <a class="btn btn-info xsmall" href="../zope-interface.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../singledispatch.html"><h2>Adding Methods Retroactively</h2></a>
+        <div class= "well small"> Mon 16 September 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>The following post was originally published on
+<a class="reference external" href="https://opensource.com/article/19/5/python-singledispatch">OpenSource.com</a>
+as part of a series on seven libraries that help solve common problems.</p>
+<p>Imagine you have a &quot;shapes&quot; library.
+We have a <code>Circle</code> class,
+a <code>Square</code> class,
+etc.</p>
+<p>A <code>Circle</code> has a <code>radius</code>,
+a <code>Square</code> has a <code>side</code>,
+and maybe <code>Rectangle …</code></p> <a class="btn btn-info xsmall" href="../singledispatch.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../designing-interfaces.html"><h2>Designing Interfaces</h2></a>
+        <div class= "well small"> Wed 07 August 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>One of the items of feedback I got from the article about
+<a class="reference external" href="https://orbifold.xyz/interfaces-are-forever.html">interface immutability</a>
+is that it did not give any
+<em>concrete</em>
+feedback for how to design interfaces.
+Given that they are forever,
+it would be good to have some sort of guidance.</p>
+<p>The first item is that you want …</p> <a class="btn btn-info xsmall" href="../designing-interfaces.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../interfaces-are-forever.html"><h2>Interfaces are forever</h2></a>
+        <div class= "well small"> Fri 12 July 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(The following talks about <tt class="docutils literal">zope.interface</tt> interfaces,
+but applies equally well to Java interfaces,
+Go interfaces,
+and probably other similar constructs.)</p>
+<p>When we write a function,
+we can sometimes change it in backwards-compatible ways.
+For example,
+we can loosen the type of a variable.
+We can restrict the type of …</p> <a class="btn btn-info xsmall" href="../interfaces-are-forever.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../python-analysis.html"><h2>Analyzing the Stack Overflow Survey</h2></a>
+        <div class= "well small"> Mon 27 May 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>The <a class="reference external" href="https://drive.google.com/file/d/1QOmVDpd8hcVYqqUXDXf68UMDWQZP0wQV/view">Stack Overflow Survey Results for
+2019</a>
+are in! There is some official analysis, that mentioned some things that
+mattered to me, and some that did not. I decided to dig into the data
+and see if I can find some things that would potentially interest my
+readership.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">csv …</span></pre> <a class="btn btn-info xsmall" href="../python-analysis.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../inbox-zero.html"><h2>Inbox Zero</h2></a>
+        <div class= "well small"> Wed 15 May 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>I am the parent of two young kids.
+It is easy to sink into random stuff,
+and not follow up on goals.
+Strict time management and prioritization means
+I get to work on open source projects,
+write programming books
+and update my blog with a decent cadence.
+Since a lot …</p> <a class="btn btn-info xsmall" href="../inbox-zero.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../book-with-sphinx.html"><h2>Publishing a Book with Sphinx</h2></a>
+        <div class= "well small"> Mon 08 April 2019
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>A while ago,
+I decided I wanted to self-publish a book on improving
+your Python skills.
+It was supposed to be short,
+sweet,
+and fairly inexpensive.</p>
+<p>The journey was a <a class="reference external" href="https://gum.co/BVOGd">success</a>,
+but had some interesting twists along the way.</p>
+<p>From the beginning,
+I knew what technology I wanted to write …</p> <a class="btn btn-info xsmall" href="../book-with-sphinx.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev"><a href="../category/misc2.html">&larr; Previous</a></li>
+
+    <li class=""><a href="../category/misc.html">1</a></li>
+    <li class=""><a href="../category/misc2.html">2</a></li>
+    <li class="active"><a href="../category/misc3.html">3</a></li>
+    <li class=""><a href="../category/misc4.html">4</a></li>
+    <li class=""><a href="../category/misc5.html">5</a></li>
+    <li class=""><a href="../category/misc6.html">6</a></li>
+    <li class=""><a href="../category/misc7.html">7</a></li>
+
+    <li class="next"><a href="../category/misc4.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2021</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>
