@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - misc</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="../ssa-releases.html"><h1>Safe, Simple, Automatic Releases</h1></a>
+Sun 07 May 2023
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><p>Two words that strike fear in the heart of
+every software developer:
+&quot;release process&quot;.
+Whether deploying a new version of a
+billion-person social network
+or a
+tiny little open source library,
+release processes are often
+manual,
+complicated,
+and
+easy to mess up.</p>
+<p>Much has been said on the
+&quot;new version of a billion-person
+social network&quot;
+side.
+But what about those small,
+barely a person,
+open source libraries?</p>
+<p>The focus here will be on</p>
+<ul class="simple">
+<li>Open source</li>
+<li>Python libraries</li>
+</ul>
+<div class="section" id="automatic">
+<h2>Automatic</h2>
+<p>A new version?
+What is the number?</p>
+<p>As
+<a class="reference external" href="https://orbifold.xyz/fifty-shades.html">already explored</a>,
+CalVer
+works better than
+SemVer.
+So you already know
+<em>something</em>
+about the version.</p>
+<p>With most standard
+<a class="reference external" href="https://calver.org/">CalVer</a>
+schemes,
+the version starts with
+<tt class="docutils literal"><span class="pre">&lt;Year&gt;.&lt;Month&gt;</span></tt>.
+For example,
+something released
+in April 2023
+would be
+<tt class="docutils literal"><span class="pre">2023.04....</span></tt></p>
+<p>One option is to choose as the last digit
+a running number of releases in the month.
+So,
+<tt class="docutils literal">2023.4.3</tt>
+would be the third release in
+April 2023.
+This means that when assigning the version,
+you have to look and see what previous releases,
+if any,
+happened this month.</p>
+<p>More stateless is to choose the day.
+However,
+this means it is impossible to release more
+than once per day.
+This can be
+<em>literally irresponsible</em>:
+what happens if you need to quickly patch up
+a major goof?</p>
+<p>There is another,
+sneakier,
+option.
+It is to take advantage that Python version standard
+does
+<em>not</em>
+mandate only three parts to the version.</p>
+<p>For example,
+<tt class="docutils literal">2023.4.27.3</tt>
+could be the third release
+in April 27th, 2023.
+Having to quickly release
+<em>two</em>
+versions sounds stressful,
+and I'm sorry someone had to experience that.</p>
+<p>On top of all the stress,
+they had to have the presence of mind to check
+how many releases already happened today.
+This sounds like heaping misery on top of an
+already stressful situation.</p>
+<p>Can we do better?
+Go completely stateless?
+Yes,
+we can.</p>
+<p><a class="reference external" href="https://autocalver.readthedocs.io/en/latest/">Autocalver</a> will assign versions to packages using
+<tt class="docutils literal"><span class="pre">&lt;Year&gt;.&lt;Month&gt;.&lt;Day&gt;.&lt;Seconds</span> from beginning of day&gt;</tt>.
+The last number is only a little bit useful,
+but does serve as an increasing counter.
+The timestamp is taken from the
+<em>commit log</em>,
+not the
+<em>build time</em>,
+so builds are reproducible.</p>
+</div>
+<div class="section" id="safe">
+<h2>Safe</h2>
+<p>&quot;Three may keep a Secret, if two of them are dead.&quot;,
+Benjamin Franklin,
+Poor Richard's Almanac, 1735.</p>
+<p>Uploading your package to PyPI safely is not trivial.
+You can generate a
+package-specific token,
+then store it as an encrypted secret in GitHub actions,
+and then unpack it
+at the right stage,
+avoid leaking it,
+and push the package.</p>
+<p>Sounds like being half a bad line away from leaking the
+API key.
+Luckily,
+there is a way to avoid it.
+The
+<a class="reference external" href="https://github.com/pypa/gh-action-pypi-publish">PyPI publish GitHub Action</a>
+uses
+OpenID Connect
+to authenticate the runner
+against PyPI.</p>
+<p>You will want to configure GitHub,
+with the appropriate parameters,
+as a
+<a class="reference external" href="https://docs.pypi.org/trusted-publishers/">trusted publisher</a>.</p>
+</div>
+<div class="section" id="simple">
+<h2>Simple</h2>
+<p>When do you release?
+Are you checking releases manually?
+Why?</p>
+<p>CI should make sure that,
+pre-merge,
+branches pass all automated checks.
+&quot;Keep the main branch in a releasable state&quot;,
+as the kids used to say.</p>
+<p>Wait.
+If main branch is releasable,
+why not...release it?</p>
+<pre class="code yaml literal-block">
+<span class="nt">on</span><span class="p">:</span><span class="w">
+  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+    </span><span class="nt">branches</span><span class="p">:</span><span class="w">
+      </span><span class="p-Indicator">-</span><span class="w"> </span><span class="l-Scalar-Plain">trunk</span>
+</pre>
+<p>This will configure a GitHub action that releases on every push to trunk.
+(Trunk is the
+&quot;main branch&quot;
+of a tree,
+though yours might be named differently.)</p>
+<p>See the entire action in
+<a class="reference external" href="https://github.com/moshez/autocalver/blob/63d509ecff2173aff07b4e2897e0073cb5a05c0a/.github/workflows/release.yml">autocalver's workflows</a></p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>Configuring your project to use
+<tt class="docutils literal">autocalver</tt>
+gives you automatic version numbers.
+Using PyPI/GitHub trusted publishing model
+eliminates complicated secret sharing schemes.
+GitHub upload actions on merge to main branch
+removes the need to make a decision about
+when to release.</p>
+<p>Putting all of them together results in
+releases taking literally 0 work.
+More time for fun!</p>
+</div>
+</div>
+        <hr />
+    </div>
+		
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../dynamic-pyproject.html"><h2>The &quot;Dynamic&quot; Properties in PyProject</h2></a>
+        <div class= "well small"> Fri 30 December 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>When writing a
+<code>pyproject.toml</code>
+file,
+the
+<code>project</code>
+section is optional.
+However,
+if it does exist,
+two of its properties are
+<em>required</em>:</p>
+<ul class="simple">
+<li><code>name</code></li>
+<li><code>version</code></li>
+</ul>
+<p>If these two properties are not there,
+the section will be ignored.</p>
+<p>This is a lie.
+But it is not a big lie:
+it is
+<em>almost …</em></p> <a class="btn btn-info xsmall" href="../dynamic-pyproject.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../on-the-go.html"><h2>On The Go</h2></a>
+        <div class= "well small"> Sun 14 August 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Now that travel is more realistic,
+I have started to optimize how well I can work on the go.
+I want to be able to carry as few things as possible,
+and have the best set-up possible.</p>
+<div class="section" id="charging">
+<h2>Charging</h2>
+<img alt="Power Bank charging" src="bank.jpg" style="width: 400px;" />
+<p>The
+&quot;center&quot;
+of the mobile set-up is my
+<a class="reference external" href="https://www.anker.com/products/a1651">Anker Power Bank</a>.
+It …</p></div> <a class="btn btn-info xsmall" href="../on-the-go.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../documentation-for-popular-products.html"><h2>Reading the Documentation for Popular Products</h2></a>
+        <div class= "well small"> Sun 20 February 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Popular products often have a
+&quot;Getting Started&quot;
+tutorial
+in order to guide you in using them
+for the first timees.
+Those guides are easy to follow,
+pleasant to use,
+and lead you do make bad design choices.</p>
+<p>Follow the
+&quot;Getting Started&quot;
+guide to get a feel for the product.
+Then …</p> <a class="btn btn-info xsmall" href="../documentation-for-popular-products.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../three-problems.html"><h2>Three Problems with a Tool</h2></a>
+        <div class= "well small"> Fri 24 December 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>One of my favorite Podcasts,
+<a class="reference external" href="https://www.pythonpodcast.com/">Podcast.__init__</a>,
+always makes sure to ask one question
+towards the end of every episode:
+when should you
+<em>not</em>
+use the tool or technique introduced
+in this episode?
+This is a great question.
+When people have a poor answer
+I assume that the tool is …</p> <a class="btn btn-info xsmall" href="../three-problems.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../better-outage-retrospectives.html"><h2>Better Outage Retrospectives</h2></a>
+        <div class= "well small"> Sun 15 August 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Originally published on
+<a class="reference external" href="https://www.redhat.com/architect/better-outage-retrospectives">Enable Architect</a>.</p>
+<p>Modern computer systems supply business-critical services everywhere
+-- from Amazon providing shopping services to
+Healthcare.gov
+providing enrollment in health insurance plan.
+We all rely on such systems.
+But, unfortunately, these systems are complex and can fail in surprising ways.</p>
+<p>By now,
+it is a well-understood …</p> <a class="btn btn-info xsmall" href="../better-outage-retrospectives.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../devops-sympathy.html"><h2>Empathy vs. sympathy for Site Reliability Engineers (SRE)</h2></a>
+        <div class= "well small"> Thu 15 July 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>This article was originally published on
+<a class="reference external" href="https://www.redhat.com/architect/sre-empathy-vs-sympathy">Enable Architect</a></p>
+<p>Many people have had the insight that DevOps is about people.
+Often, they will summarize it as
+&quot;DevOps is about empathy&quot;.
+I have found,
+however,
+that idealizing empathy is just as bad as thinking that DevOps
+is about a single technology.</p>
+<p>I …</p> <a class="btn btn-info xsmall" href="../devops-sympathy.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../minimal-packing.html"><h2>Minimal packing list</h2></a>
+        <div class= "well small"> Wed 07 July 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>With in-person conferences starting to open up,
+I need to clear the dust off of some skills that have
+not been used in a while.
+One of those is how to pack for travel.</p>
+<p>This list works for me.
+It will probably not work for you as-is.
+Among other things …</p> <a class="btn btn-info xsmall" href="../minimal-packing.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../post-that-pr.html"><h2>Post that PR</h2></a>
+        <div class= "well small"> Wed 16 June 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Sometimes you will be working on hairy and complicated feature
+in a shared repository.
+Maybe it's for work.
+Maybe it's an open source project.</p>
+<p>As a responsible person,
+you are working on a branch.
+The usual way of working involves a lot of
+&quot;intermediate&quot;
+check-ins.
+Those serve,
+if nothing else …</p> <a class="btn btn-info xsmall" href="../post-that-pr.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../binary-wheels.html"><h2>Portable Python Binary Wheels</h2></a>
+        <div class= "well small"> Mon 05 April 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>It is possible to work with Python quite a bit and not be aware of some
+of the subtler details of package management.
+Since Python is a popular “glue” language,
+one of its core strengths is integrating with libraries
+written in other languages:
+from database drivers written in C,
+numerical …</p> <a class="btn btn-info xsmall" href="../binary-wheels.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="../category/misc.html">1</a></li>
+    <li class=""><a href="../category/misc2.html">2</a></li>
+    <li class=""><a href="../category/misc3.html">3</a></li>
+    <li class=""><a href="../category/misc4.html">4</a></li>
+    <li class=""><a href="../category/misc5.html">5</a></li>
+    <li class=""><a href="../category/misc6.html">6</a></li>
+    <li class=""><a href="../category/misc7.html">7</a></li>
+    <li class=""><a href="../category/misc8.html">8</a></li>
+
+    <li class="next"><a href="../category/misc2.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2023</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>
