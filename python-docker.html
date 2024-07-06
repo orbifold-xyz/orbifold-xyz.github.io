@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Shipping Python Applications in Docker</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Shipping Python Applications in Docker</h1>
+Fri 17 March 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><div class="section" id="introduction">
+<h2>Introduction</h2>
+<p>When looking in open source examples, or tutorials, one will often see
+Dockerfiles that look like this:</p>
+<pre class="code literal-block">
+FROM python:3.6
+COPY setup.py /mypackage
+COPY src /mypackage/src
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
+RUN pip install /mypackage
+ENTRYPOINT [&quot;/usr/bin/mypackage-console-script&quot;, &quot;some&quot;, &quot;arguments&quot;]
+</pre>
+<p>This typical naive example has multiple problems,
+which this article will show how to fix.</p>
+<ul class="simple">
+<li>It uses a container with a <a class="reference external" href="https://glyph.twistedmatrix.com/2015/03/docker-deploy-double-dutch.html">functioning build environment</a></li>
+<li>It has the potential for &quot;loose&quot; and/or incomplete requirements.txt,
+so that changes in PyPI (or potential compromise of it)
+change what is installed in the container.</li>
+<li>It is based on <code>python:3.6</code>, a label which can point to different
+images at different times (for example, when Python 3.6 has a patch release).</li>
+<li>It does not use virtual environments, leading to potential bad interactions.</li>
+</ul>
+<p>In general, when thinking about the Docker container image as the
+&quot;build&quot; output of our source tree,
+it is good to aim for a reproducible build: building the same source
+tree should produce equivalent results.
+(Literally bit-wise identical results are a good thing to aim for,
+but there are many potential sources for spurious bitwise changes such
+as dates embedded in zip files.)
+One important reason is for bug fixes:
+for example, a bug fix leads to change a single line of Python code.
+That is usually a safe change, that is reasonably easy to understand and
+to test for regressions.
+However, if it also can update Python from 3.6.1 to 3.6.1,
+or update Twisted from 17.1 to 17.2,
+regressions are more likely and the change has to be tested more carefully.</p>
+</div>
+<div class="section" id="managing-base-images">
+<h2>Managing Base Images</h2>
+<p>Docker images are built in layers.
+In a <code>Dockerfile</code>,
+the <code>FROM</code> line imports the layers from the source image.
+Every other line adds exactly one layer.</p>
+<p>Container registries store images.
+Internally, they deduplicate identical layers.
+Images are indexed by user (or organization),
+repository name and tag.
+These are not immutable:
+it is possible to upload a new image,
+and point an old user/repository/tag at it.</p>
+<p>In theory, it is possible to achieve immutability by <a class="reference external" href="https://en.wikipedia.org/wiki/Content-addressable_storage">content-addressing</a>.
+However, registries usually garbage collect layers with no pointers.
+The only safe thing to do is to own images on one's own user or organization.
+Note that to &quot;own&quot; the images, all we need to do is to push them under
+our own name.
+The push will be fast -- since the actual content is already on the Docker
+registry side, it will be short-circuit the actual upload.</p>
+<p>Especially when working using a typical home internet connection,
+or an internet cafe connection,
+download speeds are usually reasonable but upload speeds are slow.
+This upload does not depend on fast upload speed, since it only
+uploads small hashes.
+However, it will make sure the images keep forever, and we have a stable
+pointer to them.</p>
+<p>The following code shows an example of fork-tagging in this way
+into a user account.
+We use time, precise to the microsecond, to name the images.
+This means that running this script is all but guaranteed to result
+in unique image labels, and they even sort correctly.</p>
+<pre class="code literal-block">
+import datetime, subprocess
+tag = datetime.datetime.utcnow().isoformat()
+tag = tag.replace(':', '-').replace('.', '-')
+for ext in ['', '-slim']:
+    image = &quot;moshez/python36{}:{}&quot;.format(ext, tag)
+    orig = &quot;python:3.6{}&quot;.format(ext)
+    subprocess.check_call([&quot;docker&quot;, &quot;pull&quot;, orig])
+    subprocess.check_call([&quot;docker&quot;, &quot;tag&quot;, orig, image])
+    subprocess.check_call([&quot;docker&quot;, &quot;push&quot;, image])
+</pre>
+<p>(This assumes the Docker client is already pre-authenticated,
+via running <code>docker login</code>.)</p>
+<p>It produces images that look like:</p>
+<pre class="code literal-block">
+moshez/python36-slim:2017-03-10T02-18-12-843046
+   b5b6550a858c
+   198.6 MB
+moshez/python36:2017-03-10T02-18-12-843046
+   a1782fa44ef7
+   687.2 MB
+</pre>
+<p>The script is safe to run -- it will not clobber existing labels.
+It will require a source change to use the new images --
+usually by changing a <code>Dockerfile</code>.</p>
+</div>
+<div class="section" id="python-third-party-dependencies">
+<h2>Python Third Party Dependencies</h2>
+<p>When installing dependencies, it is good to ensure that those cannot change.
+Modern <code>pip</code> gives great tools to do that, but those are rarely used.
+The following describes how to allow reproducible builds
+while still allowing for easy upgrades.</p>
+<p>&quot;Loose&quot; requirements specify programmer intent.
+They indicate what dependencies the programmer cares about:
+e.g., wanting a minimum version of a library.
+They are handwritten by the developer.
+Note that often that &quot;hand-writing&quot; can be little more than
+the single line of the &quot;main&quot; package
+(the one that contains the code which is written in-house).
+It will usually be a bit more than that:
+for example, <code>pex</code> and <code>docker-py</code> to support
+the build process.</p>
+<p>Strict dependencies indicate the entire dependency chain:
+complete, with specific versions and hashes.
+Note that both must be checked in.
+Re-generating the strict dependencies is a source-tree change
+operation, no different from changing the project's own Python code,
+because it changes the build output.</p>
+<p>The workflow for regenerating the strict dependencies might look like:</p>
+<pre class="code literal-block">
+$ git checkout -b updating-third-party
+$ docker build -t temp-image -f harden.docker .
+$ docker run --rm -it temp-image &gt; requirements.strict.txt
+$ git commit -a -m 'Update 3rd party'
+$ git push
+$ # Follow code workflow
+</pre>
+<p>There is no way, currently, to statically analyze dependencies.
+Docker allows to install the packages in an ephemeral environment,
+analyze the dependencies and check the hashes,
+and then output the results.
+The output can be checked in, while the actual installation is removed:
+this is what the <code>--rm</code> flag above means.</p>
+<p>For the workflow above to work, we need a <code>Dockerfile</code> and
+a script.
+The <code>Dockerfile</code> is short,
+since most of the logic is in the script.
+We use the reproducible base images,
+(i.e., the images we <em>fork-tagged</em>),
+copy the inputs,
+and let the entry point run the script.</p>
+<pre class="code literal-block">
+# harden.docker
+FROM moshez/python36:2017-03-09T04-50-49-169150
+COPY harden-requirements requirements.loose.txt /
+ENTRYPOINT [&quot;/harden-requirements&quot;]
+</pre>
+<p>The script itself is divided into two parts.
+The first part installs the loose requirements in a virtual environment,
+and then runs <code>pip freeze</code>.
+This gives us the &quot;frozen&quot; requirements --
+with specific versions, but without hashes.
+We use <code>--all</code> to force freezing of packages pip thinks we should not.
+One of those packages is <code>setuptools</code>,
+which <code>pex</code> needs specific versions of.</p>
+<pre class="code literal-block">
+# harden-requirements
+import subprocess, sys
+subprocess.check_output([sys.executable, &quot;-m&quot;, &quot;venv&quot;,
+                         &quot;/envs/loose&quot;])
+subprocess.check_output([&quot;/envs/loose/bin/pip&quot;, &quot;install&quot;, &quot;-r&quot;,
+                         &quot;/requirements.loose.txt&quot;])
+frozen = subprocess.check_output([&quot;/envs/loose/bin/pip&quot;,
+                                  &quot;freeze&quot;, &quot;--all&quot;])
+with open(&quot;/requirements.frozen.txt&quot;, 'wb') as fp:
+    fp.write(frozen)
+</pre>
+<p>The second part takes the frozen requirements,
+and uses <code>pip-compile</code> (part of the <code>pip-tools</code> package)
+to generate the hashes.
+The <code>--allow-unsafe</code> is the scarier looking,
+but semantically equivalent,
+version of pip's <code>--all</code>.</p>
+<pre class="code literal-block">
+subprocess.check_output([&quot;/envs/loose/bin/pip&quot;, &quot;install&quot;,
+                         &quot;pip-tools&quot;])
+output = subprocess.check_output([&quot;/envs/loose/bin/pip-compile&quot;,
+                                  &quot;--allow-unsafe&quot;,
+                                  &quot;--generate-hashes&quot;,
+                                  &quot;requirements.frozen.txt&quot;])
+for line in output.decode('utf-8').splitlines():
+    print(line)
+</pre>
+</div>
+<div class="section" id="docker-in-docker">
+<h2>Docker-in-Docker</h2>
+<p>(Thanks to Glyph Lefkowitz for explaining that well.)</p>
+<p>Too many examples in the wild use the same container to build and deploy.
+Those end up shipping a container full of build tools,
+such as make and gcc,
+to production.
+That has many downsides -- size, performance, security and isolation.</p>
+<p>In order to properly separate those two tasks,
+we will need to learn how to run containers from inside containers.
+Running a container as a <em>daughter</em> of a container is a bad idea.
+Instead, we take advantage of the client/server architecture of Docker.</p>
+<p>Contrary to some misconception, <code>docker run</code> does not run a container.
+It connects to the Docker daemon, which runs the container.
+The client knows how to connect to the daemon based on environment variables.
+If the environment is vanilla, the client has a default:
+it connects to the UNIX domain socket at <code>/var/run/docker.sock</code>.
+The daemon always listens locally on that socket.</p>
+<p>Thus, we can run a container from inside a container that has access
+to the UNIX domain socket.
+Such a socket is simply a file, in keeping with UNIX's &quot;everything is a file&quot;
+philosophy.
+Therefore, we can pass it in to the container by using host volume mounting.</p>
+<pre class="code literal-block">
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock ...
+</pre>
+<p>A Docker client running inside such a container will connect to the outside
+daemon, and can cause it to run other containers.</p>
+</div>
+<div class="section" id="python-output-formats">
+<h2>Python Output Formats</h2>
+<div class="section" id="wheel">
+<h3>Wheel</h3>
+<p>Wheels are specially structured zip files.
+They are designed so a simple unzip is all that is needed to install them.
+The <code>pip</code> program will build, and cache, wheels for any package
+it installs.</p>
+</div>
+<div class="section" id="pex">
+<h3>Pex</h3>
+<p>Pex is an executable Python program.
+It does not embed the interpreter, or the standard library.
+It does, however, embed all third-party packages:
+running the Pex file on a vanilla Python installation works,
+as long as the Python versions are compatible.</p>
+<p>Pex works because running <code>python somefile.zip</code> works by
+adding <code>somefile.zip</code> to <code>sys.path</code>,
+and then running <code>__main__.py</code> from the archive as its main file.
+The Zip format is end-based:
+adding an arbitrary prefixes to the content does
+not change the semantics of a zip file.
+Pex adds the prefix <code>#!/usr/bin/env python</code>.</p>
+</div>
+</div>
+<div class="section" id="building-a-simple-service-container-image">
+<h2>Building a Simple Service Container Image</h2>
+<p>The following will use <code>remotemath</code> package,
+which does slow remote arithmetic operations (mutliplication and negation).
+It does not have much utility for production,
+but is useful for pedagogical purposes, such as this one.</p>
+<p>In general, build systems can get complicated.
+For our examples, however, a simple Python script
+is all the build infrastructure we need.</p>
+<p>Much like in the requirements hardening example,
+we will follow the pattern of creating a docker container image
+and running it immediately.
+Note that the first two lines do not depend on the so-called &quot;context&quot; --
+the files that are being copied into the docker container from the outside.
+Because of this, the docker build process will know to cache them,
+leading to fast rebuilds.</p>
+<p>However, building like this allows us to ignore how to mount files
+into the docker container --
+and allows us to ignore the sometimes subtle semantics of such mounting.</p>
+<pre class="code literal-block">
+# build.docker
+FROM moshez/python36:2017-03-09T04-50-49-169150
+RUN python3 -m venv /buildenv &amp;&amp; mkdir /wheelhouse
+COPY requirements.strict.txt build-script remotemath.docker /
+ENTRYPOINT [&quot;/buildenv/bin/python&quot;, &quot;/build-script&quot;]
+</pre>
+<p>This Docker file depends on two things we have not mentioned:
+a build script and the <code>remotemath.docker</code> file.
+The build script itself has one subtlety -- because it calls out to pip,
+it cannot import the docker module until it has been installed.
+Indeed, since it starts out in a vanilla virtual environment,
+it does not have access to any non-built-in packages.
+We do need to make sure the <code>docker-py</code> PyPI package makes it into the
+requirements file.</p>
+<pre class="code literal-block">
+# build-script
+import subprocess
+
+def run(cmd, *args):
+    args = [os.path.join('/buildenv/bin', cmd)] + list(args[1:])
+    return subprocess.check_call(args)
+
+os.makedirs('/mnt/output')
+shutil.copy('/remotemath.docker',
+            '/mnt/output/remotemath.docker')
+run('pip', 'install', '--require-hashes',
+                      '-r', 'requirements.strict.txt')
+run('pip', 'wheel', '--require-hashes',
+                    '-r', 'requirements.strict.txt',
+                    '--wheel-dir', '/wheelhouse/')
+run('pex', '-o', '/mnt/output/twist.pex',
+           '-m', 'twisted',
+           '--repo', '/wheelhouse', '--no-index',
+           'remotemath')
+
+import docker
+client = docker.from_env()
+client.images.build(
+    path='/mnt/output/',
+    dockerfile='/mnt/output/remotemath.docker',
+    tag='/moshez/remotemath:{}'.format(sys.argv[1]),
+    rm=True,
+)
+## TODO: Push here
+</pre>
+<p>Docker has no way to &quot;build and run&quot; in one step.
+We build an image, tagged as <code>temp-image</code>,
+like we did for hardening.
+When running the build on a shared machine are likely,
+this needs to be a uuid,
+and have some garbage collection mechanism.</p>
+<pre class="code literal-block">
+$ docker build -t temp-image -f build.docker .
+$ docker run --rm -it \
+         -v /var/run/docker.sock:/var/run/docker.sock \
+         temp-image $(git rev-parse HEAD)
+</pre>
+<p>The <code>Dockerfile</code> for the production service is also short:
+here, we take advantage of two nice properties of the
+<code>python -m twisted</code> command
+(wrapped into pex as <code>twist.pex</code>):</p>
+<ul class="simple">
+<li>It accepts a port on the command-line.
+Since arguments to Docker run are appended to the command-line,
+this can be run as <code>docker run moshez/remotemath:TAG --port=tcp:8080</code>.</li>
+<li>It reaps adopted children, and thus can be used as PID 1.</li>
+</ul>
+<pre class="code literal-block">
+FROM moshez/python36-slim:2017-03-09T04-50-49-169150
+COPY twist.pex /
+ENTRYPOINT [&quot;/twist.pex&quot;, &quot;remotemath&quot;]
+</pre>
+</div>
+<div class="section" id="building-a-container-image-with-custom-code">
+<h2>Building a Container Image With Custom Code</h2>
+<p>So far we have packaged a ready-made application.
+That was non-trivial in itself,
+but now let us write an application.</p>
+<div class="section" id="pyramid-app">
+<h3>Pyramid App</h3>
+<p>We are using the <a class="reference external" href="https://trypyramid.com/">Pyramid</a> framework to write an application.
+It will have one page,
+which will use the remote math service to calculate <code>3*4</code>.</p>
+<pre class="code literal-block">
+# setup.py
+import setuptools
+setuptools.setup(name='fancycalculator',
+    packages=setuptools.find_packages(where='src'),
+    package_dir={&quot;&quot;: &quot;src&quot;}, install_requires=['pyramid'])
+</pre>
+<pre class="code literal-block">
+# src/fancycalculator/app.py
+import os, requests, pyramid.config, pyramid.response
+def multiply(request):
+    res = requests.post(os.environ['REMOTE_MATH']+'/multiply', json=[3, 4])
+    num, = res.json()
+    return pyramid.response.Response('Result:{}'.format(num))
+cfg = pyramid.config.Configurator()
+cfg.add_route('multiply', '/');
+cfg.add_view(multiply, route_name='multiply')
+app = cfg.make_wsgi_app()
+</pre>
+</div>
+<div class="section" id="changes">
+<h3>Changes</h3>
+<p>In many cases, one logical source code repository will be responsible for
+more than one Docker image.
+Obviously, in the case of a monorepo, this will happen.
+But even when using a repo per logical unit, often two services share
+so much code that it makes sense to separate them into two images.</p>
+<p>For example, the admin panel of a web application and the application itself.
+It might make sense to build them as two repositories because they will not
+share all the code and running them on separate containers allows separating
+permissions effectively.
+However, they will share enough code between them that is not general interest
+that building them out of the same repository is probably a good idea.</p>
+<p>This is what we will do in this example.
+We will change our build files, above, to also build the &quot;fancy calculator&quot;
+Docker image.</p>
+<p>Two files need append-only changes: <code>build.docker</code> needs to add
+the new source files and <code>build-script</code> needs to actually build
+the new container.</p>
+<pre class="code literal-block">
+# build.docker
+RUN mkdir /fancycalculator
+COPY setup.py /fancycalculator/
+COPY src /fancycalculator/src/
+COPY fancycalculator.docker /
+</pre>
+<pre class="code literal-block">
+# build-script
+run('pip', 'wheel', '/fancycalculator',
+    '--wheel-dir', '/wheelhouse')
+run('pex', '-o', '/mnt/output/fc-twist.pex',
+    '-m', 'twisted',
+    '--repo', '/wheelhouse', '--no-index',
+    'twisted', 'fancycalculator')
+client.images.build(path='/mnt/output/',
+    dockerfile='/mnt/output/fancycalculator.docker',
+    tag='/moshez/fancycalculator:{}'.format(sys.argv[1]),
+    rm=True,
+)
+</pre>
+<p>Again, in more realistic scenario where a build system is already being
+used, it might be that a new build configuration file needs to be added --
+and if all the source code is already in a subdirectory, that directory
+can be added as a whole in the build <code>Dockerfile</code>.</p>
+<p>We need to add a <code>Dockerfile</code> --
+the one for production <code>fancycalculator</code>.
+Again, using the Twisted WSGI container at the root allows us to avoid
+some complexity.</p>
+<pre class="code literal-block">
+# fancycalculator.docker
+FROM moshez/python36-slim:2017-03-09T04-50-49-169150
+COPY fc-twist.pex /twist.pex
+ENTRYPOINT [&quot;/twist.pex&quot;, &quot;web&quot;, &quot;--wsgi&quot;, \
+            &quot;fancycalculator.app.app&quot;]
+</pre>
+</div>
+</div>
+<div class="section" id="running-containers">
+<h2>Running Containers</h2>
+<div class="section" id="orchestration-framework">
+<h3>Orchestration Framework</h3>
+<p>There are several popular orchestration framework:
+Kubernetes (sometimes shortened to k8s),
+Docker Swarm,
+Mesosphere and Nomad.
+Of those, Swarm is probably the easiest to get up and running.</p>
+<p>In any case, it is best to make sure specific containers are written
+in an OF-agnostic manner.
+The easiest way to achieve that is to have containers expect to connect
+to a DNS name for other services.
+All Orchestation Frameworks support some DNS integration in order to do
+service discovery.</p>
+</div>
+<div class="section" id="configuration-and-secrets">
+<h3>Configuration and Secrets</h3>
+<p>Secrets can be bootstrapped from the secret system the Orchestration Framework
+uses.
+When not using an Orchestration Framework, it is possible to mount secret
+files directly into containers with <code>-v</code>.
+The reason &quot;bootstrapped&quot; is used is because often it is easier to have
+the secret at that level be a <code>PyNaCl</code> private key,
+and to add application-level secrets by encrypting them with a
+<code>PyNaCl</code> corresponding public key
+(that can be checked into the repository)
+and putting them directly in the image.
+This adds developer velocity by allowing develops to add secrets directly
+without giving them any special privileges.</p>
+</div>
+<div class="section" id="storage">
+<h3>Storage</h3>
+<p>In general, much of Docker is used for &quot;stateless&quot; services.
+When needing to keep state, there are several options.
+One is to avoid an Orchestration Framework for the stateful services:
+deploy with docker, but mount the area where long-term data is kept
+from the host.
+Backup, redundancy and fail-over solutions still need to be implemented,
+but this is no worse than without containers, and containers at least
+give an option of atomic upgrades.</p>
+</div>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

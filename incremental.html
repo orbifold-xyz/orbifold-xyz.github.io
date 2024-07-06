@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Web Development for the 21st Century</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Web Development for the 21st Century</h1>
+Mon 02 April 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Glyph Lefkowitz for some of the inspiration for this port,
+and to Mahmoud Hashemi for helpful comments and suggestions.
+All mistakes and issues that remain are mine alone.)</p>
+<p>The Python REPL has always been touted as one of Python's greatest
+strengths. With Jupyter, Jupyter Lab in its latest incarnation, the REPL
+has been lifted into the 21st century. It has become the IDE of the future:
+interactive, great history and logging -- and best of all,
+you can use it right from your browser,
+regardless of your platform!</p>
+<p>However, we still have 20th century practices for developing web
+applications. Indeed, the only development is that instead of &quot;CTRL-c,
+up-arrow, return&quot;, we now have &quot;development servers&quot; which are not
+&quot;production ready&quot; support auto-reloading -- the equivalent of a robot
+doing &quot;CTRL-c, up-arrow, return&quot;.</p>
+<p>Using the REPL to develop web applications is pure bliss. Just like
+using it to develop more linear code: we write a function, test it
+ad-hocly, see the results, and tweak.</p>
+<p>When we are sufficiently pleased, we can then edit the resulting
+notebook file into a Python module -- which we import from the next
+version of the notebook, in order to continue the incremental
+development. Is such a thing possible?</p>
+<p>Let's start by initializing Twisted,
+since this has to happen early on.</p>
+<pre class="code python3 literal-block">
+<span class="kn">from</span> <span class="nn">tornado.platform.twisted</span> <span class="kn">import</span> <span class="n">install</span><span class="w">
+</span><span class="n">reactor</span> <span class="o">=</span> <span class="n">install</span><span class="p">()</span>
+</pre>
+<p>Whew! Can't forget that! Now with this out of the way, let's do the most
+boring part of every Python program: the imports.</p>
+<pre class="code python3 literal-block">
+<span class="kn">from</span> <span class="nn">twisted.web</span> <span class="kn">import</span> <span class="n">server</span><span class="w">
+</span><span class="kn">from</span> <span class="nn">twisted.internet</span> <span class="kn">import</span> <span class="n">endpoints</span><span class="p">,</span> <span class="n">defer</span><span class="w">
+</span><span class="kn">import</span> <span class="nn">klein</span><span class="w">
+</span><span class="kn">import</span> <span class="nn">treq</span>
+</pre>
+<p>Now, let's start Klein app. There are several steps involved here.</p>
+<pre class="code python3 literal-block">
+<span class="n">root</span> <span class="o">=</span> <span class="n">klein</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">resource</span><span class="p">()</span>
+</pre>
+<p>We take the Klein <tt class="docutils literal">resource</tt> object...</p>
+<pre class="code python3 literal-block">
+<span class="n">site</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">Site</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre>
+<p>...make a wrapping site...</p>
+<pre class="code python3 literal-block">
+<span class="n">ep</span> <span class="o">=</span> <span class="n">endpoints</span><span class="o">.</span><span class="n">serverFromString</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="s2">&quot;tcp:8000&quot;</span><span class="p">)</span>
+</pre>
+<p>...create an endpoint...</p>
+<pre class="code python3 literal-block">
+<span class="n">ep</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+&lt;Deferred at 0x7f54c5702080 current result: &lt;&lt;class 'twisted.internet.tcp.Port'&gt; of &lt;class 'twisted.web.server.Site'&gt; on 8000&gt;&gt;
+</pre>
+<p>and like &quot;Harry met Sally&quot;, eventually bring the two together for Klein
+to respond on port 8000. We have not written any application code, so
+Klein is currently &quot;empty&quot;.</p>
+<p>What does that mean?</p>
+<pre class="code python3 literal-block">
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test_slash</span><span class="p">():</span><span class="w">
+</span>    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">treq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'http://localhost:8000'</span><span class="p">)</span><span class="w">
+</span>    <span class="n">content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">()</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">content</span>
+</pre>
+<p>This function uses Python 3's <tt class="docutils literal">async</tt>/<tt class="docutils literal">await</tt> features, to use
+<tt class="docutils literal">treq</tt> (Twisted Requests) and return the result. We can use it as our
+ad-hoc debugger (but we could also use a web browser -- this is
+naturally hard to show in a post, though).</p>
+<pre class="code python3 literal-block">
+<span class="n">defer</span><span class="o">.</span><span class="n">ensureDeferred</span><span class="p">(</span><span class="n">test_slash</span><span class="p">())</span><span class="o">.</span><span class="n">addBoth</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+&lt;Deferred at 0x7f54c5532630&gt;
+</pre>
+<pre class="literal-block">
+b'&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2 Final//EN&quot;&gt;n&lt;title&gt;404 Not Found&lt;/title&gt;n&lt;h1&gt;Not Found&lt;/h1&gt;n&lt;p&gt;The requested URL was not found on the server.  If you entered the URL manually please check your spelling and try again.&lt;/p&gt;n'
+</pre>
+<p>Ah, yeah. Even <tt class="docutils literal">/</tt> gives a 404 error -- we have literally defined
+nothing. OK, this is easy to fix:</p>
+<pre class="code python3 literal-block">
+<span class="nd">&#64;klein</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">def</span> <span class="nf">something_useful</span><span class="p">(</span><span class="n">request</span><span class="p">):</span><span class="w">
+</span>    <span class="k">return</span> <span class="s1">'Hello world'</span>
+</pre>
+<p>Wait, did this work?</p>
+<pre class="code python3 literal-block">
+<span class="n">defer</span><span class="o">.</span><span class="n">ensureDeferred</span><span class="p">(</span><span class="n">test_slash</span><span class="p">())</span><span class="o">.</span><span class="n">addBoth</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+&lt;Deferred at 0x7f54c53d8d30&gt;
+</pre>
+<pre class="literal-block">
+b'Hello world'
+</pre>
+<p>Yep. But it's not a proper sentence...woops.</p>
+<pre class="code python3 literal-block">
+<span class="nd">&#64;klein</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">def</span> <span class="nf">something_useful</span><span class="p">(</span><span class="n">request</span><span class="p">):</span><span class="w">
+</span>    <span class="k">return</span> <span class="s1">'Hello, world!'</span>
+</pre>
+<p>Nice. Punctuation. Force. Determination. Other nouns.</p>
+<p>Did it change anything?</p>
+<pre class="code python3 literal-block">
+<span class="n">defer</span><span class="o">.</span><span class="n">ensureDeferred</span><span class="p">(</span><span class="n">test_slash</span><span class="p">())</span><span class="o">.</span><span class="n">addBoth</span><span class="p">(</span><span class="nb">print</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+&lt;Deferred at 0x7f54c4b9e240&gt;
+</pre>
+<pre class="literal-block">
+b'Hello, world!'
+</pre>
+<p>Yes.</p>
+<p>Incremental web application development. Without an &quot;auto-loading&quot; &quot;not
+production grade&quot; server.</p>
+<p>We took advantage of several incidental issues. The Jupyter kernel is
+Tornado based. Twisted has both a production-grade web development
+framework, and the ability to run on top of the tornado loop.
+The combination is powerful.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Conditionally Logging Expensive Tasks</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Conditionally Logging Expensive Tasks</h1>
+Sat 13 June 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(I have shown this technique in my
+<a class="reference external" href="https://buttondown.email/moshez/">mailing list</a>.
+If this kind of thing seems interesting,
+why not subscribe?)</p>
+<p>Imagine you want to log something that is,
+potentially,
+expensive to calculate.
+For example,
+in <tt class="docutils literal">DEBUG</tt> mode,
+you would like to count the classes of the objects in
+<code>gc.get_objects()</code>
+and log those counts:
+this is often a useful technique for diagnosing reference leaks.
+This is pretty heavy to calculate,
+and logging it always sounds wasteful.</p>
+<p>The logging module has
+<em>lazy interpolation</em>.</p>
+<p>A line like</p>
+<pre class="code literal-block">
+logging.debug(&quot;total number: %r&quot;, 2500)
+</pre>
+<p>will not bother calculating the string interpolation
+<tt class="docutils literal">total number: 2500</tt>
+unless the logging level is set to output it.</p>
+<p>However,
+calling
+<code>logging.debug(&quot;total number: %r&quot;, get_object_counts())</code>
+will still call
+<code>get_object_counts()</code>
+regardless.
+It is not the cost of calculating the interpolation,
+but that of calculating the counts themselves
+that you would like to avoid.</p>
+<p>One way to piggy-back on the lazy interpolation to do lazy evaluation
+is to write a custom class with a lazy
+<code>__repr__()</code>:</p>
+<pre class="code literal-block">
+class OnDemand:
+    def __init__(self, callable):
+        self.callable = callable
+    def __repr__(self):
+        return repr(self.callable())
+</pre>
+<p>This defines a class,
+<code>OnDemand</code>,
+which will only call the function when it needs its
+<cite>repr</cite>.</p>
+<p>This allows us to write code like:</p>
+<pre class="code literal-block">
+logging.debug(&quot;total number: %r&quot;, OnDemand(get_object_counts))`
+</pre>
+<p>Now,
+<code>get_object_counts()</code>
+will not be called at all:
+notice that
+the logging line does not call it.
+This makes the lazy <em>evaluation</em> explicit:
+we explicitly delay evaluation with
+<code>OnDemand</code>.</p>
+<p>Here is a simple example of how it would work:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; def get_object_counts():
+...     print(&quot;doing something expensive&quot;)
+...     return 5
+...
+&gt;&gt;&gt; debug_logging.debug(&quot;result is %r&quot;, OnDemand(get_object_counts))
+doing something expensive
+DEBUG:debug:result is 5
+&gt;&gt;&gt; warnonly_logging.debug(&quot;result is %r&quot;, OnDemand(get_object_counts))
+&gt;&gt;&gt; warnonly_logging.debug(&quot;result is %r&quot;, get_object_counts())
+doing something expensive
+</pre>
+<p>Note that when the
+<tt class="docutils literal">warnonly_logging</tt>
+is called with a
+<code>.debug()</code>
+method,
+<em>the expensive calculation is not done</em>:
+not only is the log message ignored,
+but the function that calculates the value is not done.</p>
+<p>The last line shows that without the careful usage of
+<code>OnDemand</code>,
+the expensive calculation is done.</p>
+<p>This should make it easy to sprinkle heavy calculations in
+<code>logging.debug</code>
+statements.
+Coupled with easy ways to trigger logging level changes
+(which are beyond the scope of this article)
+this gives a powerful way to get insight into your program's innards.</p>
+<p>(Thanks to
+Adi Stav,
+Avy Faingezicht,
+Chris Withers,
+Dave Briccetti,
+and
+Lucas Wiman
+on their feedback on an early draft of this article.
+Any mistakes or issues that remain are my responsibility.)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

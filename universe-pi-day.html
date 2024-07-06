@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - So you want to create a universe</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>So you want to create a universe</h1>
+Thu 11 March 2021
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><h2>A story about looking for a universe, and finding a pi(e)</h2>
+<p>This is fine.
+You need not feel shame.
+Many want to create a universe.
+But it is good you are being careful.
+A universe with sentient beings is a big moral responsibility.</p>
+<p>It is good to start with something small.
+The smallest.
+Move up from there.
+So there is one point,
+that can move in one dimension.
+Just interesting enough to be exciting,
+but little chances of messing anything serious up.</p>
+<p>It is good if the way the point moves can be described by a function.
+At each point in time, <span class="math">\(t\)</span>, the point is at a place, <span class="math">\(x\)</span>.
+This mapping is a function.</p>
+<div class="math">$$ f: \mathbb{R} \to \mathbb{R} $$</div>
+<p>Right now there are no sentient beings in the universe.
+But inevitably,
+you will want to create a universe with such beings.
+Beings that want the universe to be predictable.
+Better start practicing now!</p>
+<p>This means you want <span class="math">\(f\)</span> to have a simple mathematical description.
+The concept of death is morally complicated,
+but you want to allow for the potential of beings with a limited
+lifespan.
+This means that figuring out how <span class="math">\(f\)</span> changes should not rely on <span class="math">\(t\)</span>.</p>
+<p>One way to have a predictable function that does not depend on <span class="math">\(t\)</span>
+is to define <span class="math">\(f\)</span> with a <em>position-independent differential equation</em> (PIDE):
+an equation that involves <span class="math">\(f\)</span> and its derivatives.</p>
+<p>You are just starting out,
+so why not have the simplest PIDE?</p>
+<div class="math">$$ f' = f $$</div>
+<p>Any simpler and your universe will be constant!
+Solving differential equations is hard.
+A solution probably exists, right?
+Hopefully, one that is more interesting than the constant zero function.</p>
+<div class="math">$$ f = 0 $$</div>
+<p>Yes, it definitely solves it,
+but that sounds like a really boring universe.
+If a solution that is not <span class="math">\(0\)</span> at <span class="math">\(0\)</span> exists, <span class="math">\(f\)</span>,
+then</p>
+<div class="math">$$ f/f(0) $$</div>
+<p>is also a solution since derivatives are linear.
+The function <span class="math">\(f/f(0)\)</span> is an interesting solution.
+Call it <span class="math">\(e\)</span>.</p>
+<p>For a constant <span class="math">\(c\)</span>, <span class="math">\(e(x + c)/e(c)\)</span> solves the equation and is <span class="math">\(1\)</span> at <span class="math">\(0\)</span>.
+Differential equations have a unique solution with the same starting condition,
+so</p>
+<div class="math">$$ e(x + c)/e(c) = e(x) $$</div>
+<p>or, equivalently</p>
+<div class="math">$$ e(x + c) = e(x)e(c) $$</div>
+<p>As a result, with a little induction,</p>
+<div class="math">$$ e(n/m) ^ m = e(1)^n $$</div>
+<p>or</p>
+<div class="math">$$ e(n/m) = \sqrt[m]{e(1) ^ n} $$</div>
+<p>If you use the convention that </p>
+<div class="math">$$ \sqrt[m](a) = a^{1/m} $$</div>
+<p>,
+you get</p>
+<div class="math">$$ e(n/m) = e(1)^{n/m} $$</div>
+<p>Your universe is one dimensional,
+but you cannot help thinking about two dimensions.
+Is there a way to get a second dimension for "free"?
+You decide to leave the details for later,
+and for now,
+just see if
+<span class="math">\(e\)</span> 
+can be extended to the complex numbers.
+This is sure to come handy later.</p>
+<p>Since
+<span class="math">\(e' = e\)</span>,
+<span class="math">\(e'' = e\)</span> 
+nd so on.
+In particular</p>
+<div class="math">$$ 1 = e(0) = e'(0) = e''(0) ... $$</div>
+<p>This means that the Taylor series for <span class="math">\(e\)</span> looks like</p>
+<div class="math">$$ e(x) = \Sigma_{n=0}^{\infty} x^n / n! $$</div>
+<p>This converges for every <span class="math">\(x\)</span>.
+Because it converges absolutely everywhere, it can be extended to complex number with the same formula, and <span class="math">\(e' = e\)</span> over the complex numbers as well.</p>
+<p>If <span class="math">\(t\)</span> is a real number,</p>
+<div class="math">$$ e(-it) = \overline {e (it) } $$</div>
+<p>and so</p>
+<div class="math">$$ 1 = e(0) = e(it + (-it)) = e(it)e(-it)=e(it)\overline{(e(it))} = || e(it) || $$</div>
+<p>Nifty, for real <span class="math">\(t\)</span>, you get that <span class="math">\(e(it)\)</span> is on the unit circle.
+But where on the unit circle?</p>
+<div class="math">$$ \operatorname{Re} e(2i) = 1 - 2^2/2! + 2^4/4! - 2^6 / 6! + d  $$</div>
+<div class="math">$$ = 1 - 2 + 16/24 - 64/720 + ... = -1 + 2/3 - 4/45 + d = -0.4\bar{2} + d $$</div>
+<p>Where <span class="math">\(d\)</span> represents the rest of the series.</p>
+<p>We can estimate <span class="math">\(|d|\)</span> as follows:</p>
+<div class="math">$$ |d| \leq \Sigma_{n=0}^{\infty} 2^{8 + n}/(8 + n)! \leq \Sigma_{n=0}^{\infty}  ((2/315) 2^n / 4^n)) $$</div>
+<div class="math">$$ \leq 2/315 &lt; 1/10 = 0.1 $$</div>
+<p>and </p>
+<div class="math">$$ \operatorname{Re} e(2i) &lt; -0.4\bar{2} + d &lt; -0.4\bar{2} + 0.1  &lt; -0.3 &lt; 0 $$</div>
+<p>Now</p>
+<div class="math">$$ \operatorname{Re} e(0i) = \operatorname{Re} e(0) = \operatorname{Re} 1 = 1 &gt; 0 $$</div>
+<p>and <span class="math">\(t \to \operatorname{Re} e(ti)\)</span> is a continuous function.
+This means there must be a minimal <span class="math">\(t\)</span> such that</p>
+<div class="math">$$ \operatorname{Re} e(ti) = 0 $$</div>
+<p>This is fun!
+It is not obvious how this ties into the original goal of building universes,
+but it definitely cannot hurt!
+This is an interesting number.
+You decide to give it a name.</p>
+<p>The minimal <span class="math">\(t\)</span> such that <span class="math">\(\operatorname{Re} e(ti) = 0\)</span> will be <span class="math">\(\rho\)</span>.
+Since <span class="math">\(||e(\rho i)|| = 1\)</span>, this means that</p>
+<div class="math">$$ e(\rho i) = \pm i $$</div>
+<p>and so</p>
+<div class="math">$$ e(4  \rho i) = (\pm 1)^4 i^4 = 1 $$</div>
+<p>Looks like <span class="math">\(4 \rho\)</span> is even more interesting than <span class="math">\(\rho\)</span>,
+maybe it should have its own name.
+How about <span class="math">\(\tau\)</span>?
+With this new symbol, we get</p>
+<div class="math">$$ e (\tau i + x) = e(\tau i)e(x) = 1e(x) = e(x)  $$</div>
+<p>So <span class="math">\(e\)</span>,
+the tentative universe-evolution function,
+has a period of <span class="math">\(\tau i\)</span>.
+You did not expect it.
+It is good you started with a simple universe,
+there are many things to learn before creating an interesting one.</p>
+<p>You had a special name for <span class="math">\(\rho\)</span> and for <span class="math">\(4 \rho\)</span>,
+it seems almost rude not to have a name for their
+geometric mean.
+All this universe creation is hungry work,
+though.
+It would be so much easier to think if you had a piece of...</p>
+<p>Back to the topic at hand, you decide to call the geometric mean of <span class="math">\(\rho\)</span> and <span class="math">\(\tau\)</span>,
+<span class="math">\(\tau / 2\)</span>, <span class="math">\(\pi\)</span>:</p>
+<div class="math">$$ \pi = \tau / 2 $$</div>
+<p>Time to relax and eat a nice piece of pie.
+You definitely deserved it.
+Whether it is savory or sweet,
+a pie is delicious.
+Enjoy it.
+Savor it.
+The universe will be waiting for you,
+right here.</p>
+<p>Satisfied and with a full tummy,
+you get back to the universe.
+You gave <span class="math">\(\rho\)</span>, <span class="math">\(\pi\)</span>, and <span class="math">\(\tau\)</span> names.</p>
+<p>Any idea what their approximate value is?</p>
+<p>You  know that <span class="math">\(0 &lt; \rho &lt; 2\)</span>,
+but this is a pretty wide gap of ignorance.
+Calculating <span class="math">\(e(it)\)</span>, for <span class="math">\(t\)</span> in that range,
+seems to converge quickly.</p>
+<p>Just a handful of terms gave you something accurate to within <span class="math">\(2/315\)</span>.
+Time to leave abstract thinking, and crank up your universe simulation machine.
+You want to have a sense of the values involved here.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">approximate_re_e_i</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">n</span> <span class="o">*</span> <span class="n">t</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</code></pre></div>
+
+<p>With a decent approximation of $ \operatorname{Re} e(it) $,
+you look for where the function is zero using binary search.
+It might not be the fastest way,
+but your universe simulator can handle it.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_zero</span><span class="p">():</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.001</span><span class="p">:</span>
+        <span class="n">midpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">high</span> <span class="o">+</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">approximate_re_e_i</span><span class="p">(</span><span class="n">midpoint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="n">midpoint</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">low</span> <span class="o">=</span> <span class="n">midpoint</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">high</span> <span class="o">+</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</code></pre></div>
+
+<p>Now it is time to activate the simulator,
+and find the values.</p>
+<div class="highlight"><pre><span></span><code><span class="n">rho</span> <span class="o">=</span> <span class="n">find_zero</span><span class="p">()</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">rho</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="n">tau</span> <span class="o">/</span> <span class="mi">2</span>
+</code></pre></div>
+
+<p>Wonderful progress on the universe for today.
+A great day.
+A wonderful day.
+A day you want to celebrate.</p>
+<p>But when?</p>
+<p>With <span class="math">\(\rho &lt;2\)</span>, you know that <span class="math">\(\pi &lt;8\)</span>.
+Sounds like the integer part of it could be the month, maybe?</p>
+<div class="highlight"><pre><span></span><code><span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span>
+</code></pre></div>
+
+<p>All that is left is to choose a day.
+There are thirty days in a month,
+so hopefully two digits will do here.</p>
+<div class="highlight"><pre><span></span><code><span class="n">rest</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">-</span> <span class="n">month</span>
+<span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rest</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="n">year</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+
+<span class="n">celebration</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Celebrate on&quot;</span><span class="p">,</span> <span class="n">celebration</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>Celebrate on 2021-03-14
+</code></pre></div>
+
+<p>Enjoy your pie!</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script></div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

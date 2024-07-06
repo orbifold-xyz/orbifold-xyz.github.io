@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Portable Python Binary Wheels</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Portable Python Binary Wheels</h1>
+Mon 05 April 2021
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>It is possible to work with Python quite a bit and not be aware of some
+of the subtler details of package management.
+Since Python is a popular “glue” language,
+one of its core strengths is integrating with libraries
+written in other languages:
+from database drivers written in C,
+numerical algorithms written in Fortran,
+to cryptographic algorithms written in Rust.
+In all these cases,
+one way to avoid error-prone and frustrating installation errors
+in the target environment is to distribute pre-built code.
+However,
+while source code can be made portable,
+making the build output portable is a lot more complicated.</p>
+<p><strong>Note:</strong>
+This post focuses specifically about binary wheels on Linux.
+Binary wheels exist for other platforms,
+but those are beyond the current scope.</p>
+<p>The Python
+<code>manylinux</code> project,
+composed of three PEPs,
+two software repositories,
+and support in pip,
+addresses how to accomplish that.
+These problems are hard,
+and few other ecosystems solve them as well as Python.
+The solution has many moving parts,
+developed over the course of ten years.
+Unfortunately,
+this means that understanding all of those is not easy.</p>
+<p>While this post cannot make it easy,
+it can at least make it easier,
+by making sure all the details are in one place.</p>
+<div class="section" id="wheels">
+<h2>Wheels</h2>
+<p>Python packages come in two main forms:</p>
+<ul class="simple">
+<li>Source</li>
+<li>Wheels</li>
+</ul>
+<p>Wheels are
+&quot;pre-built&quot;
+packages that are easier and faster to install.
+The name comes originally from a bad joke:
+the Monty Python Cheese Shop sketch,
+since PyPI used to be called
+&quot;Cheese Shop&quot;
+and cheese is sometimes sold in wheels.
+The name has been retconned for another bad joke,
+as a reference to the phrase
+&quot;reinventing the wheel&quot;,
+allowing Python packaging talks to make cheap puns.
+For the kind of people who give packaging talks,
+or write explainers about packaging formats,
+these cheap jokes fill the void in what would otherwise be their soul.</p>
+<p>Even for packages that include no native code,
+only pure Python,
+wheels have some advantages.
+They do not execute any potentially-fragile code on installation,
+and querying their dependencies can be done without a Python interpreter.</p>
+<p>However,
+when packages do include native code the story is more complicated.</p>
+</div>
+<div class="section" id="c-library">
+<h2>C library</h2>
+<p>Let's start with the relatively straightforward part:
+portable binary wheels for Linux are called
+<code>manylinux</code>,
+not
+<code>alllinux</code>.
+This is because it relies on the GNU C library,
+and specific features of it.
+There is another popular libc for Linux:
+<a class="reference external" href="https://www.musl-libc.org/">musl</a>.
+There is absolutely no attempt to be compatible with
+musl-based Linux distributions[#],
+the most famous among them is Alpine Linux.</p>
+<p>[#] For now. See <a class="reference external" href="https://www.python.org/dev/peps/pep-0656/">PEP-656</a></p>
+<p>However,
+most other distributions derive from either Debian
+(for example, Ubuntu) or from
+Fedora (CentOS, RHEL, and more).
+Those all use the GNU C library.</p>
+</div>
+<div class="section" id="gnu-c-library">
+<h2>GNU C library</h2>
+<p>GNU libc has an official
+&quot;infinite backwards compatibility&quot;
+policy:
+<code>libc6</code>
+version
+<code>X.Y</code>
+is compatible with
+<code>W.Z</code>
+if
+<code>X&gt;=W</code> or
+<code>X=W</code> and
+<code>Y&gt;=Z</code>.</p>
+<p>Aside: the 6 in libc6 does not refer to the version of the GNU C Library:
+Linux only moved to adopt the GNU C Library in libc6.
+The libc4 library was written from scratch,
+while libc5 combined code from GNU C Library version 1
+and some bits from BSD C library.
+In libc6,
+Linux moved to rely on GNU C Library version 2.x,
+first released in January 1997.
+The GNU C Library is still,
+over twenty years later,
+on major version 2.
+We will ignore some nuances,
+and just treat all GNU C Library versions as 2.X.</p>
+<p>The infinite compatibility policy means that binaries built against
+libc6 version 2.17, for example, are compatible with libc6 version 2.32.</p>
+</div>
+<div class="section" id="manylinux-history">
+<h2>Manylinux history</h2>
+<p>The relevant <a class="reference external" href="https://www.python.org/dev/peps/pep-0600/">PEP</a> is dense but worth reading.
+&quot;Portable&quot; is a loaded word,
+and unpacking it is important.
+The specific meaning of &quot;portable&quot; is encoded in the
+<a class="reference external" href="https://github.com/pypa/auditwheel/blob/686024ecc6882af63b10619351d82b56630f1e1a/auditwheel/policy/policy.json#L1">auditwheel policy file</a>.
+This file concedes the main point:
+portability is a spectrum.</p>
+<p>When the manylinux project started,
+in 2016,
+the oldest security-supported open source distribution was CentOS:
+specifically,
+CentOS 5.11.
+It was released in 2014.
+However,
+because CentOS tracks RHEL,
+and RHEL is conservative,
+the GNU C library
+(glibc, from now on)
+it used was
+2.5:
+a version released in 2006.</p>
+<p>Even then,
+it was clear that the
+&quot;minimum&quot;
+compatibility level will be a moving target.
+Because of that,
+that compatibility level was named
+<code>manylinux1</code>.</p>
+<p>In 2018,
+the manylinux project moved to a more transparent naming scheme:
+the date in which the relevant compatible CentOS release was first released.
+Thus,
+instead of
+<code>manylinux1</code>,
+the next compatibility target
+(defined in 2018)
+was called
+<code>manylinux2010</code>,
+referencing CentOS 6.</p>
+<p>In April 2019,
+<code>manylinux2014</code>
+was defined as a compatibility tag,
+referencing CentOS 7.</p>
+<p>In the beginning of 2021,
+Red Hat,
+in a
+<a class="reference external" href="https://www.theregister.com/2021/01/26/killing_centos/">controversial move</a>,
+changed the way CentOS works,
+effectively nullifying the value any future releases have
+as a way of specifying a minimum glibc version support.</p>
+<p>The Python community decided to switch to a new scheme:
+directly naming the version of glibc supported.
+The first such tag,
+<code>manylinux_2_24</code>,
+was added in November 2020.
+The next release of
+<code>auditwheel</code>,
+4.0,
+moves all releases to glibc-based tags,
+while keeping the original names as
+&quot;aliases&quot;.
+It also adds a compatibility level
+<code>manylinux_2_27</code>.</p>
+</div>
+<div class="section" id="libc-compatibility-and-beyond">
+<h2>Libc compatibility and beyond</h2>
+<p>The compatibility level of a manylinux wheel is defined by the
+glibc symbols it links against.
+However,
+this is not the only compatibility manylinux wheels care about:
+this just puts them on a serial line from
+&quot;most compatible&quot;
+to
+&quot;least compatible&quot;.</p>
+<p>Each compatibility level also includes
+A list of allowed libraries to dynamically link against.
+Specific symbol versions and ABI flags that depend on both glibc and gcc.</p>
+<p>However,
+many Python extensions include native code precisely because they need to link
+against a C library.
+As a concrete example,
+the
+<code>mysqlclient</code>
+wheel would not compile if the
+<code>libmysql</code> headers are not installed,
+and would not run if the
+<code>libmysql</code> shared library
+(of a version that matches the one the package was compiled against)
+is not installed.</p>
+<p>It would seem that portable binary wheels are only of limited utility if they
+do not support the main use case.
+However, the
+<code>auditwheel</code> tool includes one more twist:
+patching ELF.</p>
+</div>
+<div class="section" id="elves">
+<h2>Elves</h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Elf">Elves</a>
+predate Tolkien's Middle-Earth.
+They appear in many Germanic and Nordic mythologies:
+sometimes as do-gooders,
+sometimes as evil-doers,
+but always associated with having powerful magic.</p>
+<p>Our context is no less magical,
+but more modern.
+ELF
+(&quot;Executable and Loader Format&quot;)
+is the format of executable and shared libraries in Linux,
+since libc5
+(before that, Linux used the so-called a.out format).</p>
+<p>When auditwheel is asked to repair a wheel for a specific platform version,
+it checks for any shared libraries it links against that are not part of the
+pre-approved list.
+If it finds any,
+it patches them directly into the module.
+This means that post <code>repair</code>,
+the new (&quot;repaired&quot;) wheel will not depend on any libraries outside the
+approved list.</p>
+<p>These repaired binary wheels will include the requested manylinux tag and the
+patched modules.
+They can be uploaded to PyPI or other Python packaging repositories
+(such as DevPI).</p>
+<p>For pip to install the correct wheels it needs to be up-to-date
+in order to self-check the OS and decide which manylinux tags are compatible.</p>
+</div>
+<div class="section" id="installing-binary-wheels">
+<h2>Installing Binary Wheels</h2>
+<p>Because wheels tagged as
+<code>linux_&lt;cpu architecture&gt;</code>
+(for example,
+<code>linux_x86_64</code>)
+cannot be assumed on any platform other than the one they have been compiled for,
+PyPI rejects those.
+In order to upload a binary wheel for Linux to PyPI,
+it has to be tagged with a manylinux tag.
+It is possible to upload multiple manylinux wheels for a single package,
+each with a different compatibility target.</p>
+<p>When installing packages,
+pip will prefer to use a wheel,
+if available,
+instead of a source distribution.
+When pip checks the availability of a wheel,
+it will introspect the platform it is running it,
+and map it to the list of compatible manylinux distributions.
+Since the list is changing,
+it is possible that a newer pip will recognize more compatibilities than an older
+pip.</p>
+<p>Once pip finds the list of manylinux tags compatible with its platform,
+it will install the least-compatible wheel that is still compatible with the
+platform:
+for example,
+it will prefer
+<code>manylinux2014</code> to
+<code>manylinux2010</code> if both are compatible.
+If there are no binary wheels available,
+pip will fall back to installing from a source distribution
+(<code>sdist</code>).
+As mentioned before,
+installing from
+<code>sdist</code>,
+at the very least,
+requires a functional compiler and Python header files.
+It might also have specific build-time dependencies, depending on the package.</p>
+</div>
+<div class="section" id="thanks">
+<h2>Thanks</h2>
+<p>Thanks to SurveyMonkey
+for encouraging me to do the research
+this post is based on.</p>
+<p>Thanks to
+<a class="reference external" href="https://vorpus.org/">Nathaniel J. Smith</a>
+and
+<a class="reference external" href="https://glyph.twistedmatrix.com/">Glyph</a>
+for their feedback on this blog,
+post-publication.
+I have added some corrections and clarifications
+based on their feedback.</p>
+<p>All mistakes that remain are my responsibility.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Write Python like an expert</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Write Python like an expert</h1>
+Sun 17 December 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Ten tricks to level up your Python.</p>
+<div class="section" id="trick-0-kiss">
+<h2>Trick 0 -- KISS</h2>
+<p>Experts know about the weird dark corners of Python --
+but do not use them in production code.
+The first tip is remembering that while
+<a class="reference external" href="http://www.pythondoeswhat.com/">Python has some interesting corners</a>,
+they are best avoided in production code.</p>
+<p>Make your code as straightforward as possible.</p>
+</div>
+<div class="section" id="trick-1-the-power-of-lists">
+<h2>Trick 1 -- The power of lists</h2>
+<p>The humble <code>list</code>, or even humbler <code>[]</code>,
+pack a lot of punch --
+for those who know how to use it.</p>
+<p>It serves, of course, as a useful array type.
+It is also a good stack, using <code>append</code> and <code>pop()</code>,
+with the correct (amortized) performance characteristic.
+The <code>.sort()</code> method is sophisticated enough it is one of the
+few cases where Python actually broke new theoretical grounds
+on a sorting algorithm --
+<a class="reference external" href="https://en.wikipedia.org/wiki/Timsort">timsort</a> was originally invented for it.</p>
+</div>
+<div class="section" id="trick-2-the-power-of-dicts">
+<h2>Trick 2 -- The power of dicts</h2>
+<p>The humble <code>dict</code>, or even humbler <code>{}</code>,
+also pack a lot of punch.</p>
+<p>While many use string keys,
+it is important to remember any immutable type is possible as keys,
+including tuples and frozensets.
+This helps writing caches, memoizers or even a passable sparse array.</p>
+<p>The keyword argument constructor also gives it a lot of power for making
+simple and readable APIs.</p>
+</div>
+<div class="section" id="trick-3-iterators-and-generators">
+<h2>Trick 3 -- Iterators and generators</h2>
+<p>The <a class="reference external" href="http://treyhunner.com/2016/12/python-iterator-protocol-how-for-loops-work/">iterator protocol</a> is one of the most powerful aspects of Python.
+Experts understand it deeply,
+and know how to use it to make code shorter,
+more readable,
+more composable
+and more debuggable.</p>
+<p>One of the easiest ways to accomplish it is to write functions that
+accept an iterator and return an iterator:
+and remembering that <a class="reference external" href="https://stackoverflow.com/questions/1756096/understanding-generators-in-python">generators</a> are really good syntactic sugar
+for writing functions which return iterators.</p>
+<p>If a code base has a lot of functions that return iterators,
+the iterator algebra functions in <a class="reference external" href="https://docs.python.org/3/library/itertools.html">itertools</a> become
+immediately higher value.</p>
+</div>
+<div class="section" id="trick-4-collections">
+<h2>Trick 4 -- Collections</h2>
+<p>The collections module has a lot of wonderful functionality.</p>
+<p>For code that needs defaults, <code>defaultdict</code>.</p>
+<p>For code that needs counting, <code>Counter</code>.</p>
+<p>For FIFOs, <code>deque</code>.</p>
+</div>
+<div class="section" id="trick-5-attrs">
+<h2>Trick 5 -- attrs</h2>
+<p>One thing that is not wonderful about the collections module is the
+<code>namedtuple</code> class.</p>
+<p>In almost every way imaginable, the <a class="reference external" href="http://www.attrs.org/en/stable/">attrs</a> package is <a class="reference external" href="https://glyph.twistedmatrix.com/2016/08/attrs.html">better</a>.
+Also, for things that wouldn't be namedtuples otherwise,
+attrs is still better.</p>
+</div>
+<div class="section" id="trick-6-first-class-functions-and-types">
+<h2>Trick 6 -- First class functions and types</h2>
+<p>Return functions. Store them in lists, or dictionaries.
+Keep classes in a double-ended queue.
+These are <em>not</em> a &quot;Python does what&quot;.
+These are ways to avoid boilerplate or needless indirections.</p>
+</div>
+<div class="section" id="trick-7-unit-tests-and-lint">
+<h2>Trick 7 -- Unit tests and lint</h2>
+<p>Experts hate having to waste time.
+Writing unit tests makes sure they have to fix any given bug only once.
+Correctly configuring a linter makes sure they do not have to comment
+on every pull request with a list of nitpicks.</p>
+</div>
+<div class="section" id="trick-8-immutability">
+<h2>Trick 8 -- Immutability</h2>
+<p>Immutable data structures,
+such as those available from the <a class="reference external" href="https://pyrsistent.readthedocs.io/en/latest/">Pyrsistent</a> library,
+are useful for avoiding a lot of bugs.
+&quot;Global mutable state is the root of all evil&quot; --
+and if you cannot get rid of things being global
+(modules, function defaults and other things)
+it is often possible to make them mutable.</p>
+<p>Immutable data structures are much easier to reason about,
+and much harder to make bugs that are hard to find and trigger.</p>
+</div>
+<div class="section" id="trick-9-not-reinventing-the-wheel">
+<h2>Trick 9 -- Not reinventing the wheel</h2>
+<p>If something is available as a <a class="reference external" href="http://wheel.readthedocs.io/en/stable/">wheel</a>,
+don't reinvent it.
+PyPI has ~125K packages, at times of writing.
+It is almost certain that it has something that takes care of
+some of the task you are currently working on.</p>
+<p>How to know what's worthwhile?</p>
+<p>Follow <a class="reference external" href="http://planetpython.org/">Planet Python</a>,
+check <a class="reference external" href="https://github.com/vinta/awesome-python">Awesome python</a>
+and, if it is within reach,
+try to go to Python meetups or conferences.
+(If it's not,
+of even if it is,
+<a class="reference external" href="http://pyvideo.org/">PyVideo</a> has the videos --
+but talking to other Python programmers is extremely useful.)</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Precise Unit Tests with PyHamcrest</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Precise Unit Tests with PyHamcrest</h1>
+Tue 17 December 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(This is based on my article on <a class="reference external" href="https://opensource.com/article/18/8/robust-unit-tests-hamcrest">opensource.com</a>)</p>
+<p>Unit test suites help maintain high-quality products by signaling problems
+early in the development process.
+An effective unit test catches bugs before the code has left the
+developer machine,
+or at least in a continuous integration environment on a dedicated branch.
+This marks the difference between good and bad unit tests:
+good tests increase developer productivity by catching bugs early
+and making testing faster.
+Bad tests decrease developer productivity.</p>
+<p>Productivity decreases when testing incidental features.
+The test fails when the code changes,
+even if it is still correct.
+This happens because the output is different,
+but in a way that is not part of the function's contract.</p>
+<p>A good unit test,
+therefore,
+is one that helps enforce the contract to which the function is committed.</p>
+<p>If a good unit test breaks,
+the contract is violated and should be either explicitly amended
+(by changing the documentation and tests),
+or fixed
+(by fixing the code and leaving the tests as is).</p>
+<p>A good unit test is also
+<em>strict</em>.
+It does its best to ensure the output is valid.
+This helps it catch more bugs.</p>
+<p>While limiting tests to enforce only the public contract is a complicated
+skill to learn, there are tools that can help.</p>
+<p>One of these tools is <a class="reference external" href="http://hamcrest.org/">Hamcrest</a>,
+a framework for writing assertions.
+Originally invented for Java-based unit tests,
+today the Hamcrest framework supports several languages,
+including <a class="reference external" href="https://pyhamcrest.readthedocs.io/en/release-1.8/">Python</a>.</p>
+<p>Hamcrest is designed to make test assertions easier to write and more precise.</p>
+<pre class="code literal-block">
+def add(a, b):
+    return a + b
+
+from hamcrest import assert_that, equal_to
+
+def test_add():
+    assert_that(add(2, 2), equal_to(4))
+</pre>
+<p>This is a simple assertion,
+for simple functionality.
+What if we wanted to assert something more complicated?</p>
+<pre class="code literal-block">
+def test_set_removal():
+    my_set = {1, 2, 3, 4}
+    my_set.remove(3)
+    assert_that(my_set, contains_inanyorder([1, 2, 4]))
+    assert_that(my_set, is_not(has_item(3)))
+</pre>
+<p>Note that we can succinctly assert that the result has 1, 2, and 4 in any order since sets do not guarantee order.</p>
+<p>We also easily negate assertions with <tt class="docutils literal">is_not</tt>.
+This helps us write precise assertions,
+which allow us to limit ourselves to enforcing public contracts of functions.</p>
+<p>Sometimes,
+however,
+none of the built-in functionality is precisely what we need.
+In those cases,
+Hamcrest allows us to write our own matchers.</p>
+<p>Imagine the following function:</p>
+<pre class="code literal-block">
+def scale_one(a, b):
+    scale = random.randint(0, 5)
+    pick = random.choice([a,b])
+    return scale * pick
+</pre>
+<p>We can confidently assert that the result divides into at least one of the
+inputs evenly.</p>
+<p>A matcher inherits from
+<tt class="docutils literal">hamcrest.core.base_matcher.BaseMatcher</tt>,
+and overrides two methods:</p>
+<pre class="code literal-block">
+class DivisibleBy(hamcrest.core.base_matcher.BaseMatcher):
+
+    def __init__(self, factor):
+        self.factor = factor
+
+    def _matches(self, item):
+        return (item % self.factor) == 0
+
+    def describe_to(self, description):
+        description.append_text('number divisible by')
+        description.append_text(repr(self.factor))
+</pre>
+<p>Writing high-quality
+<tt class="docutils literal">describe_to</tt>
+methods is important,
+since this is part of the message that will show up if the test fails.</p>
+<pre class="code literal-block">
+def divisible_by(num):
+    return DivisibleBy(num)
+</pre>
+<p>By convention,
+we wrap matchers in a function.
+Sometimes this gives us a chance to further process the inputs,
+but in this case, no further processing is needed.</p>
+<pre class="code literal-block">
+def test_scale():
+    result = scale_one(3, 7)
+    assert_that(result,
+                any_of(divisible_by(3),
+                       divisible_by(7)))
+</pre>
+<p>Note that we combined our
+<tt class="docutils literal">divisible_by</tt>
+matcher with the built-in
+<tt class="docutils literal">any_of</tt>
+matcher to ensure that we test only what the contract commits to.</p>
+<p>While editing the article,
+I heard a rumor that the name &quot;Hamcrest&quot; was chosen as an anagram for &quot;matches&quot;. Hrm...</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; assert_that(&quot;matches&quot;, contains_inanyorder(*&quot;hamcrest&quot;)
+Traceback (most recent call last):
+  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/home/moshez/src/devops-python/build/devops/lib/python3.6/site-packages/hamcrest/core/assert_that.py&quot;, line 43, in assert_that
+    _assert_match(actual=arg1, matcher=arg2, reason=arg3)
+  File &quot;/home/moshez/src/devops-python/build/devops/lib/python3.6/site-packages/hamcrest/core/assert_that.py&quot;, line 57, in _assert_match
+    raise AssertionError(description)
+AssertionError:
+Expected: a sequence over ['h', 'a', 'm', 'c', 'r', 'e', 's', 't'] in any order
+      but: no item matches: 'r' in ['m', 'a', 't', 'c', 'h', 'e', 's']
+</pre>
+<p>Researching more,
+I found the source of the rumor:
+it is an anagram for &quot;matchers&quot;.</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; assert_that(&quot;matchers&quot;, contains_inanyorder(*&quot;hamcrest&quot;))
+&gt;&gt;&gt;
+</pre>
+<p>If you are not yet writing unit tests for your Python code,
+now is a good time to start.
+If you are writing unit tests for your Python code,
+using Hamcrest will allow you to make your assertion precise—neither more nor
+less than what you intend to test.
+This will lead to fewer false negatives when modifying code and less time spent modifying tests for working code.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

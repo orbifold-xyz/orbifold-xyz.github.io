@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - misc</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="../cubic-k8s.html"><h1>The Prehistory of Kubernetes: From Cubic Equations to Cloud Orchestration</h1></a>
+Wed 19 June 2024
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><p>The story of <a class="reference external" href="https://en.wikipedia.org/wiki/Kubernetes">Kubernetes</a>, the leading container orchestration platform, is a tale of mathematical innovation, wartime necessity, and the open-source revolution. It begins, perhaps unexpectedly, with the work of <a class="reference external" href="https://en.wikipedia.org/wiki/Omar_Khayyam">Omar Khayyam</a>, the 11th-century Persian polymath known for his contributions to mathematics, astronomy, and poetry.</p>
+<p>Khayyam's work on solving <a class="reference external" href="https://en.wikipedia.org/wiki/Cubic_equation">cubic equations</a> laid the foundation for the development of <a class="reference external" href="https://en.wikipedia.org/wiki/Algebraic_geometry">algebraic geometry</a>, which in turn led to the invention of <a class="reference external" href="https://en.wikipedia.org/wiki/Cartesian_coordinate_system">Cartesian coordinates</a> by <a class="reference external" href="https://en.wikipedia.org/wiki/René_Descartes">René Descartes</a> in the 17th century. This &quot;algebrization of geometry&quot; allowed for the mathematical description of physical phenomena, such as planetary motion, and paved the way for <a class="reference external" href="https://en.wikipedia.org/wiki/Isaac_Newton">Isaac Newton</a>'s development of <a class="reference external" href="https://en.wikipedia.org/wiki/Calculus">calculus</a>.</p>
+<p>However, Newton's calculus, while groundbreaking, lacked a rigorous mathematical foundation. It took the work of 19th-century mathematicians like <a class="reference external" href="https://en.wikipedia.org/wiki/Augustin-Louis_Cauchy">Augustin-Louis Cauchy</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Karl_Weierstrass">Karl Weierstrass</a> to establish the <a class="reference external" href="https://en.wikipedia.org/wiki/(%CE%B5,_%CE%B4)-definition_of_limit">epsilon-delta definition of limits</a> and place calculus on a solid footing. This development also opened up new questions about infinity, leading to <a class="reference external" href="https://en.wikipedia.org/wiki/Georg_Cantor">Georg Cantor</a>'s work on <a class="reference external" href="https://en.wikipedia.org/wiki/Set_theory">set theory</a> and the discovery of paradoxes, such as <a class="reference external" href="https://en.wikipedia.org/wiki/Russell%27s_paradox">Russell's paradox</a> by <a class="reference external" href="https://en.wikipedia.org/wiki/Bertrand_Russell">Bertrand Russell</a>, that threatened the foundations of mathematics.</p>
+<p>The quest to resolve these paradoxes and establish a secure foundation for mathematics led to <a class="reference external" href="https://en.wikipedia.org/wiki/Kurt_Gödel">Kurt Gödel</a>'s <a class="reference external" href="https://en.wikipedia.org/wiki/Gödel%27s_incompleteness_theorems">incompleteness theorems</a>, published in 1931. Gödel's first incompleteness theorem showed that in any consistent axiomatic system that includes arithmetic, there are statements that can neither be proved nor disproved within the system. The second incompleteness theorem demonstrated that such a system cannot prove its own consistency.</p>
+<p>Crucially, Gödel's theorems relied on the concept of computability, which he used to construct a formal system representing arithmetic. However, Gödel's definition of computability was not entirely convincing, as it relied on the intuitive notion of a &quot;finite procedure.&quot; This left open the possibility that a non-computable axiomatization of number theory, capturing &quot;all that is true about the natural numbers,&quot; could exist and potentially sidestep the incompleteness theorems.</p>
+<p>It was <a class="reference external" href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> who took up the challenge of formalizing the concept of computability. In his groundbreaking 1936 paper &quot;<a class="reference external" href="https://en.wikipedia.org/wiki/On_Computable_Numbers,_with_an_Application_to_the_Entscheidungsproblem">On Computable Numbers, with an Application to the Entscheidungsproblem</a>,&quot; Turing introduced the <a class="reference external" href="https://en.wikipedia.org/wiki/Turing_machine">Turing machine</a>, a simple yet powerful mathematical model of computation. Turing's work not only provided a more rigorous foundation for Gödel's ideas but also proved that certain problems, such as the <a class="reference external" href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a>, are undecidable by Turing machines.</p>
+<p>Turing's formalization of computability had far-reaching implications beyond the foundations of mathematics. It laid the groundwork for the development of modern <a class="reference external" href="https://en.wikipedia.org/wiki/Computer_science">computer science</a> and played a crucial role in the birth of the digital age. Turing's work took on new urgency with the outbreak of <a class="reference external" href="https://en.wikipedia.org/wiki/World_War_II">World War II</a>, as the need to break the German <a class="reference external" href="https://en.wikipedia.org/wiki/Enigma_machine">Enigma machine</a> led to the development of early computing machines based on the principles he had established.</p>
+<p>After the war, the individuals who had worked on these machines helped to establish the first computing companies, leading to the industrialization of computing and the development of programming languages and operating systems. One notable example is <a class="reference external" href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> himself, who joined the <a class="reference external" href="https://en.wikipedia.org/wiki/National_Physical_Laboratory_(United_Kingdom)">National Physical Laboratory</a> (NPL) in London, where he worked on the design of the <a class="reference external" href="https://en.wikipedia.org/wiki/Automatic_Computing_Engine">Automatic Computing Engine</a> (ACE), one of the first stored-program computers.</p>
+<p>Another key figure was <a class="reference external" href="https://en.wikipedia.org/wiki/John_von_Neumann">John von Neumann</a>, a mathematician and physicist who made significant contributions to the design of the <a class="reference external" href="https://en.wikipedia.org/wiki/EDVAC">EDVAC</a> (Electronic Discrete Variable Automatic Computer), an early stored-program computer. Von Neumann's work on the EDVAC and his subsequent report, &quot;<a class="reference external" href="https://en.wikipedia.org/wiki/First_Draft_of_a_Report_on_the_EDVAC">First Draft of a Report on the EDVAC</a>,&quot; laid the foundation for the <a class="reference external" href="https://en.wikipedia.org/wiki/Von_Neumann_architecture">von Neumann architecture</a>, which became the standard design for modern computers.</p>
+<p>In the United Kingdom, <a class="reference external" href="https://en.wikipedia.org/wiki/Maurice_Wilkes">Maurice Wilkes</a>, who had worked on radar systems during the war, led the development of the <a class="reference external" href="https://en.wikipedia.org/wiki/EDSAC">EDSAC</a> (Electronic Delay Storage Automatic Calculator) at the <a class="reference external" href="https://en.wikipedia.org/wiki/University_of_Cambridge">University of Cambridge</a>. The EDSAC, which became operational in 1949, was the first practical stored-program computer and inspired the development of similar machines in the United States and elsewhere.</p>
+<p>In the United States, <a class="reference external" href="https://en.wikipedia.org/wiki/J._Presper_Eckert">J. Presper Eckert</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/John_Mauchly">John Mauchly</a>, who had worked on the <a class="reference external" href="https://en.wikipedia.org/wiki/ENIAC">ENIAC</a> (Electronic Numerical Integrator and Computer) during the war, founded the <a class="reference external" href="https://en.wikipedia.org/wiki/Eckert–Mauchly_Computer_Corporation">Eckert-Mauchly Computer Corporation</a> in 1946. The company developed the <a class="reference external" href="https://en.wikipedia.org/wiki/UNIVAC_I">UNIVAC</a> (Universal Automatic Computer), which became the first commercially available general-purpose computer in the United States.</p>
+<p>The UNIVAC was followed by the <a class="reference external" href="https://en.wikipedia.org/wiki/IBM_7030_Stretch">Multiprocessing Automatic Computer</a> (Multivac), developed by IBM in the late 1950s. The Multivac introduced several innovative features, such as multiprogramming and memory protection, which allowed multiple users to share the same machine and provided a degree of isolation between their programs. These features would later inspire both positive and negative lessons for the creators of <a class="reference external" href="https://en.wikipedia.org/wiki/Unix">Unix</a>, the influential operating system developed at <a class="reference external" href="https://en.wikipedia.org/wiki/Bell_Labs">Bell Labs</a> in the 1970s.</p>
+<p>Due to antitrust pressures, Bell Labs made Unix available to universities, where it became a standard teaching tool. This decision led to the development of <a class="reference external" href="https://en.wikipedia.org/wiki/Minix">Minix</a>, a simplified Unix-like system, and eventually to the creation of <a class="reference external" href="https://en.wikipedia.org/wiki/Linux">Linux</a> by <a class="reference external" href="https://en.wikipedia.org/wiki/Linus_Torvalds">Linus Torvalds</a>.</p>
+<p>As Linux grew in popularity, thanks to its open-source nature and ability to run on cheap hardware, it caught the attention of <a class="reference external" href="https://en.wikipedia.org/wiki/Google">Google</a>, which was looking for an operating system to power its &quot;cloud-native&quot; approach to computing. Google's engineers contributed key features to the Linux kernel, such as <a class="reference external" href="https://en.wikipedia.org/wiki/Cgroups">cgroups</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Linux_namespaces">namespaces</a>, which laid the groundwork for the development of containerization technologies like <a class="reference external" href="https://en.wikipedia.org/wiki/Docker_(software)">Docker</a>.</p>
+<p>Google, recognizing the potential of containers and the need for a robust orchestration platform, developed Kubernetes as an open-source system based on its experience with <a class="reference external" href="https://en.wikipedia.org/wiki/Borg_(Google)">Borg</a> and other orchestration tools. By establishing Kubernetes as the standard for container orchestration, Google aimed to reduce the barrier to entry for users looking to switch between cloud providers, challenging the dominance of <a class="reference external" href="https://en.wikipedia.org/wiki/Amazon_Web_Services">Amazon Web Services</a>.</p>
+<p>Today, Kubernetes has become the de facto standard for managing containerized applications. As in previous improvements, this led to a new open problem: generating and deploying manifests. Tools for generating manifests range from general templating solutions like Bash variable substitution, Sed, and Jinja, through full fledged programming languages, like using Jsonnet and Python, all the way to using dedicated tools like Kustomize and Helm. Meanwhile, deploying the manifests to Kubernetes can be done through continuous integration platforms running &quot;helm upgrade&quot; or &quot;kubectl apply&quot; or using dedicated platforms like ArgoCD or FluxCD. ArgoCD or Flagger also support gradual roll-outs.</p>
+<p>From cubic equations to cloud orchestration, the story of Kubernetes is a reminder that the path of progress is rarely straightforward, but rather a winding journey through the realms of mathematics, computer science, and human ingenuity.</p>
+</div>
+        <hr />
+    </div>
+		
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../ssa-releases.html"><h2>Safe, Simple, Automatic Releases</h2></a>
+        <div class= "well small"> Sun 07 May 2023
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Two words that strike fear in the heart of
+every software developer:
+&quot;release process&quot;.
+Whether deploying a new version of a
+billion-person social network
+or a
+tiny little open source library,
+release processes are often
+manual,
+complicated,
+and
+easy to mess up.</p>
+<p>Much has been said on the
+&quot;new version …</p> <a class="btn btn-info xsmall" href="../ssa-releases.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../dynamic-pyproject.html"><h2>The &quot;Dynamic&quot; Properties in PyProject</h2></a>
+        <div class= "well small"> Fri 30 December 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>When writing a
+<code>pyproject.toml</code>
+file,
+the
+<code>project</code>
+section is optional.
+However,
+if it does exist,
+two of its properties are
+<em>required</em>:</p>
+<ul class="simple">
+<li><code>name</code></li>
+<li><code>version</code></li>
+</ul>
+<p>If these two properties are not there,
+the section will be ignored.</p>
+<p>This is a lie.
+But it is not a big lie:
+it is
+<em>almost …</em></p> <a class="btn btn-info xsmall" href="../dynamic-pyproject.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../on-the-go.html"><h2>On The Go</h2></a>
+        <div class= "well small"> Sun 14 August 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Now that travel is more realistic,
+I have started to optimize how well I can work on the go.
+I want to be able to carry as few things as possible,
+and have the best set-up possible.</p>
+<div class="section" id="charging">
+<h2>Charging</h2>
+<img alt="Power Bank charging" src="bank.jpg" style="width: 400px;" />
+<p>The
+&quot;center&quot;
+of the mobile set-up is my
+<a class="reference external" href="https://www.anker.com/products/a1651">Anker Power Bank</a>.
+It …</p></div> <a class="btn btn-info xsmall" href="../on-the-go.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../documentation-for-popular-products.html"><h2>Reading the Documentation for Popular Products</h2></a>
+        <div class= "well small"> Sun 20 February 2022
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Popular products often have a
+&quot;Getting Started&quot;
+tutorial
+in order to guide you in using them
+for the first timees.
+Those guides are easy to follow,
+pleasant to use,
+and lead you do make bad design choices.</p>
+<p>Follow the
+&quot;Getting Started&quot;
+guide to get a feel for the product.
+Then …</p> <a class="btn btn-info xsmall" href="../documentation-for-popular-products.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../three-problems.html"><h2>Three Problems with a Tool</h2></a>
+        <div class= "well small"> Fri 24 December 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>One of my favorite Podcasts,
+<a class="reference external" href="https://www.pythonpodcast.com/">Podcast.__init__</a>,
+always makes sure to ask one question
+towards the end of every episode:
+when should you
+<em>not</em>
+use the tool or technique introduced
+in this episode?
+This is a great question.
+When people have a poor answer
+I assume that the tool is …</p> <a class="btn btn-info xsmall" href="../three-problems.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../better-outage-retrospectives.html"><h2>Better Outage Retrospectives</h2></a>
+        <div class= "well small"> Sun 15 August 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Originally published on
+<a class="reference external" href="https://www.redhat.com/architect/better-outage-retrospectives">Enable Architect</a>.</p>
+<p>Modern computer systems supply business-critical services everywhere
+-- from Amazon providing shopping services to
+Healthcare.gov
+providing enrollment in health insurance plan.
+We all rely on such systems.
+But, unfortunately, these systems are complex and can fail in surprising ways.</p>
+<p>By now,
+it is a well-understood …</p> <a class="btn btn-info xsmall" href="../better-outage-retrospectives.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../devops-sympathy.html"><h2>Empathy vs. sympathy for Site Reliability Engineers (SRE)</h2></a>
+        <div class= "well small"> Thu 15 July 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>This article was originally published on
+<a class="reference external" href="https://www.redhat.com/architect/sre-empathy-vs-sympathy">Enable Architect</a></p>
+<p>Many people have had the insight that DevOps is about people.
+Often, they will summarize it as
+&quot;DevOps is about empathy&quot;.
+I have found,
+however,
+that idealizing empathy is just as bad as thinking that DevOps
+is about a single technology.</p>
+<p>I …</p> <a class="btn btn-info xsmall" href="../devops-sympathy.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../minimal-packing.html"><h2>Minimal packing list</h2></a>
+        <div class= "well small"> Wed 07 July 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>With in-person conferences starting to open up,
+I need to clear the dust off of some skills that have
+not been used in a while.
+One of those is how to pack for travel.</p>
+<p>This list works for me.
+It will probably not work for you as-is.
+Among other things …</p> <a class="btn btn-info xsmall" href="../minimal-packing.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../post-that-pr.html"><h2>Post that PR</h2></a>
+        <div class= "well small"> Wed 16 June 2021
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Sometimes you will be working on hairy and complicated feature
+in a shared repository.
+Maybe it's for work.
+Maybe it's an open source project.</p>
+<p>As a responsible person,
+you are working on a branch.
+The usual way of working involves a lot of
+&quot;intermediate&quot;
+check-ins.
+Those serve,
+if nothing else …</p> <a class="btn btn-info xsmall" href="../post-that-pr.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="../category/misc.html">1</a></li>
+    <li class=""><a href="../category/misc2.html">2</a></li>
+    <li class=""><a href="../category/misc3.html">3</a></li>
+    <li class=""><a href="../category/misc4.html">4</a></li>
+    <li class=""><a href="../category/misc5.html">5</a></li>
+    <li class=""><a href="../category/misc6.html">6</a></li>
+    <li class=""><a href="../category/misc7.html">7</a></li>
+    <li class=""><a href="../category/misc8.html">8</a></li>
+
+    <li class="next"><a href="../category/misc2.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

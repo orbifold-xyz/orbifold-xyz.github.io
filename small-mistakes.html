@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Comfort with Small Mistakes</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Comfort with Small Mistakes</h1>
+Sat 04 April 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>It has been a long time since I learned how to program,
+and it is easy to forget some of the hard-won lessons in the beginning.
+Easy until I try to teach people to program.
+There is a lot of accidental and inherent complexity in programming,
+but I am ready for that:
+I remember to explain how carefully to follow the syntax,
+and the kind of syntactical gotchas that are easy to fail.</p>
+<p>But there is one metalesson that is much easier to forget,
+and much harder to learn, and to teach.
+Humans are used to small mistakes having reasonably small consequences.
+But even in cases with catatrophic consequences,
+the consequences <em>look</em> related to the mistakes.</p>
+<p>However,
+in programming,
+small mistakes
+can lead not just to
+<em>big</em>
+consequences,
+but to
+<em>weird</em>
+consequences.
+A missing comma might mean that things work fine in the testing environment,
+but in production,
+every third request gets a slightly wrong result.</p>
+<p>This
+<em>really</em>
+stumps people.
+They copy code somewhat imperfectly from the board,
+or make a small mistake when they edit it to change
+from
+<cite>&quot;Hello world&quot;</cite>
+to
+<cite>&quot;Goodbye world&quot;</cite>,
+and suddenly,
+a completely unrelated part of the program starts going haywire.</p>
+<p>This happens to old hands too.
+The number of times I have edited code and ran the tests,
+only to discover a clearly unrelated test failing,
+is not small.
+The difference that comes with experience is that I take a deep breath,
+think
+&quot;I've got this&quot;,
+and start down the troubleshooting path.</p>
+<p>The troubleshooting can include any number of things:
+I might go in with a debugger,
+add print statements,
+do a bisect-diff to figure out what caused the problem,
+try random things to see what happens,
+or just trace the execution path carefully.</p>
+<p>The troubleshooting process does not matter as much as what comes before it:
+the deep breath.
+This is my time to accept the problem has happened,
+and that I am in for a process which can take two hours,
+and at the end of which my entire productivity will be
+&quot;added missing semicolon&quot;.
+Sometimes a breath is not enough,
+and I need to get up and get some tea.
+But the most important,
+and almost invisible step,
+at the beginning is to step back,
+remember that this is,
+weirdly,
+part of the job,
+and to become comfortable doing it.</p>
+<p>If you want to be any kind of software developer,
+accept it now.
+Much of your life will be seeing weird consequences,
+and tracing it back to a small mistake.
+Eventually,
+like everyone,
+you will succeed.
+Flush with victory,
+make a note of your success somewhere:
+anywhere where the overhead of writing it is low,
+be it an e-mail to yourself or a note-keeping app.</p>
+<p>If you ever decide to teach,
+or write a blog,
+this is an unending source of content.</p>
+<p>(Thanks to
+<a class="reference external" href="https://veronicahanus.com/">Veronica Hanus</a>
+for her feedback on an early draft.
+All issues and mistakes that remain are my responsibility.)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

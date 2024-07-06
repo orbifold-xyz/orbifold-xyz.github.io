@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Bash is Unmaintainable Python</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Bash is Unmaintainable Python</h1>
+Mon 17 July 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Aahz, Roy Williams, Yarko Tymciurak,
+and Naomi Ceder for feedback.
+Any mistakes that remain are mine alone.)</p>
+<p>In the post about building Docker applications,
+I had the following Python script:</p>
+<pre class="code literal-block">
+import datetime, subprocess
+tag = datetime.datetime.utcnow().isoformat()
+tag = tag.replace(':', '-').replace('.', '-')
+for ext in ['', '-slim']:
+    image = &quot;moshez/python36{}:{}&quot;.format(ext, tag)
+    orig = &quot;python:3.6{}&quot;.format(ext)
+    subprocess.check_call([&quot;docker&quot;, &quot;pull&quot;, orig])
+    subprocess.check_call([&quot;docker&quot;, &quot;tag&quot;, orig, image])
+    subprocess.check_call([&quot;docker&quot;, &quot;push&quot;, image])
+</pre>
+<p>I showed this script to two audiences,
+in two versions of the talk.
+One, a Python beginner audience, mostly new to Docker.
+Another, a Docker-centric audience,
+with varying levels of familiarity with Python.
+I gave excuses for why this script is in Python,
+rather than the obvious choice of shell scripting for automating
+command-line utilities.</p>
+<p>None of the excuses were the true reason.</p>
+<p>Note that in a talk, things are simplified.
+Typical scripts in the real world would not be 10 lines or so.
+They start out 10 lines, of course,
+but then have to account for edge cases,
+extra use cases,
+random bugs in the services that need to be worked around,
+and so on.
+I am more used to writing scripts for production
+than writing scripts for talks.</p>
+<p>The true reason the script is in Python
+is that I have started doing all my &quot;shell&quot; scripting
+in Python recently,
+and I am never going back.
+Unix shell scripting is pretty much writing in unmaintainable Python.
+Before making the case for that,
+I am going to take a step in the other direction.
+The script above took care to only use the standard library.
+If it could take advantage of third party libraries,
+I would have written it this way:</p>
+<pre class="code literal-block">
+import datetime, subprocess
+import seashore
+xctr = seashore.Executor(seashore.Shell())
+tag = datetime.datetime.utcnow().isoformat()
+tag = tag.replace(':', '-').replace('.', '-')
+for ext in ['', '-slim']:
+    image = &quot;moshez/python36{}:{}&quot;.format(ext, tag)
+    orig = &quot;python:3.6{}&quot;.format(ext)
+    xctr.docker.pull(orig)
+    xctr.docker.tag(orig, image)
+    xctr.docker.push(image)
+</pre>
+<p>But what if I went the other way?</p>
+<pre class="code literal-block">
+import datetime, subprocess
+tag = datetime.datetime.utcnow().isoformat()
+tag = tag.replace(':', '-').replace('.', '-')
+for ext in ['', '-slim']:
+    image = &quot;moshez/python36{}:{}&quot;.format(ext, tag)
+    orig = &quot;python:3.6{}&quot;.format(ext)
+    subprocess.check_call(&quot;docker pull &quot; + orig, shell=True)
+    subprocess.check_call(&quot;docker tag &quot; + orig + &quot; &quot; + image, shell=True)
+    subprocess.check_call(&quot;docker push &quot; + image, shell=True)
+</pre>
+<p>Note that using <code>shell=True</code> is discouraged,
+and is generally a bad idea.
+We will revisit why later.
+If I were using Python 3.6, I could even have the last three lines be:</p>
+<pre class="code literal-block">
+subprocess.check_call(f&quot;docker pull {orig}&quot;, shell=True)
+subprocess.check_call(f&quot;docker tag {orig} {image}&quot;, shell=True)
+subprocess.check_call(f&quot;docker push {image}&quot;, shell=True)
+</pre>
+<p>or I could even combine them:</p>
+<pre class="code literal-block">
+subprocess.check_call(f&quot;docker pull {orig} &amp;&amp; &quot;
+                      f&quot;docker tag {orig} {image} &amp;&amp; &quot;
+                      f&quot;docker push {image}&quot;, shell=True)
+</pre>
+<p>What about calculating the tag?</p>
+<pre class="code literal-block">
+tag = subprocess.check_output(&quot;date --utc --rfc-3339=ns | &quot;
+                              &quot;sed -e 's/ /T/' -e 's/:/-/g' &quot;
+                                  &quot;-e 's/\./-/g' -e 's/\+.*//'&quot;,
+                              shell=True)
+</pre>
+<p>Putting it all together, we would have</p>
+<pre class="code literal-block">
+import subprocess
+tag = subprocess.check_output(&quot;date --utc --rfc-3339=ns | &quot;
+                              &quot;sed -e 's/ /T/' -e 's/:/-/g' &quot;
+                                  &quot;-e 's/\./-/g' -e 's/\+.*//'&quot;,
+                              shell=True)
+for ext in ['', '-slim']:
+    image = f&quot;moshez/python36{ext}:{tag}&quot;
+    orig = f&quot;python:3.6{ext}&quot;
+    subprocess.check_call(f&quot;docker pull {orig} &amp;&amp; &quot;
+                          f&quot;docker tag {orig} {image} &amp;&amp; &quot;
+                          f&quot;docker push {image}&quot;, shell=True)
+</pre>
+<p>None of the changes we made were strictly <em>improvements</em>.
+They mostly made the code harder to read and more fragile.
+But now that we have done them, it is straightforward to convert it
+to a shell script:</p>
+<pre class="code literal-block">
+#!/bin/sh
+set -e
+tag = $(date --utc --rfc-3339=ns |
+        sed -e 's/ /T/' -e 's/:/-/g' \
+        -e 's/\./-/g' -e 's/\+.*//')
+for ext in '' '-slim'
+do
+    image = &quot;moshez/python36$ext:$tag&quot;
+    orig = &quot;python:3.6$ext
+    docker pull $orig
+    docker tag $orig $image
+    docker push $image
+done
+</pre>
+<p>Making our script worse and worse makes a Python script
+into a shell script.
+Not just a shell script --
+this is arguably idiomatic shell.
+It uses <code>-e</code>, long options for legibility,
+and so on.
+Note that the shell does not even have a way to express
+a notion like <code>shell=False</code>.
+In a script without arguments, like this one,
+this merely means changes are dangerous.
+In a script with arguments,
+it means that input handling safely is difficult
+(and unlikely to happen).
+Indeed, this is why <code>shell=False</code> is the default,
+and recommended,
+approach in Python.</p>
+<p>In this case, one that does little but automate
+unix commands, the primary use-case of shell scripts.
+It stands to reason that the reverse process --
+making a shell script into Python,
+would have the reverse effect:
+making for more maintainable,
+less fragile code.</p>
+<p>As an exercise of &quot;going the other way&quot;,
+we will start with a simplified version of <a class="reference external" href="https://github.com/twisted/twisted/blob/30453ea185e0191d9498ce3e4442c2e0b2f075aa/admin/pr_as_branch">shell script</a></p>
+<pre class="code literal-block">
+set -e
+
+if [ $# != 3 ]; then
+    echo &quot;Invalid arguments: $*&quot;;
+    exit 1;
+fi;
+
+PR_NUMBER=&quot;$1&quot;; shift;
+TICKET_NUMBER=&quot;$1&quot;; shift;
+BRANCH_NAME=&quot;$1&quot;; shift;
+
+
+repo=&quot;git&#64;github.com:twisted/twisted.git&quot;;
+wc=&quot;$(dirname &quot;$(dirname &quot;$0&quot;)&quot;)/.git&quot;;
+
+if [ ! -d &quot;${wc}&quot; ]; then
+  wc=&quot;$(mktemp -d -t twisted.XXXX)&quot;;
+
+  git clone --depth 1 --progress &quot;${repo}&quot; &quot;${wc}&quot;;
+
+  cloned=true;
+else
+  cloned=false;
+fi;
+
+cd &quot;${wc}&quot;;
+
+git fetch origin &quot;refs/pull/${PR_NUMBER}/head&quot;;
+git push origin &quot;FETCH_HEAD:refs/heads/${TICKET_NUMBER}-${BRANCH_NAME}&quot;;
+
+if ${cloned}; then
+  rm -fr &quot;${wc}&quot;;
+fi;
+</pre>
+<p>How would it look like, with Python and <code>seashore</code>?</p>
+<pre class="code literal-block">
+import os
+import shutil
+import sys
+
+import seashore
+
+if len(sys.argv) != 4:
+    sys.exit(&quot;Invalid arguments: &quot; + ' '.join(sys.argv))
+
+PR_NUMBER, TICKET_NUMBER, BRANCH_NAME = sys.argv[1:]
+
+xctr = seashore.Executor(seashore.Shell())
+repo=&quot;git&#64;github.com:twisted/twisted.git&quot;;
+wc=os.path.dirname(os.path.dirname(sys.argv[0])) + '/.git'
+if not os.path.isdir(wc):
+    wc = tempfile.mkdtemp(prefix='twisted')
+    xctr.git.clone(repo, wc, depth=1, progress=None)
+    cloned = True
+else:
+    cloned = False
+
+xctr = xctr.chdir(wc)
+xctr.git.fetch(origin, f&quot;refs/pull/{PR_NUMBER}/head&quot;)
+xctr.git.push(origin,
+              f&quot;FETCH_HEAD:refs/heads/{TICKET_NUMBER}-{BRANCH_NAME}&quot;)
+if cloned:
+    shutil.rmtree(wc)
+</pre>
+<p>The code is no longer,
+more explicit,
+and -- had we wanted to --
+easier to now refactor into unit-testable functions.</p>
+<p>If this is, indeed, the general case,
+we can skip that stage entirely:
+write the script in Python to begin with.
+When it inevitably increases in scope,
+it will already be in a language that supports
+modules and unit tests.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

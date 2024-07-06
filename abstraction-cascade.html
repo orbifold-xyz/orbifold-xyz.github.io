@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Abstraction Cascade</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Abstraction Cascade</h1>
+Tue 14 November 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(This is an adaptation of part of the <a class="reference external" href="https://www.youtube.com/watch?v=liXwz9ygeIk">talk</a> <a class="reference external" href="https://github.com/kurtbrose">Kurt Rose</a> and I
+gave at <a class="reference external" href="https://pybay.com/">PyBay 2017</a>)</p>
+<p>An abstraction cascade is a common anti-pattern in legacy system.
+It is useful to understand how to recognize it,
+how it tends to come about,
+how to fix it --
+and most importantly,
+what kind of things will <em>not</em> fix it.
+The last one is important,
+in general,
+for anti-patterns in legacy systems:
+if the obvious fix worked,
+it would have been already dealt with,
+and would not be a common anti-pattern in legacy systems.</p>
+<div class="section" id="recognition">
+<h2>Recognition</h2>
+<p>The usual pattern for a abstraction cascade looks like
+complicated,
+ad-hoc,
+if/else sequence to decide which path to take.
+Here is example for a abstraction cascade for finding out a network address
+corresponding to a name:</p>
+<pre class="code literal-block">
+def get_address(name):
+    if name in services:
+        if services[name].ip:
+            return service[name].ip, service[name].port
+        elif services[name].address:
+            # Added for issue #2321
+            if ':' in services[name].address:
+               return service[name].address.split(':')
+            else:
+               # Fixes issues #6985
+               # TODO: Hotfix, clean-up later
+               return service[name].address, DEFAULT_PORT
+    return dns_lookup(name), DEFAULT_PORT
+</pre>
+</div>
+<div class="section" id="history">
+<h2>History</h2>
+<p>At each step,
+it seems reasonable to make a specific change.
+Here is a typical way this kind of code comes about.</p>
+<p>The initial version is reasonable:
+since DNS is a way to publish name to address mapping,
+why not use a standard?</p>
+<pre class="code literal-block">
+def get_address(name):
+    return dns_lookup(name), DEFAULT_PORT
+</pre>
+<p>Under load,
+an outage happened.
+There was no time to investigate how to configure DNS caching
+or TTL better --
+so the &quot;popular&quot; services got added to a static list,
+with a &quot;fast path&quot; checking.
+This decision also makes sense:
+when an outage is ongoing,
+the top priority is to relieve the symptoms.</p>
+<pre class="code literal-block">
+def get_address(name):
+    if name in services:
+        # Fixes issues #6985
+        # TODO: Hotfix, clean-up later
+        return service[name].address, DEFAULT_PORT
+    return dns_lookup(name), DEFAULT_PORT
+</pre>
+<p>However,
+now the door has opened to add another path in the function.
+When the need to support multiple services on one host
+happened,
+it was easier to just add another path:
+after all,
+this was only for new services.</p>
+<pre class="code literal-block">
+def get_address(name):
+    if name in services:
+        # Added for issue #2321
+        if ':' in services[name].address:
+            return service[name].address.split(':')
+        else:
+            # Fixes issues #6985
+            # TODO: Hotfix, clean-up later
+            return service[name].address, DEFAULT_PORT
+    return dns_lookup(name), DEFAULT_PORT
+</pre>
+<p>When the change to IPv6 occured,
+splitting on <code>:</code> was not a safe operation --
+so a separate field was added.
+Again,
+the existing &quot;new&quot; services
+(by now, many -- and not so new!)
+did not need to be touched:</p>
+<pre class="code literal-block">
+def get_address(name):
+    if name in services:
+        if services[name].ip:
+            return service[name].ip, service[name].port
+        elif services[name].address:
+            # Added for issue #2321
+            if ':' in services[name].address:
+               return service[name].address.split(':')
+            else:
+               # Fixes issues #6985
+               # TODO: Hotfix, clean-up later
+               return service[name].address, DEFAULT_PORT
+    return dns_lookup(name), DEFAULT_PORT
+</pre>
+<p>Of course,
+this is typically just chapter one in the real story:
+having to adapt to multiple data centers,
+or multiple providers of services,
+will lead to more and more of these paths --
+with nothing thrown away,
+because &quot;some legacy service depends on it -- maybe&quot;.</p>
+</div>
+<div class="section" id="non-fixes">
+<h2>Non-fixes</h2>
+<div class="section" id="fancier-dispatch">
+<h3>Fancier dispatch</h3>
+<p>Sometimes the ad-hoc if/else pattern is obscured by more abstract dispatch
+logic:
+for example,
+something that loops through classes and finds out which one is the right
+one:</p>
+<pre class="code literal-block">
+class AbstractNameFinder(object):
+    def matches(self, name):
+        raise NotImplementedError()
+    def get_address(self, name):
+        raise NotImplementedError()
+class DNS(AbstractNameFinder):
+    def matches(self, name):
+        return True
+    def get_address(self, name):
+        return dns_lookup(name), DEFAULT_PORT
+class Local(AbstractNameFinder):
+    def matches(self, name):
+        return hasattr(services.get(name), 'ip')
+    def get_address(self, name):
+        return services[name].ip, services[name].port
+finders = [Local(), DNS()]
+def get_address(name):
+    for finder in finders:
+        if finder.match(name):
+            return finder.get_address(name)
+</pre>
+<p>This is actually worse --
+now the problem can be spread over multiple files,
+with no single place to fix it.
+While the code <em>can</em> be converted to this form,
+semi-mechanically,
+this does not fix the underlying issue --
+and will actually make the problem continue on with force.</p>
+</div>
+<div class="section" id="pareto-fix">
+<h3>Pareto fix</h3>
+<p>The Pareto rule is that 80% of the problem is solved with 20% of the effort.
+It is often the case that a big percentage
+(in the stereotypical Pareto case, 80%)
+of the problem is not hard to fix.</p>
+<p>For example,
+most services are actually listed in some file,
+and all we need to do is read this file in and look up based on that.
+The incentive to fix &quot;80% of the problem&quot;
+and leave the &quot;20%&quot; for later is strong.</p>
+<p>However,
+usually the problem is that each of those &quot;Pareto fixes&quot;
+again makes the problem worse:
+since it is not a complete replacement,
+another dispatch layer needs to be built to support the &quot;legacy solution&quot;.
+The new dispatch layer, the new solution, and the legacy solution
+all become part of the newest iteration of the legacy system,
+and cause the problem to be even worse.</p>
+<p>Fixing 80% of the problem is useful for prototyping,
+since we are not sure we are solving the right problem
+and nothing better exists.
+However, in this case,
+the complete solution is necessary,
+so neither of these conditions hold.</p>
+</div>
+</div>
+<div class="section" id="escape-strategy">
+<h2>Escape strategy</h2>
+<p>The reason this happens is because no single case can be <em>removed</em>.
+The way forward is not to add more cases,
+but to try and remove a single case.
+The first question to ask is: why was no case removed?
+Often,
+the reason is that there is no way to test whether removal is safe.</p>
+<p>It might take some work to build infrastructure that will properly
+make removal safe.
+Unit tests are often not enough.
+Integration tests, as well,
+are sometimes not enough.
+Sometimes canary systems,
+sometimes feature flag systems,
+or, if worst comes to worst,
+a way to test and roll-back quickly if a problem is found.</p>
+<p>Once it is possible to remove just one case
+(in our example above,
+maybe check what it would take to remove the case where we split
+on a colon,
+since this is clearly worse than just having separate attributes),
+thought needs to be given to which case is best.</p>
+<p>Sometimes,
+there is more than one case that is really needed:
+some inherent,
+deep,
+trade-off.
+However, it is rare to need more than two,
+and almost unheard of to need more than three.
+Start removing unneeded cases one by one.</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>When seeing an abstraction cascade,
+there is a temptation to &quot;clean it up&quot;:
+but most obvious clean-ups end up making it worse.
+However, by understanding how it came to be,
+and finding a way to <em>remove</em> cases,
+it is possible to do away with it.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

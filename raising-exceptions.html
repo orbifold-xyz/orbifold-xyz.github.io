@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Raise Better Exceptions in Python</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Raise Better Exceptions in Python</h1>
+Sun 17 November 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>There is a lot of Python code in the wild which does something like:</p>
+<pre class="code literal-block">
+raise ValueError(&quot;Could not fraz the buzz:&quot;
+                 f&quot;{foo} is less than {quux}&quot;)
+</pre>
+<p>This is,
+in general,
+a bad idea.
+It does not matter if the exception is fairly generic,
+like
+<cite>ValueError</cite>
+or specific
+like
+<cite>CustomFormatParsingException</cite>.</p>
+<p>Exceptions are not program panics.
+Program panics are things which should
+&quot;never happen&quot;,
+and usually abort either the entire program,
+or at least an execution thread.</p>
+<p>While exceptions sometimes <em>do</em> terminate the program,
+or the execution thread,
+with a traceback,
+they are different in that they can be caught.</p>
+<p>The code that catches the exception will sometimes have a way to recover:
+for example, maybe it’s not that important for the application to
+<tt class="docutils literal">fraz</tt>
+the
+<tt class="docutils literal">buzz</tt>
+if
+<tt class="docutils literal">foo</tt>
+is
+<tt class="docutils literal">0</tt>.
+In that case, the code would look like:</p>
+<pre class="code literal-block">
+try:
+    some_function()
+except ValueError as exc:
+    if ???
+</pre>
+<p>Oh, right.
+We do not have direct access to <tt class="docutils literal">foo</tt>.
+If we formatted better,
+using <tt class="docutils literal">repr</tt>,
+at least we could tell the difference between
+<tt class="docutils literal">0</tt>
+and
+<tt class="docutils literal">&quot;0&quot;</tt>:
+but we still would have to start parsing the representation out of the string.</p>
+<p>Because of this,
+in general,
+it is better to raise exceptions like this:</p>
+<pre class="code literal-block">
+raise ValueError(&quot;Could not fraz the buzz: foo is too small&quot;, foo, quux)
+</pre>
+<p>Note that all the exceptions defined in core Python
+already allow any number of arguments.
+Those arguments are available as <cite>exc.args</cite>,
+if
+<cite>exc</cite>
+is the exception object.
+If you do end up defining your custom exceptions,
+the easiest thing is to avoid overriding the
+<cite>__init__</cite>:
+this keeps this behavior.</p>
+<p>Raising exceptions this way gives
+exception handling a lot of power:
+it can introspect <tt class="docutils literal">foo</tt>,
+introspect
+<tt class="docutils literal">quux</tt>
+and introspect the string.
+If by some reason the exception class is raised and
+we want to verify the reason,
+checking string equality,
+while not ideal,
+is still better than trying to match string parts or
+regular expression matching.</p>
+<p>When the exception is presented to the user interface,
+in that case, it will not look as nice.
+Exceptions,
+in general,
+should reach the UI only in extreme circumstances.
+In those cases,
+having something that has as much information is
+useful for root cause analysis.</p>
+<p>This is an update of an
+<a class="reference external" href="https://moshez.wordpress.com/2016/12/10/on-raising-exceptions-in-python/">older blog post</a>.
+Thanks to <a class="reference external" href="https://twitter.com/MRice88">Mark Rice</a> and <a class="reference external" href="https://bennuttall.com/">Ben Nuttall</a>
+for their improvement suggestions.
+All mistakes that are left are my responsibility.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

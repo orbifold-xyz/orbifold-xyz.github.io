@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Nitpicks are for Robots</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Nitpicks are for Robots</h1>
+Fri 09 June 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Many projects and organizations have a coding standard.
+For Python, much of the time, the standard is a variant of <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a>.
+During code reviews, often the reviewer will point out where the
+code disagrees with the standard, and ask for it to be fixed.
+Sometimes, if the reviewer is self-aware enough,
+they will precede those comments with <code>nit</code>
+or <code>nitpick</code>.</p>
+<p>As Raymond Hettinger points out in <a class="reference external" href="https://www.youtube.com/watch?v=wf-BqAjZb8M">Beyond PEP8</a>,
+this gives a reviewer &quot;something to do&quot;
+without needing a lot of understanding,
+and will sometimes be used by people who feel overwhelmed at
+their job.
+Often these people need to be helped
+(mentored, tutored or sometimes just encouraged)
+but those code reviews mask their difficulties with
+an illusion of productivity.</p>
+<p>Moreover, this often feels to the original coder as a put-down attempt
+(&quot;I know the standard better than you&quot;)
+or simply as an attempt to slow them down and derail them.
+It does not matter that this is rarely the real intention
+(although, in sufficiently toxic teams, it can be)
+it is hard to see a comment on every other line saying
+&quot;there is a missing space after '3'&quot;
+or &quot;funcName should be func_name&quot;
+without feeling that enough is enough, and <em>clearly</em> the reviewer
+is just trying to make themselves feel important.</p>
+<p>The proper solution for that is to <em>automate</em> the nitpicks.
+There are many possible tools to use there:
+<a class="reference external" href="http://flake8.pycqa.org/en/latest/">flake8</a> (or a custom <a class="reference external" href="http://flake8.pycqa.org/en/latest/user/using-plugins.html">flake8 plugin</a>),
+<a class="reference external" href="https://www.pylint.org/">pylint</a> (or a custom <a class="reference external" href="https://pylint.readthedocs.io/en/latest/reference_guide/plugins.html">pylint plugin</a>)
+or even, if  your needs are unique enough,
+write a <a class="reference external" href="https://github.com/twisted/twistedchecker">custom tool</a>.</p>
+<p>Ideally, there is already CI in place for the tool,
+using <a class="reference external" href="https://tox.readthedocs.io/en/latest/config.html">Tox</a> and <a class="reference external" href="https://travis-ci.org/">some</a> <a class="reference external" href="https://circleci.com/">CI</a> <a class="reference external" href="https://docs.gitlab.com/ce/ci/quick_start/README.html#shared-runners">runner</a> that integrates with your
+development life cycle
+(otherwise, how would the unit tests run?)
+and extending Tox with a new environment for running
+whatever automatic nitpicker (or nitpickers)
+should be straightforward.</p>
+<p>When adding a new nitpicking rule,
+some sort of grandfathering strategy needs to be added.
+My favorite one, unfortunately, takes some time
+to implement:
+have Tox run the linting tool, itself,
+in &quot;ignore process exit code&quot; mode.
+Capture the output,
+and compare it to a list of exceptions
+kept in a special &quot;list of exceptions&quot; file.
+Now -- and this is the important thing --
+any deviation is an error.
+In particular, anything that <em>fixes</em>
+a nitpick should also remove it from the
+list of exceptions.</p>
+<p>Of course, this means that it is possible to <em>add</em>
+to the list of exceptions.
+But now it is clearly visible in the code diff.
+The code review will naturally ask &quot;why&quot;,
+since clearly conventions have been intentionally violated.
+In a rare case, there might be a reason that is good.
+But the important thing: now the question is not arbitrary,
+asked by a human with possibly impure motivations --
+and so, will be answered in honesty and with good intentions assumed.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

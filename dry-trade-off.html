@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - DRY is a Trade-Off</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>DRY is a Trade-Off</h1>
+Fri 11 December 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>DRY,
+or
+<a class="reference external" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">Don't Repeat Yourself</a>
+is frequently touted as a principle of software development.
+&quot;Copy-pasta&quot;
+is the derisive term applied to a violation of it,
+tying together the concept of copying code
+and
+pasta as description of software development bad practices
+(see also
+<a class="reference external" href="https://en.wikipedia.org/wiki/Spaghetti_code">spaghetti code</a>).</p>
+<p>It is so uniformly reviled that some people call DRY a
+&quot;principle&quot;
+that you should never violate.
+Indeed, some linters even detect copy-paste
+so that it can never sneak into the code.
+But copy-paste is not a comic-book villain,
+and DRY does not come bedecked in primary colors to defeat it.</p>
+<p>It is worthwhile to know
+<em>why</em>
+DRY
+started out as a principle.
+In particular,
+some for some modern software development practices,
+violating DRY is the right thing to do.</p>
+<p>The main problem with <em>repeating</em> a code chunk
+is that if a bug is found,
+there is more than one place where it needs to be fixed.
+On the surface of it,
+this seems like a reasonable criticism.
+All code has bugs,
+those bugs will be fixed,
+why not minimize the cost of fixing them?</p>
+<p>As with all engineering decisions,
+following DRY
+is a
+<em>trade-off</em>.
+DRY leads to the following issues:</p>
+<ul class="simple">
+<li>Loss of locality</li>
+<li>Overgeneralized code</li>
+<li>Coordination issues</li>
+<li>Ownership issues</li>
+</ul>
+<div class="section" id="loss-of-locality">
+<h2>Loss of locality</h2>
+<p>The alternative to copy-pasting the code is usually to put it in a
+function (or procedure, or a subroutine, depending on the language),
+and call it.
+This means that when reading through the original caller,
+it is less clear what the code does.</p>
+<p>When you are debugging, this means we need to &quot;Step into&quot; the function.
+While stepping into, it is non-trivial to check the original variables.
+If you are doing &quot;print debugging&quot;,
+this means finding the original source for the function and adding
+relevant print statements there.</p>
+<p>Especially when DRY is pointed out and reactions are instinctive,
+the function might have some surprising semantics.
+For example, mutating contents of local variables is sensible
+in code.
+When you move this  code to a function as a part of a straightforward
+DRY
+refactoring,
+this means that now a function is mutating its parameters.</p>
+</div>
+<div class="section" id="overgeneralized-code">
+<h2>Overgeneralized code</h2>
+<p>Even if the code initially was the same in both places,
+there is no a-priori guarantee that it will stay this way.
+For example, one of those places might be called frequently,
+and so would like to avoid logging too many details.
+The other place is called seldom, and those details are
+essential to trouble-shooting frequent problems.</p>
+<p>The function that was refactored now has to support an extra parameter:
+whether to log those details or not.
+(This parameter might be a boolean, a logging level, or even a logging
+&quot;object&quot; that has correct levels set up.)</p>
+<p>Since usually there is no institutional memory to undo
+the DRY refactoring,
+the function might add more and more cases,
+eventually almost being two functions in one.
+If the &quot;copy-pasta&quot; was more extensive,
+it might lead to extensive over-generalization:
+each place needs a slightly different variation of the functionality.</p>
+</div>
+<div class="section" id="coordination-issues">
+<h2>Coordination issues</h2>
+<p>Each modification of the
+&quot;common&quot;
+function now requires testing all of its callers.
+In some situations,
+this can be subtly non-trivial.</p>
+<p>For example,
+if the repetition was across different repositories,
+now updates means updating library versions.
+The person making the change might not even be aware of all the callers.
+The callers only find out when a new library version is used in their code.</p>
+</div>
+<div class="section" id="ownership-issues">
+<h2>Ownership issues</h2>
+<p>When each of those code segments were repeated,
+ownership and responsibility were trivial.
+Whoever owned the surrounding code also owned
+the repeated segment.</p>
+<p>Now that the code has been moved elsewhere,
+to a
+&quot;shared&quot;
+location,
+ownership can often be muddled.
+When a bug is found,
+who is supposed to fix it?
+What happens if that
+&quot;bug&quot;
+is already relied on by another use?</p>
+<p>Especially in case with reactive DRY refactoring,
+there is little effort given to specifying the expected
+semantics of the common code.
+There might be some tests,
+but the behavior that is not captured by tests
+might still vary.</p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>Having a common library which different code bases can be relied on is good.
+However, adding functions to such a library or libraries should be done
+mindfully.
+A reviewer comment about
+&quot;this code duplicates the functionality already implemented <em>here</em>&quot;
+or,
+even worse,
+something like
+<cite>pylint</cite>
+code duplication detector,
+does not have that context or mindfulness.</p>
+<p>It is better to acknowledge the duplication,
+perhaps track it via a ticket,
+and let the actual
+&quot;DRY&quot;
+application take place later.
+This allows gathering more examples,
+thinking carefully about API design,
+and make sure that ownership and backwards compatibility issues
+have been thought of.</p>
+<p>Deduplicating code by putting common lines into functions,
+without careful thought about abstractions,
+is <em>never</em> a good idea.
+Understanding how to abstract correctly is essentially
+API design.
+API design is subtle, and difficult to do well.
+There are no easy short-cuts,
+and developing expertise in it takes a long time.</p>
+<p>Because API design is such a complex skill,
+it is not easy to give general guidelines except one:
+wait.
+Rushing into an API design does not make a good API,
+even if the person rushing <em>is</em> an expert.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

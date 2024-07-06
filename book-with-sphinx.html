@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Publishing a Book with Sphinx</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Publishing a Book with Sphinx</h1>
+Mon 08 April 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>A while ago,
+I decided I wanted to self-publish a book on improving
+your Python skills.
+It was supposed to be short,
+sweet,
+and fairly inexpensive.</p>
+<p>The journey was a <a class="reference external" href="https://gum.co/BVOGd">success</a>,
+but had some interesting twists along the way.</p>
+<p>From the beginning,
+I knew what technology I wanted to write the book with:
+<a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a>.
+This was because I knew that I can use Sphinx to create something reasonable:
+I have previously ported my
+&quot;Calculus 101&quot; book
+to Sphinx,
+and I have written other small things in it.
+Sphinx uses ReStructuredText,
+which I am most familiar with.</p>
+<p>I decided I wanted to publish as PDF
+(for self-printers or others who find it convenient),
+as browser-ready HTML directory,
+and as an ePub.</p>
+<p>The tox environments I <a class="reference external" href="https://github.com/moshez/book-skeleton/blob/master/tox.ini">created</a> are:
+<code>epub</code> builds the <em>ePub</em>,
+<code>html</code> builds the browser-ready HTML,
+and <code>pdf</code> builds the PDF.</p>
+<p>Initially,
+the <code>epub</code> environment created a &quot;singlehtml&quot;,
+and I used <a class="reference external" href="https://calibre-ebook.com/">Calibre</a> command-line utility to transform it into an ePub.
+This made for a <em>prettier</em> ePub than the one sphinx creates:
+it had a much nicer cover,
+which is what most book reading applications use as an icon.
+However, that rendered poorly on Books.app (AKA iBooks).</p>
+<p>One of the projects I still plan to tackle is how to improve the look
+of the rendered ePub,
+and add a custom cover image.</p>
+<p>Finally,
+a <a class="reference external" href="https://github.com/moshez/book-skeleton/blob/master/generate-artifact">script</a>
+runs all the relevant tox environments,
+and then packs everything into a zip file.
+This is the zip file I upload to <a class="reference external" href="https://gumroad.com/">Gumroad</a>,
+so that people can buy it.</p>
+<p>I have tried to use other sellers,
+but Gumroad was the one with the easiest store creation.
+In order to test my store,
+even before the book was ready,
+I created a simple &quot;Python cheat-sheet&quot; poster,
+and put it on my store.</p>
+<p>I then asked friends to buy it,
+as well as trying to do it myself.
+After it all worked,
+I refunded all the test-run purchases, of course!</p>
+<p>Refunding on Gumroad is a pleasant process,
+which means that if people buy the book,
+and are unhappy with it,
+I am happy to refund their money.</p>
+<p>(Thanks to Glyph Lefkowitz for his feedback on an earlier draft.
+All mistakes that remain are my responsibility.)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

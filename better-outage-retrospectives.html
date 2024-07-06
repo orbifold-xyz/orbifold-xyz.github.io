@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Better Outage Retrospectives</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Better Outage Retrospectives</h1>
+Sun 15 August 2021
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Originally published on
+<a class="reference external" href="https://www.redhat.com/architect/better-outage-retrospectives">Enable Architect</a>.</p>
+<p>Modern computer systems supply business-critical services everywhere
+-- from Amazon providing shopping services to
+Healthcare.gov
+providing enrollment in health insurance plan.
+We all rely on such systems.
+But, unfortunately, these systems are complex and can fail in surprising ways.</p>
+<p>By now,
+it is a well-understood best practice that when failure happens,
+it's an opportunity to learn and improve.
+Thus,
+blameless retrospectives
+(sometimes called &quot;post-mortems&quot;)
+are by now a development-cycle staple.</p>
+<p>However, the processes by which organizations conduct the failure analysis,
+and make improvement recommendations,
+are still based on shaky foundations.
+It is time to do better.</p>
+<div class="section" id="root-cause-analysis">
+<h2>Root cause analysis</h2>
+<p>It is possible to do Root Cause Analysis (RCA) as originally defined.
+This means looking for the initial action that started the problem
+(i.e. the &quot;root&quot;)
+and then figuring out how to prevent it in the future.
+However, in recent years this method is seen to be of limited value.
+The root cause is hard to define in increasingly complex systems and
+not necessarily the right thing to change.</p>
+<p>Most organizations that conduct RCA do not follow the original definition.
+Instead,
+they do ad-hoc modifications.
+They look for all contributing causes,
+starting with the root cause,
+and then offer mitigation.</p>
+<p>In acknowledgment of the limitations of RCA,
+there is a new emphasis on service
+<em>reliability</em>.
+Reliability often focuses on the need to have services resilient to upstream failure.</p>
+</div>
+<div class="section" id="causal-analysis">
+<h2>Causal analysis</h2>
+<p>Acknowledging the complexity of modern systems and formalizing it,
+the Causal Analysis based on System Theory (CAST) process does precisely that:
+a way to improve service reliability.
+Instead of ad-hoc modifications to a fundamentally broken analysis process,
+<a class="reference external" href="http://sunnyday.mit.edu/CAST-Handbook.pdf">CAST</a>
+offers an alternative
+from-the-ground-up analysis method based on
+<a class="reference external" href="https://en.wikipedia.org/wiki/Nancy_Leveson">Professor Levenson</a>'s
+research into system safety theory.</p>
+<p>CAST is a modern approach to analyze failure,
+as described in Professor Levenson's book.
+As written,
+it assumes a physical system.
+However,
+this process is adaptable to investigating software,
+and especially for service outages.
+It is an alternative to the so-called RCA.</p>
+</div>
+<div class="section" id="performing-cast">
+<h2>Performing CAST</h2>
+<p>CAST contains five steps.
+Although it sometimes makes sense to go back to a previous stage as you uncover more information,
+in general,
+the analysis should follow the steps in order:</p>
+<ol class="arabic simple">
+<li>Assemble basic information</li>
+<li>Model safety control structure</li>
+<li>Analyze each component in loss</li>
+<li>Identify control structure flaws</li>
+<li>Create improvement program</li>
+</ol>
+<div class="section" id="assemble-basic-information">
+<h3>Assemble basic information</h3>
+<p>When assembling basic information,
+the first part is to define the system involved.
+This indicates what the boundaries of the analysis are.
+This part is essential:
+it should be clear what part is the system and the environment.</p>
+<p>Next,
+describe the loss:
+the undesirable behavior.
+Explain the hazard
+(the original change)
+that led to it</p>
+<p>From the hazard,
+identify the system-level safety constraints required to prevent it.
+Those are the system safety requirements and constraints.</p>
+<p>The next part is to construct a timeline.
+Describe what happened.
+Avoid any conclusions,
+and especially avoid assigning blame.
+This part will usually include open questions,
+especially about why things happened.</p>
+<p>Analyze the loss in terms of the system requirements and controls in place.
+This includes any mechanisms that were put in place to prevent such problems.
+Indicate what interactions happened between different parts that led to the problem.
+Note any contextual factors that influenced the events.</p>
+</div>
+<div class="section" id="model-safety-control-structure">
+<h3>Model safety control structure</h3>
+<p>The model of underlying causality CAST treats safety as a control problem,
+not a failure problem.
+Thus,
+the cause is always that the control structure and controls constructed to prevent the hazard.</p>
+<p>If a control structure for the system does not already exist,
+it might be helpful to start with an abstract high-level control structure.</p>
+</div>
+<div class="section" id="analyze-each-component-in-loss">
+<h3>Analyze each component in loss</h3>
+<p>Examine the components of the control structure to determine why they
+were not effective in preventing the loss.</p>
+<p>Start at the bottom of the control structure.
+Explain each component's role in the accident and analyze its behavior
+and why it did what it did.
+As context,
+add the details from the original design for why these controls were deemed adequate.</p>
+</div>
+<div class="section" id="identify-control-structure-flaws">
+<h3>Identify control structure flaws</h3>
+<p>Identify general systemic factors that contributed to the loss.
+These factors cut across the different control structure components.
+Thus,
+it is important to add this step explicitly to account for such cross-cutting concerns.</p>
+</div>
+<div class="section" id="create-improvement-program">
+<h3>Create improvement program</h3>
+<p>Create recommendations for changes to the control structure to prevent a similar loss in the future.
+These might include a continuous improvement program as part of an overall risk management program.</p>
+</div>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>The CAST process is a modern theory-inspired method that is tested by practice,
+improving safety and reliability.
+Professor Levenson has many of her books,
+including the CAST handbook, available from the MIT website,
+where you can learn more about the background,
+the theory,
+and the practice.</p>
+<p>Now go forth,
+and conduct better retrospectives!</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

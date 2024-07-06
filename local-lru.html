@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - A Local LRU Cache</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>A Local LRU Cache</h1>
+Fri 29 March 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>&quot;It is a truth universally acknowledged,
+that a shared state in possession of mutability,
+must be in want of a bug.&quot;
+--
+with apologies to Jane Austen</p>
+<p>As Ms. Austen,
+and
+<a class="reference external" href="https://henrikeichenhardt.blogspot.com/2013/06/why-shared-mutable-state-is-root-of-all.html">Henrik Eichenhardt</a>,
+taught us,
+shared mutable state is
+the root of all evil.</p>
+<p>Yet,
+the official documentation of <a class="reference external" href="https://docs.python.org/3/library/functools.html#functools.lru_cache">functools</a>
+tells us to write code like:</p>
+<pre class="code literal-block">
+&#64;lru_cache(maxsize=32)
+def get_pep(num):
+    'Retrieve text of a Python Enhancement Proposal'
+    resource = 'http://www.python.org/dev/peps/pep-%04d/' % num
+    try:
+        with urllib.request.urlopen(resource) as s:
+            return s.read()
+    except urllib.error.HTTPError:
+        return 'Not Found'
+</pre>
+<p>(This code is copied from the official documentation,
+verbatim.)</p>
+<p>The decorator,
+<code>&#64;lru_cache(maxsize=32)</code>,
+is now...
+module-global mutable state.
+It doesn't get any more <em>shared</em>,
+in Python,
+than module-global:
+every import of the module will share the object!</p>
+<p>We try and pretend like there is no
+&quot;semantic&quot;
+difference:
+the cache is
+&quot;merely&quot;
+an optimization.
+However,
+very quickly things start falling apart:
+after all,
+why would the documentation even tell us how to get back the original function
+(answer: <code>.__wrapped__</code>)
+if the cache is so benign?</p>
+<p>No,
+decorating the function with <code>lru_cache</code>
+is anything but benign!
+For one,
+because it is shared-thread mutable state,
+we have introduced some thread locking,
+with all the resulting complexity,
+and occasional surprising performance issues.</p>
+<p>Another example of non-benign-ness is that,
+in the <code>get_pep</code> example,
+sometimes a transient error,
+such as a <code>504</code>,
+will linger on,
+making all subsequent requests &quot;fail&quot;,
+until a cache eviction
+(because an unrelated code path went through several PEPs)
+causes a retry.
+These are exactly the kind of bugs which lead to warnings
+against shared mutable state!</p>
+<p>If we want to cache,
+let us own it explicitly in the using code,
+and not have a global implementation dictate it.
+Fortunately,
+there is a way to
+<em>properly</em>
+use the LRU cache.</p>
+<p>First,
+remove the decorator from the implementation:</p>
+<pre class="code literal-block">
+def get_pep(num):
+    'Retrieve text of a Python Enhancement Proposal'
+    # Same code as an in official example
+</pre>
+<p>Then, in the <em>using code</em>,
+build a cache:</p>
+<pre class="code literal-block">
+def analyze_peps():
+    cached_get_pep = lru_cache(maxsize=32)(get_pep)
+    all_peps, pep_by_type = analyze_index(cached_get_pep(0))
+    words1 = get_words_in_peps(cached_get_pep, all_peps)
+    words2 = get_words_in_informational(cached_get_pep,
+                                        pep_by_type[&quot;Informational&quot;])
+    do_something(words1, words2)
+</pre>
+<p>Notice that in this example,
+the lifetime of the cache is relatively clear:
+we create it in the beginning of the function,
+passed it to called functions,
+and then it goes out of scope and is deleted.
+(Barring one of those functions sneakily keeping a reference,
+which would be a bad implementation,
+and visible when reviewing it.)</p>
+<p>This means we do not have to worry about cached failures if the function
+is retried.
+If we retry <code>analyze_peps</code>,
+we know that it will retry retrieving any PEPs,
+even if those failed before.</p>
+<p>If we wanted the cache to persist between invocations of the function,
+the right solution would be to move it one level up:</p>
+<pre class="code literal-block">
+def analyze_peps(cached_get_peps):
+    # ...
+</pre>
+<p>Then it is the caller's responsibility to maintain the cache:
+once again,
+we avoid shared mutable state by making the state management
+be explicit.</p>
+<p>In this example,
+based on the official <cite>lru_cache</cite> documentation,
+we used a network-based function to show some of the issues with a global cache.
+Often,
+<cite>lru_cache</cite> is used for performance reasons.
+However,
+even there,
+it is easy to create issues:
+for example,
+one function using non-common inputs to the LRU-cached functions
+can cause massive cache evictions,
+with surprising performance impacts!</p>
+<p>The <code>lru_cache</code> implementation is great:
+but using it as a decorator means making the cache global,
+with all the bad effects.
+Using it locally is a good use of a great implementation.</p>
+<p>(Thanks to
+Adi Stav,
+Steve Holden,
+and James Abel
+for their feedback
+on early drafts.
+Any issues that remain
+are my responsibility.)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - PYTHONPATH Considered Harmful</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>PYTHONPATH Considered Harmful</h1>
+Tue 11 April 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Tim D. Smith and Augie Fackler for reviewing a draft.
+Any mistakes that remain are mine.)</p>
+<p>The environment variable <code>PYTHONPATH</code> seems harmless enough.
+The official documentation refers to its function as
+&quot;Augment the default search path for module files.&quot;
+However, in practice, setting this variable in a shell can lead
+to many confusing things.</p>
+<p>For one, most directories are poorly suited to be on the Python search path.
+Consider, for example, the root directory of a typical Python project:
+it contains <code>setup.py</code> --
+and so, if it were added to the current search path, <code>import setup</code>
+would become possible.
+(This is one reason to have <code>src/</code> directories.)
+Often, directories added unwisely to the Python search path cause
+files to be imported from paths they do not expect to,
+and surprisingly conflict.</p>
+<p>In addition, it now means that commands such as <code>pip freeze</code>
+do not describe reality correctly:
+just because <code>foo==1.2.4</code> appears in the output,
+does not mean that <code>import foo</code> will import version <code>1.2.4</code> --
+and only careful checking of the <code>__file__</code> attribute will notice
+it.</p>
+<p>Specifically, any bug reporting template that asks the output of
+<code>pip freeze</code> to be attached is rendered nearly useless.</p>
+<p>Worse, active commands in <code>pip</code> would seem to have no effect:
+<code>pip install --upgrade</code> or <code>pip uninstall</code> would have no effect
+on the valiant <code>foo</code> package, safely ensconced in a directory
+on <code>PYTHONPATH</code>.</p>
+<p>Finally, <code>PYTHONPATH</code> changes paths for both Python 2 and 3.
+This means code intended for one interpreter will end up in the other.</p>
+<p>Manipulating <code>PYTHONPATH</code> should be reserved for specialized launchers
+which need to start a Python program despite a complicated system configuration.
+In those cases, <code>PYTHONPATH</code> should be set inside the launcher,
+so as not to effect any code outside it.</p>
+<p>As always, when needing specialized launchers in order to run code,
+consider that
+&quot;<a class="reference external" href="https://twistedmatrix.com/users/glyph/rant/extendit.html">starting up should not be the most complicated thing that your program does</a>&quot;.
+It is quite possible that other, existing tools, are already good enough.
+Maybe <code>virtualenv</code>, <code>pip install -e</code> or <a class="reference external" href="https://pex.readthedocs.io/en/stable/">Pex</a>.
+can solve the problem?</p>
+<div class="section" id="postscript">
+<h2>Postscript</h2>
+<p>In order to write this post,
+I tested the effect of setting <code>PYTHONPATH</code> to various values.
+One of those was left over after my testing,
+leading to fifteen minutes of wasted debugging effort.
+Harmful indeed!</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

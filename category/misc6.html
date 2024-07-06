@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - misc</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+ 
+
+    <div class='article'>
+        <a href="../pycon-2018-twisted.html"><h2>PyCon US 2018 Twisted Birds of Feather Open Space Summary</h2></a>
+        <div class= "well small"> Wed 16 May 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>We would like Twisted to support <a class="reference external" href="https://www.python.org/dev/peps/pep-0555/">contextvars</a> --
+this would allow cross-async libraries,
+like <a class="reference external" href="https://github.com/ScatterHQ/eliot">eliot</a> to do fancy things.</p>
+<p>Klein is almost ready to be used as-is.
+Glyph has the <a class="reference external" href="https://github.com/twisted/klein/tree/forms-and-sessions">good branch</a> which adds</p>
+<ul class="simple">
+<li>CSRF protection</li>
+<li>Forms</li>
+<li>Sessions</li>
+<li>Authentication</li>
+</ul>
+<p>But it is too big,
+and we need to break it to …</p> <a class="btn btn-info xsmall" href="../pycon-2018-twisted.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../pycon-2018-docker.html"><h2>PyCon 2018 US Docker Birds of Feather Open Space Summary</h2></a>
+        <div class= "well small"> Tue 15 May 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>We started out the conversation with talking about
+writing good Dockerfiles.
+There is no list of &quot;best practices&quot; yet.
+Hynek reiterated for us
+&quot;ship applications, not build environments&quot;.
+Moshe summarized it as &quot;don't put gcc in the deployed image.&quot;</p>
+<p>We discussed a little bit what we are trying to achieve …</p> <a class="btn btn-info xsmall" href="../pycon-2018-docker.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../wheels.html"><h2>Wheels</h2></a>
+        <div class= "well small"> Wed 02 May 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p><strong>Announcment</strong>: My book, <a class="reference external" href="https://gumroad.com/l/BVOGd">from python import better</a>, has been published.
+This post is based on one of the chapters from it.</p>
+<p>When Python started out,
+one of the oft-touted benefits was &quot;batteries included!&quot;.
+Gone were the days of searching for which XML parsing library was the best --
+just use the …</p> <a class="btn btn-info xsmall" href="../wheels.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../incremental.html"><h2>Web Development for the 21st Century</h2></a>
+        <div class= "well small"> Mon 02 April 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(Thanks to Glyph Lefkowitz for some of the inspiration for this port,
+and to Mahmoud Hashemi for helpful comments and suggestions.
+All mistakes and issues that remain are mine alone.)</p>
+<p>The Python REPL has always been touted as one of Python's greatest
+strengths. With Jupyter, Jupyter Lab in its latest …</p> <a class="btn btn-info xsmall" href="../incremental.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../running-modules.html"><h2>Running Modules</h2></a>
+        <div class= "well small"> Mon 19 March 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(Thanks to <a class="reference external" href="https://blog.ganssle.io/">Paul Ganssle</a> for his suggestions and improvements.
+All mistakes that remain are mine.)</p>
+<p>When exposing a Python program as a command-line application,
+there are several ways to get the Python code to run.
+The oldest way,
+and the one people usually learn in tutorials,
+is to run
+<code>python …</code></p> <a class="btn btn-info xsmall" href="../running-modules.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../random-pie.html"><h2>Random Bites of Pi(e)</h2></a>
+        <div class= "well small"> Wed 14 March 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>In today's edition of Pi day post,
+we will imagine we have a pie.
+(If you lack imagination,
+go out and get a pie.)
+(Even if you do not lack imagination,
+go out and get a pie.)</p>
+<p>As is traditional,
+we got a round pie.
+Since pies are important,
+we …</p> <a class="btn btn-info xsmall" href="../random-pie.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../tooling.html"><h2>The Python Toolbox</h2></a>
+        <div class= "well small"> Thu 01 February 2018
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>I have written <a class="reference external" href="https://moshez.wordpress.com/2016/01/27/learning-python-the-ecosystem/">before</a> about Python tooling.
+However,
+as all software,
+things have changed --
+and I wanted to write a new post,
+with my current understanding of best practices.</p>
+<div class="section" id="testing">
+<h2>Testing</h2>
+<p>As of now, <code>pytest</code> has achieved official victory.
+Unless there are overwhelming reasons to use something else,
+strongly consider using …</p></div> <a class="btn btn-info xsmall" href="../tooling.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../jupyter-for-sre.html"><h2>Jupyter for SRE</h2></a>
+        <div class= "well small"> Sat 30 December 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Jupyter is a tool that came out of the data science community. In
+science, being able to replicate experiments is of the utmost importance
+-- so a tool where you can &quot;show your work&quot; is helpful. However, being
+able to show your work -- have colleagues validate what you have done,
+repeat …</p> <a class="btn btn-info xsmall" href="../jupyter-for-sre.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../expert-python.html"><h2>Write Python like an expert</h2></a>
+        <div class= "well small"> Sun 17 December 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Ten tricks to level up your Python.</p>
+<div class="section" id="trick-0-kiss">
+<h2>Trick 0 -- KISS</h2>
+<p>Experts know about the weird dark corners of Python --
+but do not use them in production code.
+The first tip is remembering that while
+<a class="reference external" href="http://www.pythondoeswhat.com/">Python has some interesting corners</a>,
+they are best avoided in production code.</p>
+<p>Make your code as …</p></div> <a class="btn btn-info xsmall" href="../expert-python.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../interesting-encodings.html"><h2>Interesting text encodings (and the people who love them)</h2></a>
+        <div class= "well small"> Wed 13 December 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(Thanks to Tom Prince and Nelson Elhage for suggestions
+for improvement.)</p>
+<p>Nowadays, almost all text will be encoded in UTF-8 --
+for good reasons,
+it is a well thought out encoding.
+Some of it will be in Latin 1, AKA ISO-8859-1,
+which is popular in the western world.
+Less of it …</p> <a class="btn btn-info xsmall" href="../interesting-encodings.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev"><a href="../category/misc5.html">&larr; Previous</a></li>
+
+    <li class=""><a href="../category/misc.html">1</a></li>
+    <li class=""><a href="../category/misc2.html">2</a></li>
+    <li class=""><a href="../category/misc3.html">3</a></li>
+    <li class=""><a href="../category/misc4.html">4</a></li>
+    <li class=""><a href="../category/misc5.html">5</a></li>
+    <li class="active"><a href="../category/misc6.html">6</a></li>
+    <li class=""><a href="../category/misc7.html">7</a></li>
+    <li class=""><a href="../category/misc8.html">8</a></li>
+
+    <li class="next"><a href="../category/misc7.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

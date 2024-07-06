@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - My Little Subclass: Inheritance is Magic</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>My Little Subclass: Inheritance is Magic</h1>
+Sat 29 April 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p><em>Learning about Python Method Resolution Order with Twilight Sparkle and her friends.</em></p>
+<p>(Thanks to Ashwini Oruganti for her helpful suggestions.)</p>
+<p>The show &quot;My Little Pony: Friendship is Magic&quot; is the latest
+reimagination of the &quot;My Little Pony&quot; brand as a TV show. The show takes
+place, mostly, in Ponyville and features the struggles of the so-called
+&quot;Mane Six&quot; characters. Ponyville was founded by Earth ponies, but is
+populated by Unicorns and Pegasus ponies as well.</p>
+<p>At the end of season 4, Twilight Sparkle becomes an &quot;Alicorn&quot; princess.
+Alicorns have both horns, like unicorns, and wings, like the pegasus
+ponies. In the My Little Pony show, horns are used to do magic -- most
+commonly, telekinetically moving objects.</p>
+<p>When reaching puberty, ponies discover their &quot;special talent&quot; via a
+cutie mark -- a magical tattoo on their flank.</p>
+<pre class="code literal-block">
+from __future__ import print_function
+</pre>
+<pre class="code literal-block">
+# Base class for all ponies.
+class Pony(object):
+    def __init__(self, name, cutie_mark_ability):
+        self.name = name
+        self.cutie_mark_ability = cutie_mark_ability
+
+    def move(self):
+        return &quot;Galloping&quot;
+
+    def carry(self):
+        return &quot;Carrying on my back&quot;
+
+    def special_abilities(self):
+        return [self.cutie_mark_ability]
+</pre>
+<pre class="code literal-block">
+# Earth ponies. Just regular ponies.
+class Earth(Pony):
+    pass
+</pre>
+<pre class="code literal-block">
+# Apple Pie is an Earth pony. Let's define her!
+Apple_Pie = Earth(&quot;Apple Pie&quot;, &quot;farming apples&quot;)
+</pre>
+<pre class="code literal-block">
+# This is a little helper function to help ponies
+# introduce themselves.
+def introduce(pony):
+    print(&quot;Hi, I'm&quot;, pony.name, &quot;,&quot;, type(pony).__name__, &quot;pony&quot;)
+    print(&quot;Moving:&quot;, pony.move())
+    print(&quot;Carrying:&quot;, pony.carry())
+    print(&quot;Abilities:&quot;)
+    for ability in pony.special_abilities():
+        print(&quot;\t&quot;, ability)
+</pre>
+<pre class="code literal-block">
+introduce(Apple_Pie)
+</pre>
+<pre class="literal-block">
+Hi, I'm Apple Pie , Earth pony
+Moving: Galloping
+Carrying: Carrying on my back
+Abilities:
+     farming apples
+</pre>
+<pre class="code literal-block">
+# Pegasus ponies have wings and can fly.
+class Pegasus(Pony):
+
+    def move(self):
+        return &quot;Flying&quot;
+
+    def special_abilities(self):
+        return super(Pegasus, self).special_abilities() + [&quot;flying&quot;]
+</pre>
+<pre class="code literal-block">
+# Rainbow Dash is a pegasus. Let's define her!
+Rainbow_Dash = Pegasus(&quot;Rainbow Dash&quot;, &quot;rainbow boom&quot;)
+
+introduce(Rainbow_Dash)
+</pre>
+<pre class="literal-block">
+Hi, I'm Rainbow Dash , Pegasus pony
+Moving: Flying
+Carrying: Carrying on my back
+Abilities:
+     rainbow boom
+     flying
+</pre>
+<pre class="code literal-block">
+# Unicorn ponies have wings and can fly.
+class Unicorn(Pony):
+
+    def carry(self):
+        return &quot;Lifting with horn&quot;
+
+    def special_abilities(self):
+        return super(Unicorn, self).special_abilities() + [&quot;magic&quot;]
+</pre>
+<pre class="code literal-block">
+Rarity = Unicorn(&quot;Rarity&quot;, &quot;finding gems&quot;)
+
+introduce(Rarity)
+</pre>
+<pre class="literal-block">
+Hi, I'm Rarity , Unicorn pony
+Moving: Galloping
+Carrying: Lifting with horn
+Abilities:
+     finding gems
+     magic
+</pre>
+<pre class="code literal-block">
+# Alicorn princesses have wings and horns
+class Alicorn(Pegasus, Unicorn):
+
+    def special_abilities(self):
+        return super(Alicorn, self).special_abilities() + [&quot;ruling&quot;]
+
+# Twilight Sparkle is an alicorn princess.
+Twilight_Sparkle = Alicorn(&quot;Twilight Sparkle&quot;, &quot;learning magic&quot;)
+
+introduce(Twilight_Sparkle)
+</pre>
+<pre class="literal-block">
+Hi, I'm Twilight Sparkle , Alicorn pony
+Moving: Flying
+Carrying: Lifting with horn
+Abilities:
+     learning magic
+     magic
+     flying
+     ruling
+</pre>
+<p>Pun fully intended -- this is magic! To understand why, let us think of
+how the inheritance hierarchy of the <tt class="docutils literal">Alicorn</tt> class looks like:</p>
+<pre class="literal-block">
+    Pony
+    /   \
+   /     \
+Unicorn Pegasus
+   \     /
+    \   /
+    Alicorn
+</pre>
+<p>The Unicorn class has a <tt class="docutils literal">move</tt> method it inherits from <tt class="docutils literal">Pony</tt>. But
+magically, the <tt class="docutils literal">Alicorn</tt> class knows it should get the more
+specialized one from <tt class="docutils literal">Pegasus</tt>. Could it be that when inheriting,
+Python looks right to left? But then the <tt class="docutils literal">carry</tt> method would not work
+correctly. Lastly, what about <tt class="docutils literal">special_abilities</tt>? How did it track
+all classes correctly?</p>
+<p>The answer is the MRO -- message resolution order.</p>
+<pre class="code literal-block">
+Alicorn.mro()
+</pre>
+<pre class="literal-block">
+[__main__.Alicorn, __main__.Pegasus, __main__.Unicorn, __main__.Pony, object]
+</pre>
+<p>Let us first explain the last question. The meaning of
+<tt class="docutils literal">super(klass, <span class="pre">instance).method()</span></tt> is &quot;find the next time the method
+appears in the instance's class, after <tt class="docutils literal">klass</tt> does&quot;. Because it looks
+at the MRO of the instance's class, it knows to jump from <tt class="docutils literal">Alicorn</tt> to
+<tt class="docutils literal">Pegasus</tt> to <tt class="docutils literal">Unicorn</tt> and finally to <tt class="docutils literal">Pony</tt>.</p>
+<p>The MRO also helps to explain the first question, but the answer is more
+complex. Let us focus on the <tt class="docutils literal">carry</tt> method.</p>
+<pre class="code literal-block">
+Pegasus.carry == Pony.carry
+</pre>
+<pre class="literal-block">
+True
+</pre>
+<p>This is the first clue -- the methods compare equal. Which brings us to
+our next point: let's list all candidate methods.</p>
+<pre class="code literal-block">
+candidates = set()
+for klass in Alicorn.mro()[1:]:
+    try:
+        candidates.add(klass.carry)
+    except AttributeError:
+        pass
+candidates
+</pre>
+<pre class="literal-block">
+{&lt;unbound method Unicorn.carry&gt;, &lt;unbound method Pegasus.carry&gt;}
+</pre>
+<p>(We do not see <tt class="docutils literal">Pony.carry</tt> in the set because the <tt class="docutils literal">Pegasus.carry</tt> appears first,
+<tt class="docutils literal">Pony.carry</tt> compares equal, and <tt class="docutils literal">candidates</tt> is a set.)</p>
+<p>We only care about the <em>last</em> time a method appears in the MRO: if you
+think of it as &quot;distance&quot;, we are looking for the closest method. Since
+in Python, it is easier to find the first time an element appears in a
+list, we will calculate the reversed MRO:</p>
+<pre class="code literal-block">
+ordered_candidates = [getattr(klass, 'carry', None) for klass in Alicorn.mro()[1:]]
+reverse_ordered_candidates = ordered_candidates[::-1]
+reverse_ordered_candidates
+</pre>
+<pre class="literal-block">
+[None,
+ &lt;unbound method Pony.carry&gt;,
+ &lt;unbound method Unicorn.carry&gt;,
+ &lt;unbound method Pegasus.carry&gt;]
+</pre>
+<p>Now we find the candidate with the highest reverse-distance (lowest
+distance) using Python's <tt class="docutils literal">max</tt>:</p>
+<pre class="code literal-block">
+max(candidates, key=reverse_ordered_candidates.index)
+</pre>
+<pre class="literal-block">
+&lt;unbound method Unicorn.carry&gt;
+</pre>
+<p>The same logic would explain the <tt class="docutils literal">move</tt> method, and the details of the
+<tt class="docutils literal">special_abilities</tt> method.</p>
+<p>The Python Method Resolution Order (MRO) is subtle,
+and it is easy to misunderstand.
+Hopefully, the examples here,
+and the sample code,
+give a way to think about the MRO and understand why,
+exactly,
+it is the way it is.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

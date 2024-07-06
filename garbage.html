@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Common Mistakes about Generational Garbage Collection</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Common Mistakes about Generational Garbage Collection</h1>
+Wed 28 November 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Nelson Elhage and Saivickna Raveendran
+for their feedback on earlier drafts.
+All mistakes that remain are mine.)</p>
+<p>When talking about garbage collection,
+the notion of &quot;generational collection&quot; comes up.
+The usual motivation given for generational garbage collection
+is that
+&quot;most objects die young&quot;.
+Therefore,
+we put the objects that survive a collection cycle
+(and therefore have proven some resistance)
+in a separate generation
+that we scan less often.</p>
+<p>This is an optimization if the probability of an object that
+has survived a cycle to be garbage by the time the <em>next</em>
+collection cycle has come around is <em>lower</em>
+than the probability of a newly allocated object to be garbage.</p>
+<p>In a foundational paper
+<a class="reference external" href="https://dl.acm.org/citation.cfm?id=152747">Infant mortality and generational garbage collection</a>,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Henry_Baker_(computer_scientist)">Dr. Baker</a>
+laid out an argument deceptive in its simplicity.</p>
+<p>Dr. Baker asks the question:
+&quot;Can we model a process where most objects become garbage fast,
+but generational garbage collection would not improve things?&quot;.
+His answer is: of course.
+This is exactly the probability distribution of radioactive decay.</p>
+<p>If we have a &quot;fast decaying element&quot;,
+say with a half-life of one second,
+than 50% of the element's atoms decay in one second.
+However,
+keeping the atoms that &quot;survived a generation&quot;
+apart from newly created atoms is unhelpful:
+all remaining atoms decay with probability of 50%.</p>
+<p>We can bring the probability for &quot;young garbage&quot;
+as high up as we want:
+a half-life of half a second,
+a quarter second,
+or a microsecond.
+However,
+that is not going to make generational garbage collection any better
+than a straightforward mark-and-sweep.</p>
+<p>The Poisson distribution,
+which models radioactive decay,
+has the property that
+<code>P(will die in one second)</code> might be high,
+but
+<code>P(will die in one second|survived an hour)</code>
+is <em>exactly the same</em>:
+the past does not give us information about the future.
+This is called
+the &quot;no memory property&quot;
+of Poisson distribution.</p>
+<p>When talking about generational garbage collection,
+and especially if we are making theoretical arguments about its helpfulness,
+we need to make arguments about the <em>distribution</em>,
+not about the <em>averages</em>.
+In other words,
+we need to make an argument that <em>some kinds of objects</em>
+hang around for a long time,
+while others tend to die quickly.</p>
+<p>One way to model it
+is
+&quot;objects are bimodal&quot;:
+if we model objects as belonging to a mix of two Gaussian distributions,
+one with a small average
+and one with a big average,
+then the motivation for generational collection is clear:
+if we tune it right,
+most objects that survive the first cycle
+belong to the other distribution,
+and will survive for a few more cycles.</p>
+<p>To summarize:
+please choose your words carefully.
+&quot;Young objects are more likely to die&quot;
+is an accurate motivation,
+&quot;Most objects die young&quot;
+is not.
+This goes doubly if you <em>do</em> understand the subtlety:
+do not assume the people you are talking with have
+an accurate model of how garbage works.</p>
+<p>As an aside,
+some languages decided that generational collection is more trouble than it
+is worth because the objects
+that &quot;die young&quot;
+go through a different allocation style.
+For example,
+Go has garbage collection,
+but it tries to allocate objects on the stack if it can guarantee
+at compile-time they do not &quot;escape&quot;.
+Because of that,
+the &quot;first generation&quot;
+is collected at stack popping time.</p>
+<p>CPython has generational garbage collection,
+but it also has a &quot;zeroth generation&quot; of sorts:
+when functions return,
+all local variables get a &quot;decref&quot;:
+a decrease in reference count.
+Those for whom that results in a 0 reference counts,
+which is often quite a few,
+get collected immediately.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

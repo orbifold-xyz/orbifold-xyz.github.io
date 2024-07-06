@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Safe, Simple, Automatic Releases</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Safe, Simple, Automatic Releases</h1>
+Sun 07 May 2023
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Two words that strike fear in the heart of
+every software developer:
+&quot;release process&quot;.
+Whether deploying a new version of a
+billion-person social network
+or a
+tiny little open source library,
+release processes are often
+manual,
+complicated,
+and
+easy to mess up.</p>
+<p>Much has been said on the
+&quot;new version of a billion-person
+social network&quot;
+side.
+But what about those small,
+barely a person,
+open source libraries?</p>
+<p>The focus here will be on</p>
+<ul class="simple">
+<li>Open source</li>
+<li>Python libraries</li>
+</ul>
+<div class="section" id="automatic">
+<h2>Automatic</h2>
+<p>A new version?
+What is the number?</p>
+<p>As
+<a class="reference external" href="https://orbifold.xyz/fifty-shades.html">already explored</a>,
+CalVer
+works better than
+SemVer.
+So you already know
+<em>something</em>
+about the version.</p>
+<p>With most standard
+<a class="reference external" href="https://calver.org/">CalVer</a>
+schemes,
+the version starts with
+<tt class="docutils literal"><span class="pre">&lt;Year&gt;.&lt;Month&gt;</span></tt>.
+For example,
+something released
+in April 2023
+would be
+<tt class="docutils literal"><span class="pre">2023.04....</span></tt></p>
+<p>One option is to choose as the last digit
+a running number of releases in the month.
+So,
+<tt class="docutils literal">2023.4.3</tt>
+would be the third release in
+April 2023.
+This means that when assigning the version,
+you have to look and see what previous releases,
+if any,
+happened this month.</p>
+<p>More stateless is to choose the day.
+However,
+this means it is impossible to release more
+than once per day.
+This can be
+<em>literally irresponsible</em>:
+what happens if you need to quickly patch up
+a major goof?</p>
+<p>There is another,
+sneakier,
+option.
+It is to take advantage that Python version standard
+does
+<em>not</em>
+mandate only three parts to the version.</p>
+<p>For example,
+<tt class="docutils literal">2023.4.27.3</tt>
+could be the third release
+in April 27th, 2023.
+Having to quickly release
+<em>two</em>
+versions sounds stressful,
+and I'm sorry someone had to experience that.</p>
+<p>On top of all the stress,
+they had to have the presence of mind to check
+how many releases already happened today.
+This sounds like heaping misery on top of an
+already stressful situation.</p>
+<p>Can we do better?
+Go completely stateless?
+Yes,
+we can.</p>
+<p><a class="reference external" href="https://autocalver.readthedocs.io/en/latest/">Autocalver</a> will assign versions to packages using
+<tt class="docutils literal"><span class="pre">&lt;Year&gt;.&lt;Month&gt;.&lt;Day&gt;.&lt;Seconds</span> from beginning of day&gt;</tt>.
+The last number is only a little bit useful,
+but does serve as an increasing counter.
+The timestamp is taken from the
+<em>commit log</em>,
+not the
+<em>build time</em>,
+so builds are reproducible.</p>
+</div>
+<div class="section" id="safe">
+<h2>Safe</h2>
+<p>&quot;Three may keep a Secret, if two of them are dead.&quot;,
+Benjamin Franklin,
+Poor Richard's Almanac, 1735.</p>
+<p>Uploading your package to PyPI safely is not trivial.
+You can generate a
+package-specific token,
+then store it as an encrypted secret in GitHub actions,
+and then unpack it
+at the right stage,
+avoid leaking it,
+and push the package.</p>
+<p>Sounds like being half a bad line away from leaking the
+API key.
+Luckily,
+there is a way to avoid it.
+The
+<a class="reference external" href="https://github.com/pypa/gh-action-pypi-publish">PyPI publish GitHub Action</a>
+uses
+OpenID Connect
+to authenticate the runner
+against PyPI.</p>
+<p>You will want to configure GitHub,
+with the appropriate parameters,
+as a
+<a class="reference external" href="https://docs.pypi.org/trusted-publishers/">trusted publisher</a>.</p>
+</div>
+<div class="section" id="simple">
+<h2>Simple</h2>
+<p>When do you release?
+Are you checking releases manually?
+Why?</p>
+<p>CI should make sure that,
+pre-merge,
+branches pass all automated checks.
+&quot;Keep the main branch in a releasable state&quot;,
+as the kids used to say.</p>
+<p>Wait.
+If main branch is releasable,
+why not...release it?</p>
+<pre class="code yaml literal-block">
+<span class="nt">on</span><span class="p">:</span><span class="w">
+  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+    </span><span class="nt">branches</span><span class="p">:</span><span class="w">
+      </span><span class="p-Indicator">-</span><span class="w"> </span><span class="l-Scalar-Plain">trunk</span>
+</pre>
+<p>This will configure a GitHub action that releases on every push to trunk.
+(Trunk is the
+&quot;main branch&quot;
+of a tree,
+though yours might be named differently.)</p>
+<p>See the entire action in
+<a class="reference external" href="https://github.com/moshez/autocalver/blob/63d509ecff2173aff07b4e2897e0073cb5a05c0a/.github/workflows/release.yml">autocalver's workflows</a></p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>Configuring your project to use
+<tt class="docutils literal">autocalver</tt>
+gives you automatic version numbers.
+Using PyPI/GitHub trusted publishing model
+eliminates complicated secret sharing schemes.
+GitHub upload actions on merge to main branch
+removes the need to make a decision about
+when to release.</p>
+<p>Putting all of them together results in
+releases taking literally 0 work.
+More time for fun!</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

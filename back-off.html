@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Hey, Back Off!</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Hey, Back Off!</h1>
+Sun 12 July 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>The choice in parameters for back-off configuration is important.
+It can be the difference between a barely noticable blip in service quality
+and an hours-long site outage.
+In order to explore the consequences of the choice,
+I wrote a little fictional ditty about a fictional website.</p>
+<p>I hope you enjoy escaping into this fictional reality
+as much as I enjoyed writing about it.</p>
+<p>Your recipe site is different.
+After all,
+recipe sites are a dime-a-dozen.
+With today's modern technology,
+any kid can put a quick mock-up together
+with Django, React, and MongoDB
+to store recipes and retrieve them
+by various attributes.</p>
+<p>In order to make your recipe site stand above the rest,
+you made sure it uses really cutting edge techniques.
+From details of the web requests coming in,
+using sophisiticated language parsing and machine learning algorithm,
+with just a few words about the user's likes and dislikes,
+you find the perfect recipe just for them.</p>
+<p>HackerNews called it
+&quot;just a bunch of buzzwords&quot;,
+of course.
+But once the graphs went up into the right,
+with 50% month-over-month growth rates,
+everyone explained that
+<em>they</em>
+knew that this one was different.
+Popularity sky-rocketed,
+the engineers worked on scaling up the site,
+and though it was not the world's most sophisticated microservice architecture,
+it was
+medium-service architecture,
+at least.</p>
+<p>The web front end would call the machine learning cluster,
+running on special GPU machines,
+to get the appropriate keywords by which to look up the recipe.
+Maybe not a the kind of 50-microservices-architecture
+that takes three whiteboards to explain,
+but at least it was easy enough to scale up horizontally.
+You hired a great Site Reliability Engineer,
+who built a sophisticated continuous delivery machine.
+As your machine learning team fine-tuned the model,
+it would slowly roll out into the cluster,
+running continous A/B tests that would immediately roll back
+the change if the model performed worse than before.</p>
+<p>The SRE also made sure the web front-end would back off
+of a malfunctioning machine learning node,
+as those do sometimes.
+Instead of immediately reconnecting,
+it would try reconnecting at intervals starting at 5 milliseconds
+and increasing by powers of 2: 10ms, 20ms, and so on.</p>
+<p>Amazing.</p>
+<p>You will never forget what happened next.
+A new model was rolled out.
+It looked great.
+Performed wonderfully.
+The only problem was that it had a hidden time-bomb.
+The model had a small overfit that happend to match
+the sum of the user's ID and the time.
+This, in itself, is the kind of overfit that happens every day.
+Unfortunately, if that value exceeded a threshold,
+it triggered a bug in the machine learning library.
+When that happened,
+the node would become flakey,
+and start dropping random connections.
+Even worse,
+for the specific input used in the health checks,
+it would work:
+all nodes appeared healthy in the monitoring dashboard,
+and to the service discovery framework.</p>
+<p>A nightmare scenario.</p>
+<p>One by one,
+nodes started dropping off,
+as users with higher IDs connected
+and the seconds ticked on mercilessly.
+The front end started backing off:
+by 5ms, then 10ms, then 20ms.</p>
+<p>The exponential function explodes fast,
+so of course the backoff
+(with jitter, as is common practice)
+had an upper limit.
+When the Site Reliability Engineer set the upper limit,
+there was a lot of things on their mind.
+Decisions are hard to make.
+Sometimes, one neuron firing makes all the difference.
+But neurons are small,
+and electrons are smaller.</p>
+<p>When we look at the firing of a neuron,
+we can no longer imagine the world is as Maxwell and Newton imagined it to be.
+Quantum effects must be taken into account.
+As per the obviously correct Many-Worlds interpretation of Quantum Mechanics,
+the one world had split into two that would never interact again.</p>
+<p>In one world, the SRE had set the maximum to 1 second.
+In the other, to 10 minutes.
+For a while, these worlds seemed to parallel each other closely:
+sure,
+a few bits on in a YAML file were different,
+but what storm could come from such a small butterfly?</p>
+<p>It was not until the disasterous model roll-out that
+the worlds would diverge wildly.
+In the world where the limit was set to one second,
+the front ends were hammering the nodes mercilessly.
+Rolling back the model would mean that a node
+would start getting too many connections,
+and before a few seconds had passed,
+it would fall back down.</p>
+<p>Eventually,
+in this world,
+the whole front-end had to be brought down,
+the model fully rolled back,
+and only then the front-end brought back up.
+This was too bad,
+because the front-end had a bad-but-working model built-in,
+and some recipes would still be found while the
+&quot;outage&quot;
+was happening.
+Sure, they were not the &quot;wow you read my mind&quot; quality,
+but they were still decent results.</p>
+<p>Bringing down the whole front-end cluster,
+and bringing it up again,
+turned the outage from a blip in recipe click-through rates
+into a three-hour, news-coverage-worthy outage.</p>
+<p>In the other world,
+where the back-off had a maximum of ten minutes,
+things progressed much more smoothly.
+As a machine learning node's model was rolled back,
+it came back up, and machines started connecting to it.
+The first one to be brought up did go down from connection overload --
+but took ten minutes to do so,
+enough time to ascertain that this solution was correct.
+A few more nodes were rolled back,
+and as the connections grew,
+the roll back flowed through the fleet.</p>
+<p>The outage has been managed,
+and other than a few irate customers posting on Twitter
+about looking for vegan recipes and getting
+a &quot;meat lover's delight&quot;,
+the outage mostly went unnoticed.</p>
+<p>Back-off is important.
+Exponential back-off with jitter and a maximum is almost always the
+right solution.
+Yes, the exponent matters a little.
+The initial back off matters a little.
+But the maximum matters
+<em>a lot</em>.
+Set the maximum to
+&quot;human time frames&quot;:
+a few minutes
+(1-30)
+is a good balance.</p>
+<p>Even in a big cluster,
+an extra action every 10 minutes will probably not cause serious
+downstream repercussions.
+But even the most entitled customer can be mollified by
+a support technician for five minutes
+doing
+&quot;everything possible to find a solution&quot;
+while waiting the clock out on the 10 minute back-off clock.</p>
+<p>Choose maximums for back-off carefully,
+or the site you bring down may be your own.</p>
+<p>Thanks to <a class="reference external" href="https://faingezicht.com/">Avy Faingezicht</a> for his feedback on an earlier draft.
+Any mistakes or issues that remain are my reponsibility.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

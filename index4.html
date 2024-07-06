@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+ 
+
+    <div class='article'>
+        <a href="./zope-interface.html"><h2>An introduction to zope.interface</h2></a>
+        <div class= "well small"> Thu 17 October 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>This has previously been published on
+<a class="reference external" href="https://opensource.com/article/19/9/zopeinterface-python-package">opensource.com</a>.</p>
+<p>The
+<a class="reference external" href="https://en.wikipedia.org/wiki/Zen_of_Python">Zen of Python</a>
+is loose enough and contradicts itself enough that you can prove anything from
+it.
+Let's meditate upon one of its most famous principles:
+&quot;Explicit is better than implicit.&quot;</p>
+<p>One thing that traditionally has been implicit in Python is …</p> <a class="btn btn-info xsmall" href="./zope-interface.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./singledispatch.html"><h2>Adding Methods Retroactively</h2></a>
+        <div class= "well small"> Mon 16 September 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>The following post was originally published on
+<a class="reference external" href="https://opensource.com/article/19/5/python-singledispatch">OpenSource.com</a>
+as part of a series on seven libraries that help solve common problems.</p>
+<p>Imagine you have a &quot;shapes&quot; library.
+We have a <code>Circle</code> class,
+a <code>Square</code> class,
+etc.</p>
+<p>A <code>Circle</code> has a <code>radius</code>,
+a <code>Square</code> has a <code>side</code>,
+and maybe <code>Rectangle …</code></p> <a class="btn btn-info xsmall" href="./singledispatch.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./designing-interfaces.html"><h2>Designing Interfaces</h2></a>
+        <div class= "well small"> Wed 07 August 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>One of the items of feedback I got from the article about
+<a class="reference external" href="https://orbifold.xyz/interfaces-are-forever.html">interface immutability</a>
+is that it did not give any
+<em>concrete</em>
+feedback for how to design interfaces.
+Given that they are forever,
+it would be good to have some sort of guidance.</p>
+<p>The first item is that you want …</p> <a class="btn btn-info xsmall" href="./designing-interfaces.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./interfaces-are-forever.html"><h2>Interfaces are forever</h2></a>
+        <div class= "well small"> Fri 12 July 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(The following talks about <tt class="docutils literal">zope.interface</tt> interfaces,
+but applies equally well to Java interfaces,
+Go interfaces,
+and probably other similar constructs.)</p>
+<p>When we write a function,
+we can sometimes change it in backwards-compatible ways.
+For example,
+we can loosen the type of a variable.
+We can restrict the type of …</p> <a class="btn btn-info xsmall" href="./interfaces-are-forever.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./python-analysis.html"><h2>Analyzing the Stack Overflow Survey</h2></a>
+        <div class= "well small"> Mon 27 May 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>The <a class="reference external" href="https://drive.google.com/file/d/1QOmVDpd8hcVYqqUXDXf68UMDWQZP0wQV/view">Stack Overflow Survey Results for
+2019</a>
+are in! There is some official analysis, that mentioned some things that
+mattered to me, and some that did not. I decided to dig into the data
+and see if I can find some things that would potentially interest my
+readership.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">csv …</span></pre> <a class="btn btn-info xsmall" href="./python-analysis.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./inbox-zero.html"><h2>Inbox Zero</h2></a>
+        <div class= "well small"> Wed 15 May 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>I am the parent of two young kids.
+It is easy to sink into random stuff,
+and not follow up on goals.
+Strict time management and prioritization means
+I get to work on open source projects,
+write programming books
+and update my blog with a decent cadence.
+Since a lot …</p> <a class="btn btn-info xsmall" href="./inbox-zero.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./book-with-sphinx.html"><h2>Publishing a Book with Sphinx</h2></a>
+        <div class= "well small"> Mon 08 April 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>A while ago,
+I decided I wanted to self-publish a book on improving
+your Python skills.
+It was supposed to be short,
+sweet,
+and fairly inexpensive.</p>
+<p>The journey was a <a class="reference external" href="https://gum.co/BVOGd">success</a>,
+but had some interesting twists along the way.</p>
+<p>From the beginning,
+I knew what technology I wanted to write …</p> <a class="btn btn-info xsmall" href="./book-with-sphinx.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./local-lru.html"><h2>A Local LRU Cache</h2></a>
+        <div class= "well small"> Fri 29 March 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>&quot;It is a truth universally acknowledged,
+that a shared state in possession of mutability,
+must be in want of a bug.&quot;
+--
+with apologies to Jane Austen</p>
+<p>As Ms. Austen,
+and
+<a class="reference external" href="https://henrikeichenhardt.blogspot.com/2013/06/why-shared-mutable-state-is-root-of-all.html">Henrik Eichenhardt</a>,
+taught us,
+shared mutable state is
+the root of all evil.</p>
+<p>Yet,
+the official documentation of <a class="reference external" href="https://docs.python.org/3/library/functools.html#functools.lru_cache">functools</a>
+tells …</p> <a class="btn btn-info xsmall" href="./local-lru.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./not-callable.html"><h2>Don't Make It Callable</h2></a>
+        <div class= "well small"> Wed 13 February 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>There is a lot of code that overloads the
+<code>__call__</code>
+method.
+This is the method that
+&quot;calling&quot;
+an object activates:
+<code>something(x, y, z)</code>
+will call
+<code>something.__call__(x, y, z)</code>
+if
+<code>something</code>
+is a member of a Python-defined class.</p>
+<p>At first,
+like every operator overload,
+this seems like a …</p> <a class="btn btn-info xsmall" href="./not-callable.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./open-source-safety.html"><h2>Staying Safe with Open Source</h2></a>
+        <div class= "well small"> Thu 24 January 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>A couple of months ago,
+a successful attack against the Node ecosystem
+resulted in stealing an undisclosed amount
+of bitcoins from
+<a class="reference external" href="https://blog.bitpay.com/npm-package-vulnerability-copay/">CoPay wallets</a>.</p>
+<p>The technical flow of the attack is well-summarized
+by the <a class="reference external" href="https://blog.npmjs.org/post/180565383195/details-about-the-event-stream-incident">NPM blog post</a>.
+Quick summary:</p>
+<ol class="arabic simple">
+<li><cite>nodemon</cite>, a popular way to run Node applications, depends on <cite>event-stream</cite>.</li>
+<li>The …</li></ol> <a class="btn btn-info xsmall" href="./open-source-safety.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev"><a href="./index3.html">&larr; Previous</a></li>
+
+    <li class=""><a href="./index.html">1</a></li>
+    <li class=""><a href="./index2.html">2</a></li>
+    <li class=""><a href="./index3.html">3</a></li>
+    <li class="active"><a href="./index4.html">4</a></li>
+    <li class=""><a href="./index5.html">5</a></li>
+    <li class=""><a href="./index6.html">6</a></li>
+    <li class=""><a href="./index7.html">7</a></li>
+    <li class=""><a href="./index8.html">8</a></li>
+
+    <li class="next"><a href="./index5.html">Next &rarr;</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

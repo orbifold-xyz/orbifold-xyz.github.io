@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Meditations on the Zen of Python</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Meditations on the Zen of Python</h1>
+Mon 30 December 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(This is based on the series published in opensource.com as
+9 articles:
+<a class="reference external" href="https://opensource.com/article/19/12/zen-python-beauty-clarity">1</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-simplicity-complexity">2</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-flat-sparse">3</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-trade-offs">4</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-errors">5</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-consistency">6</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-timeliness">7</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-implementation">8</a>, <a class="reference external" href="https://opensource.com/article/19/12/zen-python-namespaces">9</a>)</p>
+<p>Python contributor Tim Peters introduced us to the
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0020/">Zen of Python</a>
+in 1999.
+Twenty years later,
+its 19 guiding principles continue to be relevant within the community.</p>
+<p>The Zen of Python is not
+&quot;the rules of Python&quot;
+or
+&quot;guidelines of Python&quot;.
+It is full of contradiction and allusion.
+It is not intended to be
+<em>followed</em>:
+it is intended to be meditated upon.</p>
+<p>In this spirit,
+I offer this series of meditations on the Zen of Python.</p>
+<div class="section" id="beautiful-is-better-than-ugly">
+<h2>Beautiful is better than ugly.</h2>
+<p>It was in
+<a class="reference external" href="https://en.wikipedia.org/wiki/Structure_and_Interpretation_of_Computer_Programs">Structure and Interpretation of Computer Programs</a>
+(SICP)
+that the point was made:
+&quot;Programs must be written for people to read and
+only incidentally for machines to execute.&quot;
+Machines do not care about beauty,
+but people do.</p>
+<p>A beautiful program is one that is enjoyable to read.
+This means first that it is consistent.
+Tools like
+<a class="reference external" href="https://opensource.com/article/19/5/python-black">Black</a>,
+<a class="reference external" href="https://opensource.com/article/19/5/python-flake8">flake8</a>, and
+<a class="reference external" href="https://opensource.com/article/19/10/python-pylint-introduction">Pylint</a> are great for making sure things are reasonable on a surface layer.</p>
+<p>But even more important,
+only humans can judge what humans find beautiful.
+Code reviews and a collaborative approach to writing code
+are the only realistic way to build beautiful code.
+Listening to other people is an important skill in software development.</p>
+<p>Finally,
+all the tools and processes are moot if the will is not there.
+Without an appreciation for the importance of beauty,
+there will never be an emphasis on writing beautiful code.</p>
+<p>This is why this is the first principle:
+it is a way of making &quot;beauty&quot; a value in the Python community.
+It immediately answers:
+&quot;Do we really care about beauty?&quot;
+We do.</p>
+</div>
+<div class="section" id="explicit-is-better-than-implicit">
+<h2>Explicit is better than implicit.</h2>
+<p>We humans celebrate light and fear the dark.
+Light helps us make sense of vague images.
+In the same way,
+programming with more explicitness helps us make sense of abstract ideas.
+It is often tempting to make things implicit.</p>
+<p>&quot;Why is
+<tt class="docutils literal">self</tt>
+explicitly there as the first parameter of methods?&quot;</p>
+<p>There are many technical explanations,
+but all of them are wrong.
+It is almost a Python programmer's rite of passage to write a metaclass
+that makes explicitly listing self unnecessary.
+(If you have never done this before, do so;
+it makes a great metaclass learning exercise!)</p>
+<p>The reason self is explicit is not because the Python core developers
+did not want to make a metaclass like that the &quot;default&quot; metaclass.
+The reason it is explicit is because there is one less special case to teach:
+the first argument is explicit.</p>
+<p>Even when Python does allow non-explicit things,
+such as context variables,
+we must always ask:
+Are we sure we need them?
+Could we not just pass arguments explicitly?
+Sometimes,
+for many reasons,
+this is not feasible.
+But prioritizing explicitness means,
+at least,
+asking the question and estimating the effort.</p>
+</div>
+<div class="section" id="simple-is-better-than-complex">
+<h2>Simple is better than complex.</h2>
+<p>When it is possible to choose at all,
+choose the simple solution.
+Python is rarely in the business of disallowing things.
+This means it is possible,
+and even straightforward,
+to design baroque programs to solve straightforward problems.</p>
+<p>It is worthwhile to remember at each point that simplicity is
+one of the easiest things to lose and the hardest to regain when writing code.</p>
+<p>This can mean choosing to write something as a function,
+rather than introducing an extraneous class.
+This can mean avoiding a robust third-party library in favor of writing a
+two-line function that is perfect for the immediate use-case.
+Most often,
+it means avoiding predicting the future in favor of solving the problem at hand.</p>
+<p>It is much easier to change the program later,
+especially if simplicity and beauty were among its guiding principles,
+than to load the code down with all possible future variations.</p>
+</div>
+<div class="section" id="complex-is-better-than-complicated">
+<h2>Complex is better than complicated.</h2>
+<p>This is possibly the most misunderstood principle because
+understanding the precise meanings of the words is crucial.
+Something is <em>complex</em> when it is composed of multiple parts.
+Something is <em>complicated</em> when it has a lot of different,
+often hard to predict,
+behaviors.</p>
+<p>When solving a hard problem,
+it is often the case that no simple solution will do.
+In that case,
+the most Pythonic strategy is to go
+&quot;bottom-up.&quot;
+Build simple tools and combine them to solve the problem.</p>
+<p>This is where techniques like object composition shine.
+Instead of having a complicated inheritance hierarchy,
+have objects that forward some method calls to a separate object.
+Each of those can be tested and developed separately and then finally
+put together.</p>
+<p>Another example of
+&quot;building up&quot;
+is using
+<a class="reference external" href="https://opensource.com/article/19/5/python-singledispatch">singledispatch</a>,
+so that instead of one complicated object,
+we have a simple,
+mostly behavior-less object and separate behaviors.</p>
+</div>
+<div class="section" id="flat-is-better-than-nested">
+<h2>Flat is better than nested.</h2>
+<p>Nowhere is the pressure to be
+&quot;flat&quot;
+more obvious than in Python's strong insistence on indentation.
+Other languages will often introduce an implementation that
+&quot;cheats&quot;
+on the nested structure by reducing indentation requirements.
+To appreciate this point, let's take a look at JavaScript.</p>
+<p>JavaScript is natively async,
+which means that programmers write code in JavaScript using a lot of callbacks.</p>
+<pre class="code literal-block">
+a(function(resultsFromA) {
+  b(resultsFromA, function(resultsfromB) {
+    c(resultsFromC, function(resultsFromC) {
+      console.log(resultsFromC)
+   }
+  }
+}
+</pre>
+<p>Ignoring the code,
+observe the pattern and the way indentation leads to a right-most point.
+This distinctive
+&quot;arrow&quot;
+shape is tough on the eye to quickly walk through the code,
+so it's seen as undesirable and even nicknamed
+&quot;callback hell.&quot;
+However,
+in JavaScript,
+it is possible to
+&quot;cheat&quot;
+and not have indentation reflect nesting.</p>
+<pre class="code literal-block">
+a(function(resultsFromA) {
+b(resultsFromA,
+  function(resultsfromB) {
+c(resultsFromC,
+  function(resultsFromC) {
+    console.log(resultsFromC)
+}}}
+</pre>
+<p>Python affords no such options to cheat:
+every nesting level in the program must be reflected in the indentation level.
+So deep nesting in Python looks deeply nested.
+That means
+&quot;callback hell&quot;
+was a worse problem in Python than in JavaScript:
+nesting callbacks mean indenting with no options to
+&quot;cheat&quot;
+with braces.</p>
+<p>This challenge,
+in combination with the Zen principle,
+has led to an elegant solution by a library I worked on.
+In the Twisted framework,
+we came up with the deferred abstraction,
+which would later inspire the popular JavaScript promise abstraction.
+In this way,
+Python's unwavering commitment to clear code forces
+Python developers to discover new, powerful abstractions.</p>
+<pre class="code literal-block">
+future_value = future_result()
+future_value.addCallback(a)
+future_value.addCallback(b)
+future_value.addCallback(c)
+</pre>
+<p>(This might look familiar to modern JavaScript programmers:
+Promises were heavily influenced by Twisted's deferreds.)</p>
+</div>
+<div class="section" id="sparse-is-better-than-dense">
+<h2>Sparse is better than dense.</h2>
+<p>The easiest way to make something less dense is to introduce nesting.
+This habit is why the principle of sparseness follows the previous one:
+after we have reduced nesting as much as possible,
+we are often left with dense code or data structures.
+Density,
+in this sense,
+is jamming too much information into a small amount of code,
+making it difficult to decipher when something goes wrong.</p>
+<p>Reducing that denseness requires creative thinking,
+and there are no simple solutions.
+The Zen of Python does not offer simple solutions.
+All it offers are ways to find what can be improved in the code,
+without always giving guidance for &quot;how.&quot;</p>
+<p>Take a walk.
+Take a shower.
+Smell the flowers.
+Sit in a lotus position and think hard,
+until finally,
+inspiration strikes.
+When you are finally enlightened,
+it is time to write the code.</p>
+</div>
+<div class="section" id="readability-counts">
+<h2>Readability counts.</h2>
+<p>In some sense,
+this middle principle is indeed the center of the entire Zen of Python.
+The Zen is not about writing efficient programs.
+It is not even about writing robust programs,
+for the most part.
+It is about writing programs that other people can read.</p>
+<p>Reading code,
+by its nature,
+happens after the code has been added to the system.
+Often,
+it happens long after.
+Neglecting readability is the easiest choice since it does not hurt right now.
+Whatever the reason for adding new code --
+a painful bug or a highly requested feature --
+it does hurt.
+Right now.</p>
+<p>In the face of immense pressure to throw readability to the side and just
+&quot;solve the problem,&quot;
+the Zen of Python reminds us:
+readability counts.
+Writing the code so it can be read is a form of
+compassion for yourself and others.</p>
+</div>
+<div class="section" id="special-cases-aren-t-special-enough-to-break-the-rules">
+<h2>Special cases aren't special enough to break the rules.</h2>
+<p>There is always an excuse.
+This bug is particularly painful;
+let's not worry about simplicity.
+This feature is particularly urgent;
+let's not worry about beauty.
+The domain rules covering this case are particularly hairy;
+let's not worry about nesting levels.</p>
+<p>Once we allow special pleading,
+the dam wall breaks,
+and there are no more principles;
+things devolve into a Mad Max dystopia with every programmer for themselves,
+trying to find the best excuses.</p>
+<p>Discipline requires commitment.
+It is only when things are hard,
+when there is a strong temptation,
+that a software developer is tested.
+There is always a valid excuse to break the rules,
+and that's why the rules must be kept the rules.
+Discipline is the art of saying no to exceptions.
+No amount of explanation can change that.</p>
+</div>
+<div class="section" id="although-practicality-beats-purity">
+<h2>Although, practicality beats purity.</h2>
+<p>&quot;If you think only of hitting, springing, striking, or touching the enemy, you will not be able actually to cut him.&quot;,
+Miyamoto Musashi,
+The Book of Water</p>
+<p>Ultimately, software development is a practical discipline.
+Its goal is to solve real problems,
+faced by real people.
+Practicality beats purity:
+above all else,
+we must solve the problem.
+If we think only about readability,
+simplicity,
+or beauty,
+we will not be able to actually solve the problem.</p>
+<p>As Musashi suggested,
+the primary goal of every code change should be to solve a problem.
+The problem must be foremost in our minds.
+If we waver from it and think only of the Zen of Python,
+we have failed the Zen of Python.
+This is another one of those contradictions inherent in the Zen of Python.</p>
+</div>
+<div class="section" id="errors-should-never-pass-silently">
+<h2>Errors should never pass silently...</h2>
+<p>Before the Zen of Python was a twinkle in Tim Peters' eye,
+before Wikipedia became informally known as &quot;wiki,&quot;
+the first WikiWiki site,
+<a class="reference external" href="https://wiki.c2.com/">C2</a>,
+existed as a trove of programming guidelines.
+These are principles that mostly came out of a Smalltalk programming community. Smalltalk's ideas influenced many object-oriented languages,
+Python included.</p>
+<p>The C2 wiki defines the Samurai Principle:
+&quot;return victorious, or not at all.&quot;
+In Pythonic terms,
+it encourages eschewing sentinel values,
+such as returning
+<tt class="docutils literal">None</tt> or
+<tt class="docutils literal"><span class="pre">-1</span></tt> to indicate an inability to complete the task,
+in favor of raising exceptions.
+A <tt class="docutils literal">None</tt> is silent:
+it looks like a value and can be put in a variable and passed around.
+Sometimes,
+it is even a valid return value.</p>
+<p>The principle here is that if a function cannot accomplish its contract,
+it should
+&quot;fail loudly&quot;:
+raise an exception.
+The raised exception will never look like a possible value.
+It will skip past the
+<tt class="docutils literal">returned_value = call_to_function(parameter)</tt>
+line and go up the stack,
+potentially crashing the program.</p>
+<p>A crash is straightforward to debug:
+there is a stack trace indicating the problem as well as the call stack.
+The failure might mean that a necessary condition for the program was not met,
+and human intervention is needed.
+It might mean that the program's logic is faulty.
+In either case,
+the loud failure is better than a hidden,
+&quot;missing&quot; value,
+infecting the program's valid data with
+<tt class="docutils literal">None</tt>,
+until it is used somewhere and an error message says
+&quot;<tt class="docutils literal">None does not have method split</tt>,&quot;
+which you probably already knew.</p>
+</div>
+<div class="section" id="unless-explicitly-silenced">
+<h2>Unless explicitly silenced.</h2>
+<p>Exceptions sometimes need to be explicitly caught.
+We might anticipate some of the lines in a file are misformatted and
+want to handle those in a special way,
+maybe by putting them in a
+&quot;lines to be looked at by a human&quot;
+file,
+instead of crashing the entire program.</p>
+<p>Python allows us to catch exceptions with <tt class="docutils literal">except</tt>.
+This means errors can be explicitly silenced.
+This explicitness means that the <tt class="docutils literal">except</tt> line is visible in code reviews.
+It makes sense to question why this is the right place to silence,
+and potentially recover from,
+the exception.
+It makes sense to ask if we are catching too many exceptions or too few.</p>
+<p>Because this is all explicit,
+it is possible for someone to read the code and understand
+which exceptional conditions are recoverable.</p>
+</div>
+<div class="section" id="in-the-face-of-ambiguity-refuse-the-temptation-to-guess">
+<h2>In the face of ambiguity, refuse the temptation to guess.</h2>
+<p>What should the result of
+<tt class="docutils literal">1 + &quot;1&quot;</tt> be?
+Both
+<tt class="docutils literal">&quot;11&quot;</tt>
+and
+<tt class="docutils literal">2</tt>
+would be valid guesses.
+This expression is ambiguous:
+there is no single thing it can do that would not be a surprise to at
+least some people.</p>
+<p>Some languages choose to guess.
+In JavaScript,
+the result is
+<tt class="docutils literal">&quot;11&quot;</tt>.
+In Perl,
+the result is
+<tt class="docutils literal">2</tt>.
+In C, naturally, the result is the empty string.
+In the face of ambiguity, JavaScript, Perl, and C all guess.</p>
+<p>In Python,
+this raises a
+<tt class="docutils literal">TypeError</tt>:
+an error that is not silent.
+It is atypical to catch
+<tt class="docutils literal">TypeError</tt>:
+it will usually terminate the program or at least the current task
+(for example,
+in most web frameworks,
+it will terminate the handling of the current request).</p>
+<p>Python refuses to guess what
+<tt class="docutils literal">1 + &quot;1&quot;</tt>
+means.
+The programmer is forced to write code with clear intention:
+either
+<tt class="docutils literal">1 + <span class="pre">int(&quot;1&quot;)</span></tt>,
+which would be
+<tt class="docutils literal">2</tt>
+or
+<tt class="docutils literal">str(1) + &quot;1&quot;</tt>,
+which would be
+<tt class="docutils literal">&quot;11&quot;</tt>; or
+<tt class="docutils literal"><span class="pre">&quot;1&quot;[1:]</span></tt>,
+which would be an empty string.
+By refusing to guess,
+Python makes programs more predictable.</p>
+</div>
+<div class="section" id="there-should-be-one-and-preferably-only-one-obvious-way-to-do-it">
+<h2>There should be one -- and preferably only one -- obvious way to do it.</h2>
+<p>Prediction also goes the other way.
+Given a task,
+can you predict the code that will be written to achieve it?
+It is impossible,
+of course,
+to predict perfectly.
+Programming,
+after all,
+is a creative task.</p>
+<p>However,
+there is no reason to intentionally provide multiple,
+redundant ways to achieve the same thing.
+There is a sense in which some solutions are
+&quot;better&quot;
+or
+&quot;more Pythonic.&quot;</p>
+<p>Part of the appreciation for the Pythonic aesthetic is that it is OK to have
+healthy debates about which solution is better.
+It is even OK to disagree and keep programming.
+It is even OK to agree to disagree for the sake of harmony.
+But beneath it all,
+there has to be a feeling that,
+eventually,
+the right solution will come to light.
+There must be the hope that eventually we can live in true harmony by
+agreeing on the best way to achieve a goal.</p>
+</div>
+<div class="section" id="although-that-way-may-not-be-obvious-at-first-unless-you-re-dutch">
+<h2>Although that way may not be obvious at first (unless you're Dutch).</h2>
+<p>This is an important caveat:
+It is often not obvious,
+at first,
+what is the best way to achieve a task.
+Ideas are evolving.
+Python is evolving.
+The best way to read a file block-by-block is,
+probably,
+to wait until Python 3.8 and use the walrus operator.</p>
+<p>This common task,
+reading a file block-by-block,
+did not have a
+&quot;single best way to do it&quot;
+for almost 30 years of Python's existence.</p>
+<p>When I started using Python in 1998 with Python 1.5.2,
+there was no single best way to read a file line-by-line.
+For many years,
+the best way to know if a dictionary had a key was to use
+<tt class="docutils literal">.haskey</tt>
+until the
+<tt class="docutils literal">in</tt>
+operator became the best way.</p>
+<p>It is only by appreciating that sometimes,
+finding the one
+(and only one)
+way of achieving a goal can take 30 years of trying out alternatives
+that Python can keep aiming to find those ways.
+This view of history,
+where 30 years is an acceptable time for something to take,
+often feels foreign to people in the United States,
+when the country has existed for just over 200 years.</p>
+<p>The Dutch,
+whether it's Python creator Guido van Rossum or
+famous computer scientist Edsger W. Dijkstra,
+have a different worldview according to this part of the Zen of Python.
+A certain European appreciation for time is essential.</p>
+</div>
+<div class="section" id="now-is-better-than-never">
+<h2>Now is better than never.</h2>
+<p>There is always the temptation to delay things until they are perfect.
+They will never be perfect,
+though.
+When they look &quot;ready&quot; enough,
+that is when it is time to take the plunge and put them out there.
+Ultimately,
+a change always happens at
+<em>some</em>
+now:
+the only thing that delaying does is move it to a future person's
+&quot;now.&quot;</p>
+</div>
+<div class="section" id="although-never-is-often-better-than-right-now">
+<h2>Although never is often better than right now.</h2>
+<p>This,
+however,
+does not mean things should be rushed.
+Decide the criteria for release in terms of testing,
+documentation,
+user feedback,
+and so on.
+&quot;Right now,&quot;
+as in before the change is ready,
+is not a good time.</p>
+<p>This is a good lesson not just for popular languages like Python,
+but also for your personal little open source project.</p>
+</div>
+<div class="section" id="if-the-implementation-is-hard-to-explain-it-s-a-bad-idea">
+<h2>If the implementation is hard to explain, it's a bad idea.</h2>
+<p>The most important thing about programming languages is predictability.
+Sometimes we explain the semantics of a certain construct in terms of abstract
+programming models,
+which do not correspond exactly to the implementation.
+However,
+the best of all explanations just explains the implementation.</p>
+<p>If the implementation is hard to explain,
+it means the avenue is impossible.</p>
+</div>
+<div class="section" id="if-the-implementation-is-easy-to-explain-it-may-be-a-good-idea">
+<h2>If the implementation is easy to explain, it may be a good idea.</h2>
+<p>Just because something is easy does not mean it is worthwhile.
+However,
+once it is explained,
+it is much easier to judge whether it is a good idea.</p>
+<p>This is why the second half of this principle intentionally equivocates:
+nothing is certain to be a good idea,
+but it always allows people to have that discussion.</p>
+</div>
+<div class="section" id="namespaces-in-python">
+<h2>Namespaces in Python</h2>
+<p>Python uses namespaces for everything.
+Though simple,
+they are sparse data structures --
+which is often the best way to achieve a goal.</p>
+<p>Modules are namespaces.
+This means that correctly predicting module semantics often just requires
+familiarity with how Python namespaces work.
+Classes are namespaces.
+Objects are namespaces.
+Functions have access to their local namespace,
+their parent namespace,
+and the global namespace.</p>
+<p>The simple model,
+where the
+<tt class="docutils literal">.</tt> operator accesses an object,
+which in turn will usually,
+but not always,
+do some sort of dictionary lookup,
+makes Python hard to optimize,
+but easy to explain.</p>
+<p>Indeed,
+some third-party modules take this guideline and run with it.
+For example, the
+<a class="reference external" href="https://pypi.org/project/variants/">variants</a> package turns functions into namespaces of
+&quot;related functionality.&quot;
+It is a good example of how the Zen of Python can inspire new abstractions.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

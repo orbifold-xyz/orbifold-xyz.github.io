@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Avoiding Private Methods</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Avoiding Private Methods</h1>
+Fri 01 June 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Assume <code>MyClass._dangerous(self)</code> is a private method.
+We could have implemented the same functionality without a private
+method as follows:</p>
+<ul class="simple">
+<li>Define a class <code>InnerClass</code> with the same <code>__init__</code>
+as <code>MyClass</code></li>
+<li>Define <code>InnerClass.dangerous(self)</code> with the same logic
+of <code>MyClass._dangerous</code></li>
+<li>Make <code>MyClass</code> into a wrapper class over <code>InnerClass</code>,
+where the wrapped attribute is private.</li>
+<li>Proxy all necessary work into <code>InnerClass</code>.</li>
+</ul>
+<p>This might seem onerous,
+but consider that now, <code>dangerous</code> is part of the public
+interface of a class,
+and would need to be explicitly documented as to assumptions and guarantees.
+This documentation would have had to have been in comments around
+<code>_dangerous</code> anyway --
+in order to clarify what its assumptions are,
+and what invariants it is violating in <code>MyClass</code> --
+otherwise, maintaining the code that <em>calls</em> <code>_dangerous</code>
+would be hard.</p>
+<p>Of course,
+this documentation is almost certain to be missing.
+The existence of <code>_dangerous</code> itself
+implies this was an almost mechanical refactoring
+of similar code into a method,
+with the excuse of &quot;its private&quot;
+used to avoid considering the invariants and interface.</p>
+<p>Even if the documentation did exist,
+now it is possible to unit-test that the documentation is correct.
+Furthermore,
+if we use <a class="reference external" href="https://as.ynchrono.us/2014/12/asynchronous-object-initialization.html">best practices</a> when we define <code>MyClass</code> --
+in other words,
+avoid creating an <code>InnerClass</code> object in the initializer,
+and only creating it in an <code>MyClass.from_parameters</code>,
+we are also in a good position to unit test <code>MyClass</code>.</p>
+<p>This,
+of course,
+presented the worst case:
+the code for <code>_dangerous</code> touches absolutely every data member
+of <code>MyClass</code>.
+In real life,
+the worst case is not often encountered.
+When we look at a private method <em>as</em> a code smell,
+and contemplate the best way to refactor it away,
+it turns out that we often can find a coherent set of attributes
+that really does make sense as <code>InnerClass</code> on their own merits.</p>
+<p>Credit:
+This is based on an
+<a class="reference external" href="https://glyph.twistedmatrix.com/2016/08/attrs.html#fn:1">off-handed comment</a>
+Glyph made in his blog post about attrs.
+I am also grateful to him for reviewing a draft copy of this post,
+and making many useful suggestions.
+All mistakes in interpretation or explanation are mine alone.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

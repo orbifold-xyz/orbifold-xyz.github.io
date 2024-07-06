@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - An introduction to zope.interface</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>An introduction to zope.interface</h1>
+Thu 17 October 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>This has previously been published on
+<a class="reference external" href="https://opensource.com/article/19/9/zopeinterface-python-package">opensource.com</a>.</p>
+<p>The
+<a class="reference external" href="https://en.wikipedia.org/wiki/Zen_of_Python">Zen of Python</a>
+is loose enough and contradicts itself enough that you can prove anything from
+it.
+Let's meditate upon one of its most famous principles:
+&quot;Explicit is better than implicit.&quot;</p>
+<p>One thing that traditionally has been implicit in Python is the
+expected interface.
+Functions have been documented to expect a
+&quot;file-like object&quot;
+or a
+&quot;sequence.&quot;
+But what is a file-like object?
+Does it support
+<tt class="docutils literal">.writelines</tt>?
+What about
+<tt class="docutils literal">.seek</tt>?
+What is a &quot;sequence&quot;?
+Does it support step-slicing,
+such as <tt class="docutils literal">a[1:10:2]</tt>?</p>
+<p>Originally,
+Python's answer was the so-called
+&quot;duck-typing,&quot;
+taken from the phrase
+&quot;if it walks like a duck and quacks like a duck,
+it's probably a duck.&quot;
+In other words,
+&quot;try it and see,&quot;
+which is possibly the most implicit you could possibly get.</p>
+<p>In order to make those things explicit,
+you need a way to express expected interfaces.
+One of the first big systems written in Python was the Zope web framework,
+and it needed those things desperately to make it obvious what rendering code,
+for example,
+expected from a
+&quot;user-like object.&quot;</p>
+<p>Enter
+<tt class="docutils literal">zope.interface</tt>,
+which was part of Zope but published as a separate Python package.
+The
+<tt class="docutils literal">zope.interface</tt>
+package helps declare what interfaces exist,
+which objects provide them, and how to query for that information.</p>
+<p>Imagine writing a simple 2D game that needs various things to support a
+&quot;sprite&quot;
+interface;
+e.g.,
+indicate a bounding box,
+but also indicate when the object intersects with a box.
+Unlike some other languages,
+in Python,
+attribute access as part of the public interface is a common practice,
+instead of implementing getters and setters.
+The bounding box should be an attribute,
+not a method.</p>
+<p>A method that renders the list of sprites might look like:</p>
+<pre class="code literal-block">
+def render_sprites(render_surface, sprites):
+    &quot;&quot;&quot;
+    sprites should be a list of objects complying with the Sprite interface:
+    * An attribute &quot;bounding_box&quot;, containing the bounding box.
+    * A method called &quot;intersects&quot;, that accepts a box and returns
+      True or False
+    &quot;&quot;&quot;
+    pass # some code that would actually render
+</pre>
+<p>The game will have many functions that deal with sprites.
+In each of them,
+you would have to specify the expected contract in a docstring.</p>
+<p>Additionally,
+some functions might expect a more sophisticated sprite object,
+maybe one that has a Z-order.
+We would have to keep track of which methods expect a <tt class="docutils literal">Sprite</tt> object,
+and which expect a <tt class="docutils literal">SpriteWithZ</tt> object.</p>
+<p>Wouldn't it be nice to be able to make what a sprite is explicit and obvious
+so that methods could declare
+&quot;I need a sprite&quot;
+and have that interface strictly defined?
+Enter <tt class="docutils literal">zope.interface</tt>.</p>
+<pre class="code literal-block">
+from zope import interface
+
+class ISprite(interface.Interface):
+
+    bounding_box = interface.Attribute(
+        &quot;The bounding box&quot;
+    )
+
+    def intersects(box):
+        &quot;Does this intersect with a box&quot;
+</pre>
+<p>This code looks a bit strange at first glance.
+The methods do not include a self,
+which is a common practice,
+and it has an <tt class="docutils literal">Attribute</tt> thing.
+This is the way to declare interfaces in <tt class="docutils literal">zope.interface</tt>.
+It looks strange because most people are not used to strictly declaring
+interfaces.</p>
+<p>The reason for this practice is that the interface shows how the method
+will be called,
+not how it is defined.
+Because interfaces are not superclasses,
+they can be used to declare data attributes.</p>
+<p>One possible implementation of the interface can be with a circular sprite:</p>
+<pre class="code literal-block">
+&#64;implementer(ISprite)
+&#64;attr.s(auto_attribs=True)
+class CircleSprite:
+    x: float
+    y: float
+    radius: float
+
+    &#64;property
+    def bounding_box(self):
+        return (
+            self.x - self.radius,
+            self.y - self.radius,
+            self.x + self.radius,
+            self.y + self.radius,
+        )
+
+    def intersects(self, box):
+        # A box intersects a circle if and only if
+        # at least one corner is inside the circle.
+        top_left, bottom_right = box[:2], box[2:]
+        for choose_x_from (top_left, bottom_right):
+            for choose_y_from (top_left, bottom_right):
+                x = choose_x_from[0]
+                y = choose_y_from[1]
+                if (((x - self.x) ** 2 + (y - self.y) ** 2) &lt;=
+                    self.radius ** 2):
+                     return True
+        return False
+</pre>
+<p>This explicitly declares that the
+<tt class="docutils literal">CircleSprite</tt>
+class implements the interface.
+It even enables us to verify that the class implements it properly:</p>
+<pre class="code literal-block">
+from zope.interface import verify
+
+def test_implementation():
+    sprite = CircleSprite(x=0, y=0, radius=1)
+    verify.verifyObject(ISprite, sprite)
+</pre>
+<p>This is something that can be run by <tt class="docutils literal">pytest</tt>,
+<tt class="docutils literal">nose</tt>,
+or another test runner,
+and it will verify that the sprite created complies with the interface.
+The test is often partial:
+it will not test anything only mentioned in the documentation,
+and it will not even test that the methods can be called without exceptions!
+However,
+it does check that the right methods and attributes exist.
+This is a nice addition to the unit test suite and
+--
+at a minimum
+--
+prevents simple misspellings from passing the tests.</p>
+<p>If you have some implicit interfaces in your code,
+why not document them clearly with <tt class="docutils literal">zope.interface</tt>?</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

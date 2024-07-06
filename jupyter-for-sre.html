@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Jupyter for SRE</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Jupyter for SRE</h1>
+Sat 30 December 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Jupyter is a tool that came out of the data science community. In
+science, being able to replicate experiments is of the utmost importance
+-- so a tool where you can &quot;show your work&quot; is helpful. However, being
+able to show your work -- have colleagues validate what you have done,
+repeat it if needs be, and learn new techniques -- is also useful in the
+world of Site Reliability Engineering and DevOps.</p>
+<p>The Jupyter console allows us to experiment (carefullly!) with APIs,
+running one function at a time, and validating the results. It allows
+building the needed automation from simple atoms, all the while learning
+how to use them.</p>
+<p>The Jupyter Python kernel is popular in the data science community
+because so many data science libraries are available for Python.
+Luckily, the same is true in the SRE/DevOps community.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">github3</span><span class="w">
+</span><span class="kn">import</span> <span class="nn">os</span>
+</pre>
+<p>The GitHub API has several client libraries in Python. My personal
+favorite is <tt class="docutils literal">github3</tt> -- I find its interface allowing remarkably
+idiomatic Python.</p>
+<pre class="code python literal-block">
+<span class="n">fname</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.git-token&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span><span class="w">
+</span>    <span class="n">token</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="w">
+</span><span class="n">gh</span> <span class="o">=</span> <span class="n">github3</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+</pre>
+<p>I have prepared a <a class="reference external" href="https://github.com/settings/tokens">GitHub authentication
+token</a> in a file. This allows the
+NoteBook to be published widely, without leaking access credentials.
+Never put usernames and passwords in Jupyter notebooks!</p>
+<pre class="code python literal-block">
+<span class="n">repositories</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gh</span><span class="o">.</span><span class="n">organization</span><span class="p">(</span><span class="s1">'twisted'</span><span class="p">)</span><span class="o">.</span><span class="n">iter_repos</span><span class="p">())</span><span class="w">
+</span><span class="n">repositories</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">repositories</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+([&lt;Repository [twisted/txmongo]&gt;,
+  &lt;Repository [twisted/twisted]&gt;,
+  &lt;Repository [twisted/txaws]&gt;],
+ 26)
+</pre>
+<p>This is a list of the repositories in the Twisted GitHub organization.
+It is nice to be able to validate we got a reasonable value by checking
+the first three. In previous versions of the notebook, my usage of
+<tt class="docutils literal">github3</tt> had an error -- and this was a list of all repositories I
+had access to, including private ones! Being able to inspect values
+interactively meant I could fix the bug easily.</p>
+<pre class="code python literal-block">
+<span class="n">repositories</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">branch</span><span class="p">(</span><span class="s1">'trunk'</span><span class="p">)</span><span class="o">.</span><span class="n">commit</span><span class="o">.</span><span class="n">sha</span>
+</pre>
+<pre class="literal-block">
+'51d23b6cb004e60ed699b3b100b4c476f5aebc4e'
+</pre>
+<p>As an example of why this might be useful, we are checking the commit
+hash of the <tt class="docutils literal">trunk</tt> branch. This can be used in validating which
+version we are running somewhere, or checking if there have been new
+commits.</p>
+<p>The GitHub API is big, and this is not meant to be an exhaustive guide
+to it. However, this approach is powerful -- it can be used, for
+example, to automatically create pull requests for a list of
+repositories. This comes in handy when needing to change the build
+structure, for example.</p>
+<pre class="code python literal-block">
+<span class="kn">from</span> <span class="nn">fabric</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">fabpi</span>
+</pre>
+<p>The <a class="reference external" href="http://docs.fabfile.org/en/1.14/index.html">Fabric</a> library,
+(here used in its <tt class="docutils literal">fabric3</tt> fork) is an all-purpose ad-hoc library for
+operations.</p>
+<p>Again, a full tutorial is beyond the scope of this article.</p>
+<p>fabpi.local(&quot;uname -a&quot;, capture=True)</p>
+<p>However, the advantages of running Fabric from Jupyter notebook are big.
+Because Fabric is specifically designed for <em>ad-hoc</em> operations, there
+is often no way to know exactly what someone did. Even with a
+<tt class="docutils literal">fabfile</tt>, the logging is often lacking.</p>
+<p>Running the functions from a notebook means an official log of what was
+done -- that can easily be attached to the relevant ticket, or to the
+post-mortem. (Either the post-mortem that the operations were meant to
+fix, or the ones they inevitably caused).</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">docker</span><span class="w">
+</span><span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">DockerClient</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s1">'unix://var/run/docker.sock'</span><span class="p">)</span>
+</pre>
+<p>The Docker client is also available as a Python library. Once again, the
+possibilities are endless.</p>
+<pre class="code python literal-block">
+<span class="p">[</span><span class="n">im</span> <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">list</span><span class="p">()</span> <span class="k">if</span> <span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">[</span><span class="s1">''</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'debian'</span><span class="p">)]</span>
+</pre>
+<pre class="literal-block">
+[&lt;Image: 'debian:latest'&gt;,
+ &lt;Image: 'debian:stable-slim', 'moshez/debian:2017-10-26T10-58-56-455022'&gt;]
+</pre>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">boto3</span>
+</pre>
+<p>The <tt class="docutils literal">boto3</tt> library is an API for the Amazon Web Services -- which
+includes everything from load balancers, through orchestrating
+containers, to sending e-mail.</p>
+<p>The Jupyter console is a great adjunct to the AWS web console -- while
+results can often be inspected in the web console, any actions done from
+the notebook can be repeated, tweaked, and automated.</p>
+<pre class="code python literal-block">
+<span class="n">ec2</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">'ec2'</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="s1">'us-west-2'</span><span class="p">)</span>
+</pre>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>For a team of SRE/DevOps engineers who are already using Python, the
+Jupyter notebook allows a great way to communicate about actions taken.
+It logs the inputs and the outputs, while allowing editing and
+clarifying.</p>
+<p>Note that it is <em>not</em> a useful auditing tool, and should not be used as
+such. It is meant as a <em>communications</em> tool, attaching notebooks to
+tickets or e-mails in order to clarify, in a way that can be fed back
+into a computer for testing and tweaking.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

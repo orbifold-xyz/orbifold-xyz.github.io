@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Anatomy of a Multi-Stage Docker Build</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Anatomy of a Multi-Stage Docker Build</h1>
+Wed 19 July 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p><a class="reference external" href="https://www.docker.com/">Docker</a>, in recent versions,
+has introduced <cite>multi-stage build</cite>.
+This allows separating the build environment from the runtime envrionment
+much more easily than <a class="reference external" href="https://orbifold.xyz/python-docker.html">before</a>.</p>
+<p>In order to demonstrate this,
+we will write a minimal <a class="reference external" href="http://flask.pocoo.org/">Flask</a> app and run it with <a class="reference external" href="https://twistedmatrix.com/trac/">Twisted</a>
+using its <a class="reference external" href="http://twistedmatrix.com/documents/current/web/howto/web-in-60/wsgi.html">WSGI</a> support.</p>
+<p>The Flask application itself is the smallest demo app,
+straight from any number of Flask tutorials:</p>
+<pre class="code literal-block">
+# src/msbdemo/wsgi.py
+from flask import Flask
+app = Flask(&quot;msbdemo&quot;)
+&#64;app.route(&quot;/&quot;)
+def hello():
+    return &quot;If you are seeing this, the multi-stage build succeeded&quot;
+</pre>
+<p>The <code>setup.py</code> file,
+similarly,
+is the minimal one from any number of <a class="reference external" href="https://packaging.python.org/tutorials/distributing-packages/#setup-py">Python packaging</a> tutorials:</p>
+<pre class="code literal-block">
+import setuptools
+setuptools.setup(
+    name='msbdemo',
+    version='0.0.1',
+    url='https://github.com/moshez/msbdemo',
+    author='Moshe Zadka',
+    author_email='zadka.moshe&#64;gmail.com',
+    packages=setuptools.find_packages(),
+    install_requires=['flask'],
+)
+</pre>
+<p>The interesting stuff is in the <code>Dockefile</code>.
+It is interesting enough that we will go through it line by line:</p>
+<pre class="code literal-block">
+FROM python:2.7.13
+</pre>
+<p>We start from a &quot;fat&quot; Python docker image --
+one with the Python headers installed,
+and the ability to compile extensions.</p>
+<pre class="code literal-block">
+RUN virtualenv /buildenv
+</pre>
+<p>We create a custom virtual environment for the build process.</p>
+<pre class="code literal-block">
+RUN /buildenv/bin/pip install pex wheel
+</pre>
+<p>We install the build tools --
+in this case, <code>wheel</code>, which will let us build <a class="reference external" href="https://wheel.readthedocs.io/en/latest/">wheels</a>,
+and <code>pex</code>, which will let us build single file executables.</p>
+<pre class="code literal-block">
+RUN mkdir /wheels
+</pre>
+<p>We create a custom directory to put all of our wheels.
+Note that we will <em>not</em> install those wheels in this docker image.</p>
+<pre class="code literal-block">
+COPY src /src
+</pre>
+<p>We copy our minimal Flask-based application's source code
+into the docker image.</p>
+<pre class="code literal-block">
+RUN /buildenv/bin/pip wheel --no-binary :all: \
+                            twisted /src \
+                            --wheel-dir /wheels
+</pre>
+<p>We build the wheels.
+We take care to manually build wheels ourselves,
+since <code>pex</code>, right now, <a class="reference external" href="https://github.com/pantsbuild/pex/issues/281">cannot handle</a> <a class="reference external" href="https://www.python.org/dev/peps/pep-0513/">manylinux</a> binary wheels.</p>
+<pre class="code literal-block">
+RUN /buildenv/bin/pex --find-links /wheels --no-index \
+                      twisted msbdemo -o /mnt/src/twist.pex -m twisted
+</pre>
+<p>We build the <code>twisted</code> and <code>msbdemo</code> wheels,
+togther with any recursive dependencies,
+into a <a class="reference external" href="https://pex.readthedocs.io/en/stable/">Pex</a> file -- a single file executable.</p>
+<pre class="code literal-block">
+FROM python:2.7.13-slim
+</pre>
+<p>This is where the magic happens.
+A second <code>FROM</code> line starts a new docker image build.
+The previous images are available --
+but only inside this <code>Dockerfile</code> --
+for copying files from.
+Luckily, we have a file ready to copy:
+the output of the Pex build process.</p>
+<pre class="code literal-block">
+COPY --from=0 /mnt/src/twist.pex /root
+</pre>
+<p>The <code>--from=0</code> indicates copying from a previously built image,
+rather than the so-called &quot;build context&quot;.
+In theory, any number of builds can take place in one <code>Dockefile</code>.
+While only the last one will actually result in a permanent image,
+the others are all available as targets for <code>--from</code> copying.
+In practice, two stages are usually enough.</p>
+<pre class="code literal-block">
+ENTRYPOINT [&quot;/root/twist.pex&quot;, &quot;web&quot;, &quot;--wsgi&quot;, &quot;msbdemo.wsgi.app&quot;, \
+            &quot;--port&quot;, &quot;tcp:80&quot;]
+</pre>
+<p>Finally, we use Twisted as our WSGI container.
+Since we bound the Pex file to the <code>-m twisted</code> package execution,
+all we need to is run the <code>web</code> plugin,
+ask it to run a <code>wsgi</code> container,
+and give it the logical (module) path to our WSGI app.</p>
+<p>Using Docker multi-stage builds has allowed us to create a Docker container
+for production with:</p>
+<ul class="simple">
+<li>A smaller footprint (using the &quot;slim&quot; image as base)</li>
+<li>Few layers (only adding two layers to the base slim image)</li>
+</ul>
+<p>The biggest benefit is that it let us do so with one Dockerfile,
+with no extra machinery.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

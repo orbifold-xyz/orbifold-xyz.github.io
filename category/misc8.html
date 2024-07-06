@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - misc</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+ 
+
+    <div class='article'>
+        <a href="../imports-distance.html"><h2>Imports at a Distance</h2></a>
+        <div class= "well small"> Sun 25 June 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(Thanks to Mark Williams for feedback and research)</p>
+<p>Imagine the following code:</p>
+<pre class="code literal-block">
+## mymodule.py
+import toplevel.nextlevel.lowmodule
+
+def _func():
+    toplevel.nextlevel.lowmodule.dosomething(1)
+
+def main():
+    _func()
+</pre>
+<p>Assuming the <code>toplevel.nextlevel.module</code>
+does define a function <code>dosomething</code>,
+this code seems to work just fine.</p>
+<p>However, imagine that later we …</p> <a class="btn btn-info xsmall" href="../imports-distance.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../x-why-zip.html"><h2>X Why Zip</h2></a>
+        <div class= "well small"> Sat 24 June 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p><a class="reference external" href="https://www.python.org/dev/peps/pep-0441/">PEP 441</a> resulted in the creation of the <a class="reference external" href="https://docs.python.org/3/library/zipapp.html">zipapp</a> module.
+The PEP says
+&quot;Python has had the ability to execute directories or ZIP-format archives as scripts since version 2.6 [...]
+This feature is not as popular as it should be mainly because it was not promoted as part of Python …</p> <a class="btn btn-info xsmall" href="../x-why-zip.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../nitpicks-are-for-robots.html"><h2>Nitpicks are for Robots</h2></a>
+        <div class= "well small"> Fri 09 June 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>Many projects and organizations have a coding standard.
+For Python, much of the time, the standard is a variant of <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a>.
+During code reviews, often the reviewer will point out where the
+code disagrees with the standard, and ask for it to be fixed.
+Sometimes, if the reviewer is …</p> <a class="btn btn-info xsmall" href="../nitpicks-are-for-robots.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../my-little-subclass.html"><h2>My Little Subclass: Inheritance is Magic</h2></a>
+        <div class= "well small"> Sat 29 April 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p><em>Learning about Python Method Resolution Order with Twilight Sparkle and her friends.</em></p>
+<p>(Thanks to Ashwini Oruganti for her helpful suggestions.)</p>
+<p>The show &quot;My Little Pony: Friendship is Magic&quot; is the latest
+reimagination of the &quot;My Little Pony&quot; brand as a TV show. The show takes
+place, mostly, in Ponyville and …</p> <a class="btn btn-info xsmall" href="../my-little-subclass.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../pythonpath.html"><h2>PYTHONPATH Considered Harmful</h2></a>
+        <div class= "well small"> Tue 11 April 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p>(Thanks to Tim D. Smith and Augie Fackler for reviewing a draft.
+Any mistakes that remain are mine.)</p>
+<p>The environment variable <code>PYTHONPATH</code> seems harmless enough.
+The official documentation refers to its function as
+&quot;Augment the default search path for module files.&quot;
+However, in practice, setting this variable in a shell …</p> <a class="btn btn-info xsmall" href="../pythonpath.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../python-docker.html"><h2>Shipping Python Applications in Docker</h2></a>
+        <div class= "well small"> Fri 17 March 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><div class="section" id="introduction">
+<h2>Introduction</h2>
+<p>When looking in open source examples, or tutorials, one will often see
+Dockerfiles that look like this:</p>
+<pre class="code literal-block">
+FROM python:3.6
+COPY setup.py /mypackage
+COPY src /mypackage/src
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
+RUN pip install /mypackage
+ENTRYPOINT [&quot;/usr/bin/mypackage-console-script&quot;, &quot;some&quot;, &quot;arguments&quot;]
+</pre>
+<p>This …</p></div> <a class="btn btn-info xsmall" href="../python-docker.html">read more</a></div>
+    </div>	
+				
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../experiment.html"><h2>Pelican -- an Experiment</h2></a>
+        <div class= "well small"> Tue 07 March 2017
+
+by <a class="url fn" href="../author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+ </div>
+        <div class="summary"><p class="first last">An experimental blog</p>
+ <a class="btn btn-info xsmall" href="../experiment.html">read more</a></div>
+    </div>	
+				
+<div class="pagination">
+<ul>
+    <li class="prev"><a href="../category/misc7.html">&larr; Previous</a></li>
+
+    <li class=""><a href="../category/misc.html">1</a></li>
+    <li class=""><a href="../category/misc2.html">2</a></li>
+    <li class=""><a href="../category/misc3.html">3</a></li>
+    <li class=""><a href="../category/misc4.html">4</a></li>
+    <li class=""><a href="../category/misc5.html">5</a></li>
+    <li class=""><a href="../category/misc6.html">6</a></li>
+    <li class=""><a href="../category/misc7.html">7</a></li>
+    <li class="active"><a href="../category/misc8.html">8</a></li>
+
+    <li class="next disabled"><a href="#">&rarr; Next</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

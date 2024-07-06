@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Adding Methods Retroactively</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Adding Methods Retroactively</h1>
+Mon 16 September 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>The following post was originally published on
+<a class="reference external" href="https://opensource.com/article/19/5/python-singledispatch">OpenSource.com</a>
+as part of a series on seven libraries that help solve common problems.</p>
+<p>Imagine you have a &quot;shapes&quot; library.
+We have a <code>Circle</code> class,
+a <code>Square</code> class,
+etc.</p>
+<p>A <code>Circle</code> has a <code>radius</code>,
+a <code>Square</code> has a <code>side</code>,
+and maybe <code>Rectangle</code> has <code>height</code> and <code>width</code>.
+The library already exists:
+we do not want to change it.</p>
+<p>However,
+we do want to add an <code>area</code> calculation.
+If this was our library,
+we would just add an <code>area</code> method,
+so that we can call <code>shape.area()</code>,
+and not worry about what the shape is.</p>
+<p>While it is possible to reach into a class and add a method,
+this is a bad idea:
+nobody expects their class to grow new methods,
+and things might break in weird ways.</p>
+<p>Instead,
+the <code>singledispatch</code> function in <code>functools</code> can come to our rescue:</p>
+<pre class="code literal-block">
+&#64;singledispatch
+def get_area(shape):
+    raise NotImplementedError(&quot;cannot calculate area for unknown shape&quot;,
+                              shape)
+</pre>
+<p>The &quot;base&quot; implementation for the <code>get_area</code> function
+just fails.
+This makes sure that if we get a new shape,
+we will cleanly fail instead of returning a nonsense result.</p>
+<pre class="code literal-block">
+&#64;get_area.register(Square)
+def _get_area_square(shape):
+    return shape.side ** 2
+&#64;get_area.register(Circle)
+def _get_area_circle(shape):
+    return math.pi * (shape.radius ** 2)
+</pre>
+<p>One nice thing about doing things this way is that if
+someone else writes a <em>new</em> shape that is intended to play well with our
+code,
+they can implement the <code>get_area</code> themselves:</p>
+<pre class="code literal-block">
+from area_calculator import get_area
+
+&#64;attr.s(auto_attribs=True, frozen=True)
+class Ellipse:
+    horizontal_axis: float
+    vertical_axis: float
+
+&#64;get_area.register(Ellipse)
+def _get_area_ellipse(shape):
+    return math.pi * shape.horizontal_axis * shape.vertical_axis
+</pre>
+<p><em>Calling</em>
+<code>get_area</code>
+is straightforward:</p>
+<pre class="code literal-block">
+print(get_area(shape))
+</pre>
+<p>This means we can change a function that has a long
+<code>if isintance()/elif isinstance()</code>
+chain
+to work this way,
+without changing the interface.
+The next time you are tempted to check <code>if isinstance</code>,
+try using <code>singledispatch</code>!</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

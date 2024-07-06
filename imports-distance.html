@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Imports at a Distance</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Imports at a Distance</h1>
+Sun 25 June 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Mark Williams for feedback and research)</p>
+<p>Imagine the following code:</p>
+<pre class="code literal-block">
+## mymodule.py
+import toplevel.nextlevel.lowmodule
+
+def _func():
+    toplevel.nextlevel.lowmodule.dosomething(1)
+
+def main():
+    _func()
+</pre>
+<p>Assuming the <code>toplevel.nextlevel.module</code>
+does define a function <code>dosomething</code>,
+this code seems to work just fine.</p>
+<p>However, imagine that later we decide to move <code>_func</code>
+to a different module:
+:
+.. code:</p>
+<pre class="literal-block">
+# utilmodule.py
+import toplevel
+
+def _func():
+    toplevel.nextlevel.lowmodule.dosomething(1)
+</pre>
+<p>This code will probably <em>still work</em>,
+as long as at some point, before calling <code>_func</code>,
+we import <code>mymodule</code>.</p>
+<p>This introduces a subtle action-at-a-distance:
+the code will only stop working when we remove the import
+from <code>mymodule</code> -- or any other modules
+which import <code>lowmodule</code>.</p>
+<p>Even unit tests will not necessarily catch the problem,
+depending on the order of imports of the unit tests.
+Static analyzers, like <code>pylint</code> and <code>pyflakes</code>,
+also cannot catch it.</p>
+<p>The only safe thing to do is to eschew this import style completely,
+and always do <code>from toplevel.nextlevel import lowmodule</code>.</p>
+<div class="section" id="addendum">
+<h2>Addendum</h2>
+<p>Why is this happening?</p>
+<p>Python package imports are a little subtle.</p>
+<pre class="code literal-block">
+import toplevel
+</pre>
+<p>Does three things:</p>
+<ul class="simple">
+<li>(Once only) Creates a <code>toplevel</code> entry in <code>sys.modules</code></li>
+<li>(Once only) Executes <code>toplevel/__init__.py</code> inside the namespace of <code>toplevel</code></li>
+<li>Creates a variable called <code>toplevel</code> and assigns it the module.</li>
+</ul>
+<p>The things marked &quot;once only&quot; will only happen the first time
+<code>toplevel</code> is imported.</p>
+<pre class="code literal-block">
+import toplevel.nextlevel
+</pre>
+<p>Does the same three things (<em>with :code:`toplevel`</em>) as well as:</p>
+<ul class="simple">
+<li>(Once only) Creates a <code>toplevel.nextlevel</code> entry in <code>sys.modules</code></li>
+<li>(Once only) Executes:code:<cite>toplevel/nextlevel/__init__.py</cite> inside the namespace of <code>toplevel.nextlevel</code></li>
+<li>(Once only) Creates a variable <code>nextlevel</code> in the namespace
+of <code>toplevel</code>, and binds the <code>toplevel.nextlevel</code> module
+to it.</li>
+</ul>
+<p>The third one is the most interesting one --
+note that the first time <code>toplevel.nextlevel</code> is imported,
+a <code>nextlevel</code> variable is created in the namespace of <code>toplevel</code>,
+so that every subsequent place that imports <code>toplevel</code> can
+access <code>nextlevel</code> for &quot;free&quot;.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

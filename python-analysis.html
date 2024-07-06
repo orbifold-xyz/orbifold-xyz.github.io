@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Analyzing the Stack Overflow Survey</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Analyzing the Stack Overflow Survey</h1>
+Mon 27 May 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>The <a class="reference external" href="https://drive.google.com/file/d/1QOmVDpd8hcVYqqUXDXf68UMDWQZP0wQV/view">Stack Overflow Survey Results for
+2019</a>
+are in! There is some official analysis, that mentioned some things that
+mattered to me, and some that did not. I decided to dig into the data
+and see if I can find some things that would potentially interest my
+readership.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">collections</span><span class="o">,</span> <span class="nn">itertools</span>
+</pre>
+<pre class="code python literal-block">
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;survey_results_public.csv&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fpin</span><span class="p">:</span><span class="w">
+</span>    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">fpin</span><span class="p">)</span><span class="w">
+</span>    <span class="n">responses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</pre>
+<pre class="code python literal-block">
+<span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+88883
+</pre>
+<p>Wow, almost 90K respondents! This is the sweet spots of &quot;enough to make
+meaningful generalizations&quot; while being able to analyze with rudimentary
+tools, not big-data-ware.</p>
+<pre class="code python literal-block">
+<span class="n">pythonistas</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">responses</span> <span class="k">if</span> <span class="s1">'Python'</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">'LanguageWorkedWith'</span><span class="p">]]</span>
+</pre>
+<pre class="code python literal-block">
+<span class="nb">len</span><span class="p">(</span><span class="n">pythonistas</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+0.41001091322300104
+</pre>
+<p>About 40% of the respondents use Python in some capacity. That is pretty
+cool! This is one of the things where I wonder if there is bias in the
+source data. Are people who use Stack Overflow, or respond to surveys
+for SO, more likely to be the kind of person who uses Python? Or less?</p>
+<p>In any case, I am excited! This means my favorite language, for all its
+issues, is doing well. This is also a good reminder that we need to
+<a class="reference external" href="https://twitter.com/hawkieowl/status/1132026149716893696">think about the consequences of our
+decisions</a>
+on a big swath of developers we will never ever meet.</p>
+<pre class="code python literal-block">
+<span class="n">opensource</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">'OpenSourcer'</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pythonistas</span><span class="p">)</span>
+</pre>
+<pre class="code python literal-block">
+<span class="nb">sorted</span><span class="p">(</span><span class="n">opensource</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+[('Never', 11310),
+ ('Less than once per year', 10374),
+ ('Less than once a month but more than once per year', 9572),
+ ('Once a month or more often', 5187)]
+</pre>
+<pre class="code python literal-block">
+<span class="n">opensource</span><span class="p">[</span><span class="s1">'Once a month or more often'</span><span class="p">]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">pythonistas</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+0.1423318607139917
+</pre>
+<p>Python is open source. Almost all important libraries (Django, Pandas,
+PyTorch, requests) are open source. Many important tools (Jupyter) are
+open source. The number of people who contribute to them with <em>any kind</em>
+of regular cadence is less than 15%.</p>
+<pre class="code python literal-block">
+<span class="n">general_opensource</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">'OpenSourcer'</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">)</span><span class="w">
+</span><span class="nb">sorted</span><span class="p">(</span><span class="n">general_opensource</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+[('Never', 32295),
+ ('Less than once per year', 24972),
+ ('Less than once a month but more than once per year', 20561),
+ ('Once a month or more often', 11055)]
+</pre>
+<p>The Python community does compare well to the general populace, though!</p>
+<pre class="code python literal-block">
+<span class="n">devtype</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;DevType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pythonistas</span><span class="p">))</span>
+</pre>
+<pre class="code python literal-block">
+<span class="n">devtype</span><span class="p">[</span><span class="s1">'DevOps specialist'</span><span class="p">]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+0.052282213696657406
+</pre>
+<p>About 5% of <em>total respondents</em> are my peers: using Python for DevOps.
+That is pretty exciting! My interest in that is not merely theoretical,
+my upcoming <a class="reference external" href="https://www.apress.com/us/book/9781484244326">book</a>
+targets that crowd.</p>
+<pre class="code python literal-block">
+<span class="n">general_devtype</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;DevType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">))</span><span class="w">
+</span><span class="n">general_devtype</span><span class="p">[</span><span class="s1">'DevOps specialist'</span><span class="p">]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">),</span> <span class="n">devtype</span><span class="p">[</span><span class="s1">'DevOps specialist'</span><span class="p">]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">pythonistas</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+(0.09970410539698255, 0.12751420025793705)
+</pre>
+<p>In general, DevOps specialists are 10% of respondents.</p>
+<pre class="code python literal-block">
+<span class="n">devtype</span><span class="p">[</span><span class="s1">'DevOps specialist'</span><span class="p">]</span><span class="o">/</span><span class="n">general_devtype</span><span class="p">[</span><span class="s1">'DevOps specialist'</span><span class="p">]</span>
+</pre>
+<pre class="literal-block">
+0.524373730534868
+</pre>
+<p>Over 50% of DevOps specialists use Python!</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">safe_int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span><span class="w">
+</span>    <span class="k">try</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w">
+</span>    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="w">
+
+</span><span class="n">intermediate</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pythonistas</span> <span class="k">if</span> <span class="mi">1</span><span class="o">&lt;=</span><span class="n">safe_int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">'YearsCode'</span><span class="p">])</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">)</span>
+</pre>
+<p>My next hush-hush (for now!) project is going to be targeting
+intermediate Python developers. I wish I could slice by &quot;number of years
+writing <em>in Python</em>, but this is the best I could do. (I treat &quot;NA&quot;
+responses as &quot;not intermediate&quot;. This is OK, since I prefer to
+underestimate rather than overestimate.)</p>
+<pre class="code python literal-block">
+<span class="n">intermediate</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+0.11346376697456206
+</pre>
+<p>11%! Not bad.</p>
+<pre class="code python literal-block">
+<span class="n">general_intermediate</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">responses</span> <span class="k">if</span> <span class="mi">1</span><span class="o">&lt;=</span><span class="n">safe_int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">'YearsCode'</span><span class="p">])</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span><span class="n">intermediate</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">pythonistas</span><span class="p">),</span> <span class="n">general_intermediate</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+(0.27673352907279863, 0.2671264471271222)
+</pre>
+<p>Seems like using Python does not change much the chances of someone
+being intermediate.</p>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<ul class="simple">
+<li>40% of respondents use Python. Python is kind of a big deal.</li>
+<li>5% of respondents use <em>Python</em> for <em>DevOps</em>. This is a lot! DevOps as
+a profession is less than 10 years old.</li>
+<li>11% of respondents are <em>intermediate Python</em> users. My <a class="reference external" href="https://gumroad.com/l/BVOGd">previous
+book</a> targets this crowd.</li>
+</ul>
+<p>(Thanks to Robert Collins and Matthew Broberg for their comments on an
+earlier draft. Any remaining issues are purely my responsibility.)</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

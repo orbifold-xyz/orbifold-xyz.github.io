@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Fifty Shades of Ver</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Fifty Shades of Ver</h1>
+Sat 19 September 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Computers work on binary code.
+If statements take one path:
+true, or false.
+For computers,
+bright lines and clear borders make sense.</p>
+<p>Humans are more complicated.
+What's an adult?
+When are you happy?
+How mature are you?
+Humans have fuzzy feelings
+with no clear delination.</p>
+<p>I was more responsible as a ten year old
+than as a three year old.
+At 13, I reached the age when I was responsible
+for following Jewish law myself.
+At 18, the legal system trusted me to could drink alcohol and drive,
+and trusted me that I will keep the two activities distinct.
+In the US, you cannot become a senator before you are 30.</p>
+<p>At what age are you responsible &quot;enough&quot;?</p>
+<p>Software is written by humans, not computers.
+Humans with <a class="reference external" href="http://neverworkintheory.org/2014/05/01/happy-sw-devs-solve-problems-better.html">feelings</a>, hopes, and dreams.
+We cry, we strive, we feel accomplished at times,
+and disappointed at others.</p>
+<p>If you were designing a version system for computers,
+<a class="reference external" href="https://semver.org/">SemVer</a>, or &quot;Semantic Versioning&quot;,
+would make perfect sense.
+Each part number in a three-part version number
+is given a specific, distinct, definition:</p>
+<ul class="simple">
+<li>Increment <cite>MAJOR</cite> for backwards incompatible changes.</li>
+<li>Increment <cite>MINOR</cite> for changes which add functionality.</li>
+<li>Increment <cite>PATH</cite> for bugfix-only backwards compatible release.</li>
+</ul>
+<p>But software is not made by computers.
+It is made by humans.</p>
+<div class="section" id="start-small">
+<h2>Start small</h2>
+<p>A journey of a thousand miles begins with a single step.
+The first version of the Linux kernel printed As and Bs to the screen.
+The first version of Python didn't have modules.
+SemVer, to its credit, acknowledges that.</p>
+<p>In versions like
+<code>0.x.y</code>.
+SemVer defines the semantics:</p>
+<blockquote>
+Anything MAY change at any time.
+The public API SHOULD NOT be considered stable.</blockquote>
+<p>When something is small and fragile, it should be able to change.
+Every UNIX programmer knows the story of why <code>Makefile</code>
+treats tabs and spaces differently.
+In retrospect, causing a <a class="reference external" href="https://beebo.org/haycorn/2015-04-20_tabs-and-makefiles.html">dozen of people</a> a small amount of pain
+would probably have been better than staying with the problem.</p>
+<p>Once the software is mature enough,
+the SemVer reasoning goes,
+just release <code>1.0.0</code>
+and commit to API stability.</p>
+</div>
+<div class="section" id="grow-slowly">
+<h2>Grow slowly</h2>
+<p>Given the amount of projects that have stayed on
+<a class="reference external" href="https://0ver.org/">ZeroVer</a>
+for a long time (or forever!)
+the assumption that commiting to API stability
+once the project matures is easy seems
+to not pan out.</p>
+<p>Remember: software is written by humans.
+Fuzzy humans, in complicated social structures,
+who work together as best they can,
+using brains evolved to figure out politics
+in a fifty-person tribe in order to stay alive.</p>
+<p>Once a social structure is in place and working,
+changing it is hard.
+In the ZeroVer days, there was no reason to figure out which changes
+broke API compatibility.
+There was no reason to clearly delinate which parts are
+&quot;public&quot;
+API
+and which are not.
+After all, there was no need.</p>
+<p>Switching out of ZeroVer requires building all of this.
+Not switching out of ZeroVer does not require complicated
+social engineering.
+It is not surprising that it is hard.
+It's almost as if humans work better with slow changes,
+and not sudden revolutions.</p>
+</div>
+<div class="section" id="small-commitments">
+<h2>Small commitments</h2>
+<p>Lately,
+I have been frustrated with some aspects of my life.
+COVID-19 did not cause them,
+but helped bring them into sharp focus.
+As the least embarassing example to admit in a public forum,
+I realized that while my book shelves are so full of books
+that shoving another one requires my 80s-kids Tetris skills,
+I have not read a single fiction book in the last three years.
+I used to be a voracious reader!</p>
+<p>How do you change habits?
+I used to read, easily, 200 pages of fiction a day in my 20s.
+I have not gotten worse at reading.
+I could commit to reading 200 pages a day,
+and track my progress.
+If you have ever done that,
+you know what the outcome is.
+Every day, you look at the task,
+and you decide it is too big.
+You never begin.</p>
+<p>Instead, I decided I will read 20 pages a day,
+and <em>feel good about it</em>.
+Feel good? I even decided to reward myself for every week
+where I hit this goal five out seven days.</p>
+<p>The result?
+The last few weeks,
+I have been consistently been reading 20 pages a day,
+missing only one or two days.</p>
+<p>When you are not good at something,
+as a person or as a group,
+and you want to get better,
+small commitments frequently achieved are the way to go.</p>
+<p>SemVer does not work that way.
+It is all or nothing.
+SemWay or the Highway.
+Perhaps it is better to have a versioning system for humans,
+not a fictional alien race,
+if we assume software will keep being written by humans.</p>
+</div>
+<div class="section" id="deprecation-policy">
+<h2>Deprecation policy</h2>
+<p>It is an easy change to say that no single change can &quot;just&quot;
+break an API.
+One change to deprecate, and one change to break.
+This is straightforward to verify.
+It is reasonable to have a policy for exceptions,
+but document the exceptions carefully.</p>
+<p>Note that this change does not help potential users all that much
+by itself.
+After all,
+<em>two</em> PRs in close succession can land,
+and there is no reasonable upgrade path.</p>
+<p>Should we feel good about making a small change that does not help anyone?
+<em>Absolutely</em>.
+Because it is small, and it is on the right path.</p>
+<p>Now that this change becomes ingrained in the developer group,
+we can start mandating a minimum time between deprecation
+and breakage.
+At first,
+we can have a 0day policy:
+you can break,
+<em>as long as the deprecated software has been released</em>.
+This causes more releases to happen,
+making the team better at releasing.
+It helps users only minimally.
+However, at least with careful version pinning,
+there is an upgrade path.</p>
+<p>Now,
+we can start making the number 0 a bit bigger.
+First, a week.
+Then, a month.
+Eventually, a quarter or a year.
+If the project is big, the number might be different for different parts.</p>
+<p>But at that point, the project has a <em>clear</em> deprecation policy.
+A deprecation policy that can slowly grow the more mature the project is.
+Not a binary, true/false, mature/new.
+Shades of maturity.
+Levels of reliability.</p>
+</div>
+<div class="section" id="the-calendar">
+<h2>The calendar</h2>
+<p>A minute has 60 seconds.
+An hour has 60 minutes.
+A day has 24 hours.
+Our time measurement system is still based on the Babylonian base-60 system,
+though the actual digits used by the Babylonians are studied only
+by specialists.</p>
+<p>Humans organize their lives by their calendar.
+Kids learn that their birthday happens when they are a year older.
+Every seven days, we have a weekend.
+Every month, utility bills need to be paid.</p>
+<p>Humans make plans that depend on time.
+They wait for their tax refund on April 15th to make purchases.</p>
+<p>A time-based deprecation policy takes advantage of those skills.
+If the time between deprecation and breakage is one week,
+then the policy is clear:
+better make sure to upgrade weekly.
+If it is one year,
+do it when returning from the end-of-year holidays.
+If the policy is incompatible with the expected value of the maintenance
+effort,
+then this can be known in advance.
+This might mean that that dependency is not mature enough to be used.</p>
+</div>
+<div class="section" id="versioning-for-adults">
+<h2>Versioning for adults</h2>
+<p>A versioning scheme needs to remember two things:</p>
+<ul class="simple">
+<li>The people writing the software are humans</li>
+<li>The people using the software are humans</li>
+</ul>
+<p>If there is one thing that humans are good at,
+it is communicating with other humans.
+Humans can communicate feelings, fuzzy boundaries,
+and plans for the future.</p>
+<p>Calendar-based versioning,
+and a clear deprecation policy,
+give them the ability to communicate those.
+Not in a way that is suitable for computers.
+Not in a way that will help your dependency-resolver
+decide which version is &quot;compatible&quot;.
+But in a way that lets you communicate with people
+about your needs in a mature way,
+and figuring out whether you can work together,
+or part on friendly terms.</p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>If the main consumer of version numbers was the dependency resolver,
+and the producer of version number was a top-down military structure
+used to following orders,
+SemVer would work well.</p>
+<p>For real software projects,
+used by humans,
+depending on documents written by humans for humans,
+and often
+&quot;managed&quot;
+in extremely loose ways, even for commercial projects,
+let alone volunteer-led ones,
+a versioning system that helps adults work with adults is best.</p>
+</div>
+<div class="section" id="credits">
+<h2>Credits</h2>
+<ul class="simple">
+<li>Thanks to <a class="reference external" href="https://atleastfornow.net/">Amber &quot;Hawkowl&quot; Brown</a> for her inspiration in
+among other things,
+her excellent talk,
+<a class="reference external" href="https://www.youtube.com/watch?v=m44brj9PwPA">Releasing Calendar-Versioned Software</a>.</li>
+<li>Thanks to <a class="reference external" href="https://sedimental.org/">Mahmoud Hashemi</a> for his work on
+<a class="reference external" href="https://calver.org/">CalVer</a>,
+<a class="reference external" href="https://0ver.org/">ZeroVer</a>,
+and <a class="reference external" href="https://sedimental.org/calver.html">blog post about CalVer</a>
+as well as <a class="reference external" href="https://sedimental.org/designing_a_version.html">design notes</a>.</li>
+<li>Thanks to <a class="reference external" href="https://glyph.twistedmatrix.com/">Glyph Lefkowitz</a> for insights into
+how <a class="reference external" href="https://glyph.twistedmatrix.com/2014/09/ungineering.html">software development happens</a>.</li>
+<li>Thanks to <a class="reference external" href="https://www.jaylooney.dev/">Jay Looney</a> and
+<a class="reference external" href="mailto:paul&#64;nathan.house">Paul Nathan</a>
+for feedback on earlier drafts of this article.
+Any issues or errors that remain are my responsibility.</li>
+</ul>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

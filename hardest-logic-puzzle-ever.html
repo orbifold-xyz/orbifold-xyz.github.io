@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - The Hardest Logic Puzzle Ever (In Python)</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>The Hardest Logic Puzzle Ever (In Python)</h1>
+Fri 24 July 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Labyrinth_(1986_film)">Labyrinth</a>
+is a children’s movie. The main character is 16 years old, and solving a
+logic puzzle that will literally decide if she lives or dies. In
+fiction, characters are faced with realistic challenges: ones they <em>can</em>
+solve, even if they have to make an effort.</p>
+<p>So, it makes sense that the designer of the eponymous labyrinth did not
+consult logicians <a class="reference external" href="https://en.wikipedia.org/wiki/Raymond_Smullyan">Richard
+Smullyan</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/George_Boolos">George
+Boolos</a> (no relation to
+the <a class="reference external" href="https://en.wikipedia.org/wiki/George_Boole">inventor of boolean
+algebra</a>), and <a class="reference external" href="https://en.wikipedia.org/wiki/John_McCarthy_(computer_scientist)">John
+McCarthy</a>
+(yes, the same person who invented
+<a class="reference external" href="https://en.wikipedia.org/wiki/John_McCarthy_(computer_scientist)">Lisp</a>
+and suggested that a <a class="reference external" href="https://en.wikipedia.org/wiki/Dartmouth_workshop">“2-month, 10-(person)
+study”</a> would make
+significant headway in the study of Artificial Intelligence). Those
+three would suggest that the designer use <a class="reference external" href="https://en.wikipedia.org/wiki/The_Hardest_Logic_Puzzle_Ever">The Hardest Logic Puzzle
+Ever</a>.</p>
+<p>There are persistent rumors of the movie getting a reboot, or perhaps a
+sequel. Like any good sequel, the protagonists should face newer and
+bigger challenges. In the interests of helping the screen writers for
+the sequel/reboot, here is my explanation of the “Hardest Logic Puzzle
+Ever”, together with clear code.</p>
+<pre class="code python literal-block">
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+</pre>
+<p>Do you remember movies from your childhood that just did not age that
+well? You cringe at some tasteless joke, you say “I can’t believe it was
+acceptable to show this back then”? I think we can agree we want to
+future-proof the script for a bit.</p>
+<p>Using modern-style annotations will make our code much easier to
+maintain.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">attr</span>
+</pre>
+<p>This movie will come out in the 2020s, and we should use 2020-era code
+to model it. The <a class="reference external" href="https://www.attrs.org/en/stable/index.html">attrs</a>
+library is almost always the right solution to implement classes.</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">random</span>
+</pre>
+<p>The protagonist will face unknown challenges. Randomness is <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_probability">a state of
+knowledge</a>. From
+her perspective, the true state of the world is random.</p>
+<pre class="code python literal-block">
+<span class="kn">from</span> <span class="nn">zope</span> <span class="kn">import</span> <span class="n">interface</span><span class="w">
+</span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span>
+</pre>
+<p>This is already a hard logic puzzle, no reason to make it harder on
+ourselves. Clear interface and type hints will make the logic easier to
+understand.</p>
+<p>This is why
+<a class="reference external" href="https://orbifold.xyz/zope-interface.html">zope.interface</a> is
+appropriate for The Hardest Logic Puzzle Ever. We also need the
+<tt class="docutils literal">Callable</tt> interface, since our protagonist will be asking the Gods
+questions in the form of functions, and <tt class="docutils literal">Mapping</tt>, since she will
+eventually need to answer the question “which God is which”.</p>
+<p>The <tt class="docutils literal">Tuple</tt> type will most be used by the careful protagonist in her
+internal type hints. This is high stakes code, and she wants to make
+sure she gets it right.</p>
+<p>In the HLPE (Hardest Logic Puzzle Ever), the ones who answer the
+questions are Gods. Just like in the Marvel Cinematic Universe, they
+might not be literal “Gods”, but clearly powerful aliens. As aliens,
+they have their own language. The words for “yes” and “no” are “da” and
+“ja” – but we do not know which is which.</p>
+<p>I suggest that this will not be revealed in the script. This is good
+fodder for endless fan discussions later on Reddit. As such, the best
+way is to make sure we do not know the answer ourselves: make it a
+random language!</p>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">enum</span><span class="w">
+
+</span><span class="nd">&#64;enum</span><span class="o">.</span><span class="n">unique</span><span class="w">
+</span><span class="k">class</span> <span class="nc">GodWords</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span><span class="w">
+</span>    <span class="n">ja</span> <span class="o">=</span> <span class="s2">&quot;ja&quot;</span><span class="w">
+</span>    <span class="n">da</span> <span class="o">=</span> <span class="s2">&quot;da&quot;</span><span class="w">
+
+</span><span class="k">def</span> <span class="nf">make_god_language</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">GodWords</span><span class="p">]:</span><span class="w">
+</span>    <span class="n">words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">GodWords</span><span class="p">)</span><span class="w">
+</span>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span><span class="w">
+</span>    <span class="k">return</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="n">words</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="kc">False</span><span class="p">:</span> <span class="n">words</span><span class="o">.</span><span class="n">pop</span><span class="p">()}</span>
+</pre>
+<p>Shuffling the words for “yes” and “no” means that the <tt class="docutils literal">.pop()</tt> call
+will get a random one. Now we have the language: it maps an abstract
+concept (a Python Boolean) to a string.</p>
+<p>In the HLPE, there are three Gods, called “A”, “B”, and “C”. They can be
+asked any question that refers to the Gods.</p>
+<pre class="code python literal-block">
+<span class="nd">&#64;enum</span><span class="o">.</span><span class="n">unique</span><span class="w">
+</span><span class="k">class</span> <span class="nc">GodNames</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span><span class="w">
+</span>    <span class="n">A</span> <span class="o">=</span> <span class="s2">&quot;A&quot;</span><span class="w">
+</span>    <span class="n">B</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span><span class="w">
+</span>    <span class="n">C</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span><span class="w">
+
+</span><span class="k">class</span> <span class="nc">IGod</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">Interface</span><span class="p">):</span><span class="w">
+</span>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="n">Question</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GodWords</span><span class="p">:</span><span class="w">
+        </span><span class="sd">&quot;&quot;&quot;Ask&quot;&quot;&quot;</span>
+</pre>
+<p>But what questions is the protagonist allowed to ask? Questions are
+something the audience-identification protagonist will ask. For this, a
+<tt class="docutils literal">Protocol</tt> is appropriate. (Also, those are more convenient for
+describing functions, which we do not want to annotate with explicit
+implementation declarations.)</p>
+<pre class="code python literal-block">
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span><span class="w">
+
+</span><span class="k">class</span> <span class="nc">Question</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span><span class="w">
+</span>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gods</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">GodName</span><span class="p">,</span> <span class="n">IGod</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span><span class="w">
+</span>        <span class="k">pass</span>
+</pre>
+<p>Because of how annotations work, at this point we need not know what
+<tt class="docutils literal">GodName</tt> or <tt class="docutils literal">IGod</tt> are.</p>
+<p>The simplest of the Gods is the one who speaks always truly (in the God
+language).</p>
+<pre class="code python literal-block">
+<span class="nd">&#64;interface</span><span class="o">.</span><span class="n">implementer</span><span class="p">(</span><span class="n">IGod</span><span class="p">)</span><span class="w">
+</span><span class="nd">&#64;attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="k">class</span> <span class="nc">TrueGod</span><span class="p">:</span><span class="w">
+</span>    <span class="n">_gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">]</span><span class="w">
+</span>    <span class="n">_language</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">GodWords</span><span class="p">]</span><span class="w">
+
+</span>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="n">Question</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GodWords</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">question</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gods</span><span class="p">))]</span>
+</pre>
+<p>The next God always lies.</p>
+<pre class="code python literal-block">
+<span class="nd">&#64;attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="k">class</span> <span class="nc">FalseGod</span><span class="p">:</span><span class="w">
+</span>    <span class="n">_gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">]</span><span class="w">
+</span>    <span class="n">_language</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">GodWords</span><span class="p">]</span><span class="w">
+
+</span>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="n">Question</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GodWords</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">[</span><span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">question</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gods</span><span class="p">))]</span>
+</pre>
+<p>But how to implement Random? This is a harder question than it seems.</p>
+<p>The original statement just said “whether Random speaks truly or falsely
+is a completely random matter”. What does that mean? If you ask it two
+questions, can it answer truthfully to one and lie to the other?</p>
+<p>Boolos wrote a “clarification”: “Whether Random speaks truly or not
+should be thought of as depending on the flip of a coin hidden in
+(their) brain: if the coin comes down heads, (they) speaks truly; if
+tails, falsely.” This clarification fails to elucidate much: it does not
+answer, for example, the question above.</p>
+<p>Finally, based on the suggested solution, and assuming that the obvious
+simpler solutions do not work,
+<a class="reference external" href="https://brianrabern.net/index.html">Raben</a> and
+<a class="reference external" href="https://landon.github.io/#about">Raben</a>
+<a class="reference external" href="https://www.pure.ed.ac.uk/ws/files/15023904/Simple_Solution.pdf">suggested</a>
+suggested the clear guideline: “Whether Random says ja or da should be
+thought of as depending on the flip of a coin hidden in his brain: if
+the coin comes down heads, he says ja; if tails, he says da.”</p>
+<p>This is the guideline I have chosen to implement here.</p>
+<pre class="code python literal-block">
+<span class="nd">&#64;attr</span><span class="o">.</span><span class="n">s</span><span class="p">(</span><span class="n">auto_attribs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="k">class</span> <span class="nc">RandomGod</span><span class="p">:</span><span class="w">
+</span>    <span class="n">_gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">]</span><span class="w">
+</span>    <span class="n">_language</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">GodWords</span><span class="p">]</span><span class="w">
+
+</span>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="n">Question</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GodWords</span><span class="p">:</span><span class="w">
+</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])]</span>
+</pre>
+<p>So much back and forth discussion, over two millenia, for such simple
+code.</p>
+<p>I’m sure the God-like aliens would have used code to describe the puzzle
+from the beginning, avoiding the messiness of natural language.</p>
+<p>Accessing the God classes themselves would be the height of hubris, but
+the goal of the protagonist is to answer “which God is which”. We will
+build a special enumeration of the Gods’ identities, to be used in the
+solution.</p>
+<pre class="code python literal-block">
+<span class="n">GodIdentities</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="s1">'God Identities'</span><span class="p">,</span><span class="w">
+</span>                          <span class="p">{</span><span class="n">klass</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">klass</span><span class="o">.</span><span class="vm">__name__</span><span class="w">
+</span>                           <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TrueGod</span><span class="p">,</span> <span class="n">FalseGod</span><span class="p">,</span> <span class="n">RandomGod</span><span class="p">]})</span>
+</pre>
+<p>With the Gods’ personalities implemented, we can write the code that
+creates a random world that complies with the terms of the puzzle. Three
+Gods, known as “A”, “B”, and “C”, assigned to the names randomly, and
+speaking in a randomly generated language.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">make_gods</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">]:</span><span class="w">
+</span>    <span class="n">language</span> <span class="o">=</span> <span class="n">make_god_language</span><span class="p">()</span><span class="w">
+</span>    <span class="n">gods</span> <span class="o">=</span> <span class="p">{}</span><span class="w">
+</span>    <span class="n">god_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">klass</span><span class="p">(</span><span class="n">gods</span><span class="o">=</span><span class="n">gods</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">)</span><span class="w">
+</span>                <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TrueGod</span><span class="p">,</span> <span class="n">FalseGod</span><span class="p">,</span> <span class="n">RandomGod</span><span class="p">]]</span><span class="w">
+</span>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">god_list</span><span class="p">)</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">GodNames</span><span class="p">:</span><span class="w">
+</span>        <span class="n">gods</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">god_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">gods</span>
+</pre>
+<p>The code so far corresponds to the first part of the scene: where the
+protagonist comes to the place of the Gods, learns the local rules, and
+realizes that she must either solve the puzzle correctly, or fail.</p>
+<p>This time she is granted the chance to ask three questions. However,
+there are many more unknowns: there are 6 possible assignments for the
+Gods, and two possible meanings for the language. Frankly, I doubt that
+I would be able to solve the puzzle on my feet, when I am afraid for my
+life.</p>
+<p>But luckily, I have Wikipedia and time, and so I have written up the
+code to find a solution here.</p>
+<p>Part of the solution is to ask a God a question about <em>themselves</em>: “if
+I asked you SOME QUESTION, would you say ja”. While no question asked of
+Random is useful (the answer is random) for either True or False, this
+question would result in “ja” the <em>right answer</em> is “yes”, and “da* if
+the <em>right answer</em> is”no&quot;. This means that wrapping questions like this
+means we have to care neither the identity of the God, nor about the
+details of the God language.</p>
+<p>This makes it a useful abstraction!</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">if_asked_a_question_would_you_say_ja_is_ja</span><span class="p">(</span><span class="w">
+</span>        <span class="n">god_name</span><span class="p">:</span> <span class="n">GodNames</span><span class="p">,</span><span class="w">
+</span>        <span class="n">gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">],</span><span class="w">
+</span>        <span class="n">question</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">IGod</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">],</span><span class="w">
+</span>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span><span class="w">
+</span>    <span class="n">you</span> <span class="o">=</span> <span class="n">gods</span><span class="p">[</span><span class="n">god_name</span><span class="p">]</span><span class="w">
+</span>    <span class="k">def</span> <span class="nf">add_you</span><span class="p">(</span><span class="n">gods</span><span class="p">):</span><span class="w">
+</span>        <span class="k">return</span> <span class="n">question</span><span class="p">(</span><span class="n">you</span><span class="p">,</span> <span class="n">gods</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">you</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="k">lambda</span> <span class="n">gods</span><span class="p">:</span> <span class="n">you</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">add_you</span><span class="p">)</span> <span class="o">==</span> <span class="n">GodWords</span><span class="o">.</span><span class="n">ja</span><span class="p">)</span> <span class="o">==</span> <span class="n">GodWords</span><span class="o">.</span><span class="n">ja</span>
+</pre>
+<p>This would be a wonderful chance for a flash-“forward” into a
+hypothetical scene: the movie goes into black-and-white, and the
+protagonist voice-overs: if “A” is “True”, what would happen if I ask
+them “is 1 equal 1”? What would happen if I ask them “if I asked you,
+‘is 1 equal 1?’, would you answer ’ja? What if”A&quot; is “False”?</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">hypothetical</span><span class="p">():</span><span class="w">
+</span>    <span class="n">language</span> <span class="o">=</span> <span class="n">make_god_language</span><span class="p">()</span><span class="w">
+</span>    <span class="n">gods</span> <span class="o">=</span> <span class="p">{}</span><span class="w">
+</span>    <span class="n">hypothetical_true_god</span> <span class="o">=</span> <span class="n">TrueGod</span><span class="p">(</span><span class="n">gods</span><span class="o">=</span><span class="n">gods</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">)</span><span class="w">
+</span>    <span class="n">hypothetical_false_god</span> <span class="o">=</span> <span class="n">FalseGod</span><span class="p">(</span><span class="n">gods</span><span class="o">=</span><span class="n">gods</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">)</span><span class="w">
+</span>    <span class="n">gods</span><span class="p">[</span><span class="n">GodNames</span><span class="o">.</span><span class="n">A</span><span class="p">]</span> <span class="o">=</span> <span class="n">hypothetical_true_god</span><span class="w">
+</span>    <span class="n">gods</span><span class="p">[</span><span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="n">hypothetical_false_god</span><span class="w">
+</span>    <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">identity</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">GodNames</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">GodIdentities</span><span class="o">.</span><span class="n">TrueGod</span><span class="p">),</span> <span class="p">(</span><span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">GodIdentities</span><span class="o">.</span><span class="n">FalseGod</span><span class="p">)]:</span><span class="w">
+</span>        <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="mi">1</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span><span class="o">==</span><span class="mi">0</span><span class="p">]:</span><span class="w">
+</span>            <span class="n">objective_value</span> <span class="o">=</span> <span class="n">question</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="w">
+</span>            <span class="nb">print</span><span class="p">(</span><span class="w">
+</span>                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">identity</span><span class="si">}</span><span class="s2">, asked </span><span class="si">{</span><span class="n">objective_value</span><span class="si">}</span><span class="s2"> question:&quot;</span><span class="p">,</span><span class="w">
+</span>                <span class="n">if_asked_a_question_would_you_say_ja_is_ja</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">gods</span><span class="p">,</span> <span class="n">question</span><span class="p">)</span><span class="w">
+</span>            <span class="p">)</span><span class="w">
+</span><span class="n">hypothetical</span><span class="p">()</span><span class="w">
+</span><span class="k">del</span> <span class="n">hypothetical</span>
+</pre>
+<pre class="literal-block">
+God Identities.TrueGod, asked True question: True
+God Identities.TrueGod, asked False question: False
+God Identities.FalseGod, asked True question: True
+God Identities.FalseGod, asked False question: False
+</pre>
+<p>Movie goes back to color. A smile spreads on the protagonist’s face. She
+knows how to solve this.</p>
+<p>The next challenge is to find a God that is not Random. If you ask God
+<em>B</em> about whether <em>A</em> is Random, then if the answer is “ja”, then it
+means either the correct answer is that A is Random or it means B is
+Random. Either way, C is <em>not</em> Random.</p>
+<p>For similar reasons, if B answers “da”, then “A” is not Random.</p>
+<p>Either way, we have found a non-Random God. Now we know that we can find
+the truth from them by using the wrapper!</p>
+<p>So we ask them whether they’re True. Now we ask them about whether “B”
+is Random.</p>
+<p>So we know:</p>
+<ul class="simple">
+<li>One God who is not Random (who we will call “the interlocutor”, since
+we’ll spend the rest of the conversation with them)</li>
+<li>Whether the interlocutor is True</li>
+<li>Whether B is Random</li>
+</ul>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">ask_questions</span><span class="p">(</span><span class="n">gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span><span class="w">
+</span>    <span class="n">is_a_random_according_to_b</span> <span class="o">=</span> <span class="n">if_asked_a_question_would_you_say_ja_is_ja</span><span class="p">(</span><span class="w">
+</span>        <span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">,</span><span class="w">
+</span>        <span class="n">gods</span><span class="p">,</span><span class="w">
+</span>        <span class="k">lambda</span> <span class="n">you</span><span class="p">,</span> <span class="n">gods</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gods</span><span class="p">[</span><span class="n">GodNames</span><span class="o">.</span><span class="n">A</span><span class="p">],</span> <span class="n">RandomGod</span><span class="p">)</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="n">interlocutor</span> <span class="o">=</span> <span class="n">GodNames</span><span class="o">.</span><span class="n">C</span> <span class="k">if</span> <span class="n">is_a_random_according_to_b</span> <span class="k">else</span> <span class="n">GodNames</span><span class="o">.</span><span class="n">A</span><span class="w">
+</span>    <span class="n">is_interlocutor_true</span> <span class="o">=</span> <span class="n">if_asked_a_question_would_you_say_ja_is_ja</span><span class="p">(</span><span class="w">
+</span>        <span class="n">interlocutor</span><span class="p">,</span><span class="w">
+</span>        <span class="n">gods</span><span class="p">,</span><span class="w">
+</span>        <span class="k">lambda</span> <span class="n">you</span><span class="p">,</span> <span class="n">gods</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">you</span><span class="p">,</span> <span class="n">TrueGod</span><span class="p">)</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="n">is_b_random</span> <span class="o">=</span> <span class="n">if_asked_a_question_would_you_say_ja_is_ja</span><span class="p">(</span><span class="w">
+</span>        <span class="n">interlocutor</span><span class="p">,</span><span class="w">
+</span>        <span class="n">gods</span><span class="p">,</span><span class="w">
+</span>        <span class="k">lambda</span> <span class="n">you</span><span class="p">,</span> <span class="n">gods</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gods</span><span class="p">[</span><span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">],</span> <span class="n">RandomGod</span><span class="p">)</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">interlocutor</span><span class="p">,</span> <span class="n">is_interlocutor_true</span><span class="p">,</span> <span class="n">is_b_random</span>
+</pre>
+<p>Once again, the movie goes into a black and white flash-forward as the
+protagonist plans her move.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">hypothetical</span><span class="p">():</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span><span class="w">
+</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Experiment&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span><span class="w">
+</span>        <span class="n">gods</span> <span class="o">=</span> <span class="n">make_gods</span><span class="p">()</span><span class="w">
+</span>        <span class="n">interlocutor</span><span class="p">,</span> <span class="n">is_interlocutor_true</span><span class="p">,</span> <span class="n">is_b_random</span> <span class="o">=</span> <span class="n">ask_questions</span><span class="p">(</span><span class="n">gods</span><span class="p">)</span><span class="w">
+</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I think </span><span class="si">{</span><span class="n">interlocutor</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">is_interlocutor_true</span><span class="si">}</span><span class="s2">God. They're </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">gods</span><span class="p">[</span><span class="n">interlocutor</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span><span class="w">
+</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;B is </span><span class="si">{</span><span class="s1">''</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">is_b_random</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'not '</span><span class="si">}</span><span class="s2">RandomGod. They're </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">gods</span><span class="p">[</span><span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">hypothetical</span><span class="p">()</span><span class="w">
+</span><span class="k">del</span> <span class="n">hypothetical</span>
+</pre>
+<pre class="literal-block">
+Experiment 1
+I think GodNames.C is FalseGod. They're FalseGod.
+B is not RandomGod. They're TrueGod.
+Experiment 2
+I think GodNames.A is FalseGod. They're FalseGod.
+B is not RandomGod. They're TrueGod.
+Experiment 3
+I think GodNames.A is TrueGod. They're TrueGod.
+B is RandomGod. They're RandomGod.
+Experiment 4
+I think GodNames.A is FalseGod. They're FalseGod.
+B is not RandomGod. They're TrueGod.
+</pre>
+<p>Now that we know the answers, it is time to put them all together. We
+first record whether the interlocutor is True or False. If B is Random,
+we mark them as such. If not, we know that neither the interlocutor or B
+is Random, so the other God must be Random.</p>
+<p>Now that we know two Gods’ identities, the last name that remains
+belongs to the last possible identity.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">analyze_answers</span><span class="p">(</span><span class="n">interlocutor</span><span class="p">:</span> <span class="n">GodNames</span><span class="p">,</span> <span class="n">is_interlocutor_true</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">is_b_random</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span><span class="w">
+</span>    <span class="n">solution</span> <span class="o">=</span> <span class="p">{}</span><span class="w">
+</span>    <span class="n">solution</span><span class="p">[</span><span class="n">interlocutor</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">GodIdentities</span><span class="o">.</span><span class="n">TrueGod</span> <span class="k">if</span> <span class="n">is_interlocutor_true</span><span class="w">
+</span>                              <span class="k">else</span> <span class="n">GodIdentities</span><span class="o">.</span><span class="n">FalseGod</span><span class="p">)</span><span class="w">
+</span>    <span class="p">[</span><span class="n">other_god</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">GodNames</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">interlocutor</span><span class="p">,</span> <span class="n">GodNames</span><span class="o">.</span><span class="n">B</span><span class="p">])</span><span class="w">
+</span>    <span class="n">random_god</span> <span class="o">=</span> <span class="n">GodNames</span><span class="o">.</span><span class="n">B</span> <span class="k">if</span> <span class="n">is_b_random</span> <span class="k">else</span> <span class="n">other_god</span><span class="w">
+</span>    <span class="n">solution</span><span class="p">[</span><span class="n">random_god</span><span class="p">]</span> <span class="o">=</span> <span class="n">GodIdentities</span><span class="o">.</span><span class="n">RandomGod</span><span class="w">
+</span>    <span class="p">[</span><span class="n">last_god</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">GodNames</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="w">
+</span>    <span class="p">[</span><span class="n">last_god_value</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">GodIdentities</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="w">
+</span>    <span class="n">solution</span><span class="p">[</span><span class="n">last_god</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_god_value</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">solution</span>
+</pre>
+<p>Putting the questioning and the analysis together is straightforward.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">find_solution</span><span class="p">(</span><span class="n">gods</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">IGod</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">GodNames</span><span class="p">,</span> <span class="n">GodIdentities</span><span class="p">]:</span><span class="w">
+</span>    <span class="n">interlocutor</span><span class="p">,</span> <span class="n">is_interlocutor_true</span><span class="p">,</span> <span class="n">is_b_random</span> <span class="o">=</span> <span class="n">ask_questions</span><span class="p">(</span><span class="n">gods</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">analyze_answers</span><span class="p">(</span><span class="n">interlocutor</span><span class="p">,</span> <span class="n">is_interlocutor_true</span><span class="p">,</span> <span class="n">is_b_random</span><span class="p">)</span>
+</pre>
+<p>Our little checker returns both a description of the situation, as well
+as whether the solution was correct.</p>
+<pre class="code python literal-block">
+<span class="k">def</span> <span class="nf">check_solution</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span><span class="w">
+</span>    <span class="n">gods</span> <span class="o">=</span> <span class="n">make_gods</span><span class="p">()</span><span class="w">
+</span>    <span class="n">solution</span> <span class="o">=</span> <span class="n">find_solution</span><span class="p">(</span><span class="n">gods</span><span class="p">)</span><span class="w">
+</span>    <span class="n">reality</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">god</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">god</span> <span class="ow">in</span> <span class="n">gods</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span><span class="w">
+</span>    <span class="n">deduced</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">identity</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">identity</span> <span class="ow">in</span> <span class="n">solution</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">reality</span><span class="p">,</span> <span class="n">deduced</span><span class="p">,</span> <span class="n">reality</span> <span class="o">==</span> <span class="n">deduced</span>
+</pre>
+<p>The last step is to test our solution multiple times. Again, remember
+that there are <tt class="docutils literal">6 * 2 = 12</tt> possible situations. However, if “B” is
+Random, we can get two different answers. This means the total number of
+options for a path is more than <em>12</em>, but less than <em>24</em>.</p>
+<p>If we run the solution for a 1000 times, the probability that a given
+path will not be taken is less than <tt class="docutils literal"><span class="pre">(23/24)**1000</span> * 24</tt>. How much is
+it?</p>
+<pre class="code python literal-block">
+<span class="p">(</span><span class="mi">23</span><span class="o">/</span><span class="mi">24</span><span class="p">)</span><span class="o">**</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">24</span>
+</pre>
+<pre class="literal-block">
+7.885069901070409e-18
+</pre>
+<p>Good enough!</p>
+<p>Now we can see if the script works. We lack Hollywood’s professional
+script doctors, but we do have a powerful Python interpreter.</p>
+<pre class="code python literal-block">
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span><span class="w">
+</span>    <span class="n">reality</span><span class="p">,</span> <span class="n">deduced</span><span class="p">,</span> <span class="n">correct</span> <span class="o">=</span> <span class="n">check_solution</span><span class="p">()</span><span class="w">
+</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">correct</span><span class="p">:</span><span class="w">
+</span>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Solution is incorrect&quot;</span><span class="p">,</span> <span class="n">reality</span><span class="p">,</span> <span class="n">deduced</span><span class="p">)</span><span class="w">
+</span>    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">200</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span><span class="w">
+</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solved correctly for&quot;</span><span class="p">,</span> <span class="n">reality</span><span class="p">)</span>
+</pre>
+<pre class="literal-block">
+Solved correctly for [('A', 'RandomGod'), ('B', 'TrueGod'), ('C', 'FalseGod')]
+Solved correctly for [('A', 'RandomGod'), ('B', 'FalseGod'), ('C', 'TrueGod')]
+Solved correctly for [('A', 'RandomGod'), ('B', 'TrueGod'), ('C', 'FalseGod')]
+Solved correctly for [('A', 'TrueGod'), ('B', 'FalseGod'), ('C', 'RandomGod')]
+Solved correctly for [('A', 'TrueGod'), ('B', 'RandomGod'), ('C', 'FalseGod')]
+</pre>
+<p>We printed out every 200th situation, to have some nice output!</p>
+<p>Python confirms it. Hollywood should buy our script.</p>
+<p>Thanks to <a class="reference external" href="https://glyph.twistedmatrix.com/">Glyph Lefkowitz</a> for his
+feedback on the <a class="reference external" href="https://orbifold.xyz/labyrinth.html">Labyrinth</a>
+post, some of which inspired changes in this post. Thanks to <a class="reference external" href="https://enotuniq.org/">Mark
+Williams</a> for his feedback on an early draft.
+Any mistakes or issues that remain are my responsibility.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

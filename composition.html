@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Composition-oriented programming</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Composition-oriented programming</h1>
+Sun 01 July 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>A common way to expose an API in Python is <em>as inheritance</em>.
+Though many projects do that,
+there is a better way.</p>
+<p>But first, let's see.
+How popular is inheritance-as-an-API, anyway?</p>
+<p>Let's go to the <a class="reference external" href="https://twistedmatrix.com/trac/">Twisted</a> website.
+Right at the center of the screen,
+at prime real-estate,
+we see:</p>
+<p>What's there? The following is abridged:</p>
+<pre class="code literal-block">
+class Echo(protocol.Protocol):
+    def dataReceived(self, data):
+        self.transport.write(data)
+class EchoFactory(protocol.Factory):
+    def buildProtocol(self, addr):
+        return Echo()
+</pre>
+<p>(This is part of an example on building an echo-server protocol.)</p>
+<p>If you are wondering who came up with this amazing API,
+it is the same person who is writing the words you are reading.
+<em>I</em> certainly thought it was an amazing API!</p>
+<p>Look at how many smart people agreed with me.</p>
+<p>Django takes a page of tutorial to get there,
+but <a class="reference external" href="https://docs.djangoproject.com/en/2.0/intro/tutorial02/">sure enough</a>:</p>
+<pre class="code literal-block">
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+</pre>
+<p>Jupyter's <a class="reference external" href="https://github.com/jupyter/echo_kernel/blob/master/echo_kernel/kernel.py">echo kernel</a> starts:</p>
+<pre class="code literal-block">
+class EchoKernel(Kernel):
+    implementation = 'Echo'
+    implementation_version = '1.0'
+    language = 'no-op'
+</pre>
+<p>Everyone is doing it.
+A project I have been a developer on for ~16 years.
+The most popular Python web library,
+responsible for who-knows-how-many requests per second in Instagram.
+A project that won the ACM award (and well deserved, at that).</p>
+<p>However, popularity is not everything.
+This is not a good idea.</p>
+<p>When exposing class inheritance as a public interface,
+that means committing to a level of backwards compatibility that is
+unheard of.
+Even adding private methods or attributes becomes dangerous.</p>
+<p>Let's give a toy example:</p>
+<pre class="code literal-block">
+class Writer:
+
+    _write = lambda x: None
+
+    def set_output(self, output):
+        self._write = output.write
+
+    def write(self, message):
+        formatted = self.format(message)
+        self._write(message)
+
+    def format(self, message):
+        raise NotImplementedError(&quot;format&quot;)
+</pre>
+<p>This is a simple writer,
+that,
+while initially sending everything down a black hole,
+can be set to write the output to a file-like object.
+It needs to format the messages,
+so the proper usage is to subclass
+and override <code>format</code>
+(while taking care
+not to define methods called <code>set_output</code> or <code>_write</code>.)</p>
+<pre class="code literal-block">
+class BufferWriter(MultiWriter):
+
+    _buffer = False
+
+    def format(self, message):
+        if self._buffer:
+            return 'Buffer: ' + message
+        else:
+            return 'Message: ' + message
+
+    def switch_buffer(self):
+        self._buffer = not self._buffer
+</pre>
+<p>The simplest formatting would return the message as is.
+However, this formatter is slightly less trivial --
+it prefixes the message with the word <code>Buffer</code>
+or <code>Message</code>,
+depending on an internal variable that can be switched.</p>
+<p>Now we can do things like:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; bp = BufferWriter()
+&gt;&gt;&gt; bp.set_output(sys.stdout)
+&gt;&gt;&gt; bp.write(&quot;hello&quot;)
+Message: hello
+&gt;&gt;&gt; bp.switch_buffer()
+&gt;&gt;&gt; bp.write(&quot;hello&quot;)
+Buffer: hello
+</pre>
+<p>This looks good, so far.
+Of course, things are never so simple in real life.
+The writer library,
+naturally,
+gets thousands of stars on GitHub.
+It becomes popular.
+There's a development community,
+complete with a discord channel and a mailing list.
+So naturally,
+important features get added.</p>
+<pre class="code literal-block">
+class Writer:
+
+    _buffer = &quot;&quot;
+
+    _write = lambda x: None
+
+    def set_output(self, output):
+        self._write = output.write
+
+    def write(self, message):
+        self._buffer += self.format(message)
+        if len(self._buffer) &gt; 10:
+            self._write(self._buffer)
+            self._buffer = &quot;&quot;
+
+    def format(self, message):
+        raise NotImplementedError(&quot;format&quot;)
+</pre>
+<p>Turns out people needed to buffer some of the shorter messages.
+This was a crucial performance improvement,
+that all users were clamoring for,
+so version <code>2018.6.1</code> is highly anticipated.</p>
+<p>It breaks,
+though,
+the <code>BufferWriter</code>.
+The symptoms are weird:
+<code>TypeError</code> s and other such fun.
+All because both the superclass and the subclass are competing to access
+<code>self._buffer</code>.</p>
+<p>With enough care,
+these problems can be avoided.
+A library which exposes classes for inheritance must add all
+new private methods or attributes as <code>__</code> and,
+naturally,
+never ever add any public methods or attributes.
+Sadly,
+nobody does that.</p>
+<p>So what's the alternative?</p>
+<pre class="code literal-block">
+from zope import interface
+
+class IFormatter(interface.Interface):
+
+    def format(message):
+        &quot;&quot;&quot;show stuff&quot;&quot;&quot;
+</pre>
+<p>We define an abstract interface.
+This interface <a class="footnote-reference" href="#footnote-1" id="footnote-reference-1">[1]</a> has only one method --
+<code>format</code>.</p>
+<pre class="code literal-block">
+&#64;attr.s
+class Writer:
+
+    _buffer = &quot;&quot;
+
+    _write = lambda x: None
+
+    _formatter = attr.ib()
+
+    def set_output(self, output):
+        self._write = output.write
+
+    def write(self, message):
+        self._buffer += self._formatter.format(message)
+        if len(self._buffer) &gt; 10:
+            self._write(self._buffer)
+            self._buffer = &quot;&quot;
+</pre>
+<p>We use the <code>attrs</code> library [#]
+to define our main functionality:
+a class that wraps other objects,
+which we expect to be <code>IFormatter</code>.</p>
+<p>We can automatically verify,
+by instead having the <code>_formatter</code> line say:</p>
+<pre class="code literal-block">
+_formatter = attr.ib(validator=lambda instance, attribute, value:
+                               verify.verifyObject(IFormatter, value))
+</pre>
+<p>Note that this separates the concerns:
+the &quot;fake method&quot; <code>format</code>
+has moved to a &quot;fake class&quot; (an interface).</p>
+<pre class="code literal-block">
+&#64;interface.implementer(IFormatter)
+class BufferFormatter:
+
+    _buffer = False
+
+    def format(self, message):
+        if self._buffer:
+            return 'All Channels: ' + message
+        else:
+            return 'Limited Channels: ' + message
+
+    def switch_buffer(self):
+        self._buffer = not self._buffer
+</pre>
+<p>Note that now,
+if we only have the <code>Writer</code> object,
+there is no way to switch prefixes.
+Correctly switching prefixes means keeping access to the original object.</p>
+<p>If there is a need to &quot;call back&quot; to the original methods,
+the original object can be passed in to the wrapped object.
+One advantage is that,
+being a distinct object,
+it is obvious one should only call into public methods
+and only access public variables.</p>
+<p>Passing ourselves to a method is,
+in general,
+not an ideal practice.
+What we really should do,
+is to pass specific methods or variables directly into the method.
+But this is funny:
+when using inheritance,
+we <em>always</em> effectively pass ourselves to every method.
+So even this refactoring is a net improvement.
+When the biggest criticism of a refactoring is
+&quot;this could now be improved even more&quot;,
+it usually means it is a good idea.</p>
+<p>Credits:</p>
+<ul class="simple">
+<li>Thanks to Tom Goren for his feedback --
+the original version was more aggressive.</li>
+<li>Thanks to Glyph Lefkowitz for pushing me to make the example better.</li>
+<li>Thanks to Augie Fackler and Nathaniel Manista for much of the inspiration.</li>
+</ul>
+<table class="docutils footnote" frame="void" id="footnote-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#footnote-reference-1">[1]</a></td><td>The <code>zope.interface</code> library is a little like the
+<code>abc</code> libary:
+both give tools to clarify what methods we expect.
+However, the <code>abc.ABC</code> like inheritance a little <em>too</em> much.
+<a class="reference external" href="https://glyph.twistedmatrix.com/2009/02/explaining-why-interfaces-are-great.html">Glyph</a> has a good explanation about the advantages.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="footnote-2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><code>attrs</code> makes defining Python classes much less boiler-platey.
+There's <a class="reference external" href="https://glyph.twistedmatrix.com/2016/08/attrs.html">another Glyph post</a> explaining why it is so good.</td></tr>
+</tbody>
+</table>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

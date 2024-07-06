@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Random Bites of Pi(e)</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Random Bites of Pi(e)</h1>
+Wed 14 March 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>In today's edition of Pi day post,
+we will imagine we have a pie.
+(If you lack imagination,
+go out and get a pie.)
+(Even if you do not lack imagination,
+go out and get a pie.)</p>
+<p>As is traditional,
+we got a round pie.
+Since pies are important,
+we will base our unit of measure
+on this pie --
+the diameter of the pie will be 1.</p>
+<p>Since we had to carry it home,
+we put it in a box.
+We are all ecologically minded,
+of course,
+so we put it in a box which is square --
+with its length size 1.</p>
+<p>We note something interesting --
+the box's bottom's area is 1x1 --
+or 1.
+The radius of the pie is 1/2,
+so its area
+is <cite>pi * 0.25</cite>.</p>
+<p>As we are driving home,
+the pie on our passenger seat,
+we start wondering how we can
+estimate Pi.
+Luckily,
+we got some sugar.
+What if we sprinkled some sugar,
+and took notes for each grain,
+whether it was on the pie, or not?</p>
+<p>Let's use Python to simulate:</p>
+<pre class="code literal-block">
+import random
+import attr
+</pre>
+<p>First,
+we need some randomness generator.
+Then,
+we also want to use the <a class="reference external" href="https://attrs.org">attrs</a> library,
+because it makes everything more fun.</p>
+<p>We make a <code>Point</code> class.
+Other than the basics,
+we give it a class method --
+a named constructor which will generate
+a random point on the unit square --
+this is where our sugar grain falls.</p>
+<p>We also give it a way to calculate distance
+from another point,
+using the Pythagorean theorem.</p>
+<pre class="code literal-block">
+&#64;attr.s(frozen=True)
+class Point:
+    x = attr.ib()
+    y = attr.ib()
+
+    def distance(self, pt):
+        return ((self.x - pt.x) ** 2 + (self.y - pt.y) ** 2) ** 0.5
+
+    &#64;classmethod
+    def unit_square_random(cls):
+        return cls(x=random.random(), y=random.random())
+</pre>
+<p>The center of the pie is at <code>0.5</code> by <code>0.5</code>.</p>
+<pre class="code literal-block">
+center = Point(0.5, 0.5)
+</pre>
+<p>A point is inside the pie
+if it is less than <code>0.5</code> away from the center.</p>
+<pre class="code literal-block">
+def is_in_circle(pt):
+    return center.distance(pt) &lt; 0.5
+</pre>
+<p>Now we are ready.
+Even with just 100,000 grains of sugar,
+we get 2-digit accuracy.</p>
+<pre class="code literal-block">
+inside = total = 0
+for _ in range(10 ** 5):
+    total += 1
+    inside += int(is_in_circle(Point.unit_square_random()))
+print((inside / total) * 4)
+</pre>
+<pre class="literal-block">
+3.14052
+</pre>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

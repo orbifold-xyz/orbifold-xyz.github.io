@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Interesting text encodings (and the people who love them)</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Interesting text encodings (and the people who love them)</h1>
+Wed 13 December 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Tom Prince and Nelson Elhage for suggestions
+for improvement.)</p>
+<p>Nowadays, almost all text will be encoded in UTF-8 --
+for good reasons,
+it is a well thought out encoding.
+Some of it will be in Latin 1, AKA ISO-8859-1,
+which is popular in the western world.
+Less of it will be in other members of the ISO-8859 family
+(-2 or higher).
+Some text from Japan will occasionally still be in Shift-JIS.
+These encodings are all reasonable -- too reasonable.</p>
+<p>What about more interesting encodings?</p>
+<div class="section" id="ebcdic">
+<h2>EBCDIC</h2>
+<p>Encodings turn a sequence of logical code points into a sequence of bytes.
+Bytes, in turn, are just sequences of ones and zeroes.
+Usually, we think of the ones and zeroes as mostly symmetric --
+it wouldn't matter if the encoding was to the &quot;dual&quot; byte,
+where every bit was flipped.
+SSD drives do not like long sequences of zeroes --
+but neither do they like long sequences of ones.</p>
+<p>What if there was no symmetry?
+What if every &quot;one&quot; weakened your byte?</p>
+<p>This is the history of one of the most venerable media to carry digital
+information --
+predating the computer by its use in automated weaving machines --
+the punched card.
+It was called so because to make a &quot;one&quot;,
+you would punch a hole --
+that was detected by the card reader by an electric circuit being completed.
+Punching too many holes made cards weak:
+likely to rip in the wear and tear the automated reading machines
+inflicted upon them,
+in the drive to read cards ever faster.</p>
+<p>EBCDIC (Extended Binary Coded Decimal Interchange Code) was the solution.
+&quot;Extended&quot; because it extends the Binary Coded Decimal standard --
+numbers are encoded using one punch,
+which makes them easy to read with a hex editor.
+Letters are encoded with two.
+Nothing sorts correctly, of course,
+but that was not a big priority.
+Quoting from Wikipedia:</p>
+<p>&quot;The distinct encoding of 's' and 'S'
+(using position 2 instead of 1)
+was maintained from punched cards where it was desirable not to have
+hole punches too close to each other to ensure the integrity of the
+physical card.</p>
+<p>Of course,
+it wouldn't be IBM if there weren't a whole host of encodings,
+subtly incompatible,
+all called EBCDIC.
+If you live in the US, you are supposed to use code page 1140
+for your EBCDIC needs.</p>
+<p>Luckily,
+if you ever need to connect your Python interpreter to a card-punch machine,
+the Unicode encodings have got you covered:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; &quot;hello&quot;.encode('cp1140')
+b'\x88\x85\x93\x93\x96'
+</pre>
+<p>If you came to this post to learn skills immediately relevant
+to your day to day job and are entirely not obsolete,
+you're welcome.</p>
+</div>
+<div class="section" id="koi-8">
+<h2>KOI-8</h2>
+<p>Suppose you're a Russian speaker.
+You write your language using the Cyrrilic alphabet,
+suspiciously absent from the American Standard Code for Information Interchange
+(ASCII),
+developed during the height of the cold war between the US of A
+and the USSR.
+Some computers are going to have Cyrrilic fonts installed --
+and some are not.
+Suppose that it is the 80s,
+and the only language that runs fast enough on most computers is assembly
+or C.
+You want to make a character encoding that</p>
+<ul class="simple">
+<li>Will look fine if someone has the Cyrrilic installed</li>
+<li>Can be converted to ASCII that will look kinda-sorta like the Cyrrilic
+with a program that is trivial to write in C.</li>
+</ul>
+<p>KOI-8 is the result of this not-quite-thought experiment.</p>
+<p>The code to convert from KOI-8 to kinda-sorta-look-a-like ASCII,
+written in Python, would be:</p>
+<pre class="code literal-block">
+MASK = (1 &lt;&lt; 8) - 1
+with open('input', 'rb') as fin, open('output', 'wb') as fout:
+    while True:
+        c = fin.read(1)
+        if not c:
+            break
+        c = c &amp; MASK # &lt;--- this right here
+        fout.write(c)
+</pre>
+<p>The <code>MASK</code> constant, written in binary,
+is just <code>0b1111111</code> (seven ones).
+The line with the arrow masks out the &quot;high bit&quot; in the input character.</p>
+<p>Sorting KOI-8 by byte value gives you a sort that is not even a little bit
+right for the alphabet:
+the letters are all jumbled up.
+But it does mean that trivial programs in C or assembly --
+or sometimes even things that would try to read words out of
+old MS Word files --
+could convert it to something that looks semi-readable
+on a display that is only configured to display ASCII characters,
+possibly as a deep hardware limitations.</p>
+</div>
+<div class="section" id="punycode">
+<h2>Punycode</h2>
+<p>How lovely it is,
+of course,
+to live in 2017 --
+the future.
+We might not have flying cars.
+We might not even be wearing silver clothing.
+But by jolly,
+at least our modern encodings make sense.</p>
+<p>We send e-mails in UTF-8 to each other,
+containing wonderful emoji like &quot;eggplant&quot;
+or &quot;syringe&quot;.</p>
+<p>Of course, e-mail is old technology --
+we send our eggplants, syringes and avocadoes
+via end-to-end encrypted Signal chat messages,
+unreadable by any but our intended recipient.</p>
+<p>It is also easy to register our own site,
+and use an off-the-shelf SaaS offering,
+such as Wordpress or SquareSpace,
+to power it.
+And no matter what we want to put as our domain,
+we can...as long as it is ASCII-compatible,
+because DNS is also older than the end of the cold war,
+and assumes English only.</p>
+<p>Seems like this isn't the future after all,
+which the suspicious lack of flying cars and silver clothing
+should really have alerted us to.</p>
+<p>In our current times,
+which will be a future generation's benighted past,
+we must use yet another encoding to put our avocadoes and eggplans
+in the names of websites,
+where they rightly belong.</p>
+<p>Enter Punycode, an encoding that is not afraid to ask the hard questions
+like
+&quot;are you sure that the order encoded bits in the input and
+the output has to be the same&quot;?</p>
+<p>That is, if one string is a prefix of another,
+should its encoding be a prefix of the other?
+Just because UTF-8, EBCDIC, KOI-8 or Shift-JIS adhere to this rule
+doesn't mean we can't think outside the box!</p>
+<p>Punycode rearranges the encoding so that all ASCII compatible characters
+go to the beginning of the string,
+followed by a hyphen,
+followed by a complicated algorithm designed to minimize the number
+of output bytes by assuming the encoded
+non-ASCII characters are close together.</p>
+<p>Consider a simple declaration of love:
+&quot;I&lt;Red heart emoji&gt;U&quot;.</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; source = b'I\xe2\x9d\xa4U'
+&gt;&gt;&gt; declaration = source.decode('utf-8')
+&gt;&gt;&gt; declaration.encode('punycode')
+b'IU-ony'
+</pre>
+<p>Note how, like a well-worn pickup line,
+I and U were put together,
+while the part that encodes the heart is at the end.</p>
+<p>Consider the slightly more selfish declaration of self-love:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; source = b'I\xe2\x9d\xa4me'
+&gt;&gt;&gt; source.decode('utf-8').encode('punycode')
+b'Ime-4r6a'
+</pre>
+<p>Note that even though the selfish declaration and the true love declaration
+both share a two-character prefix,
+the result only shares one byte of prefix:
+the heart got moved to the end --
+and not the same heart.
+Truly, every love is unique.</p>
+<p>Punycode's romance with DNS, too,
+was frought with drama:
+indeed, many browsers now will not display unicode in the address bar,
+instead showing &quot;xn--&lt;punycode ASCII&gt;&quot;
+(the &quot;xn--&quot;  in the beginning indicates this is a punycoded string)
+as a security measure against phishing:
+it turns out there are a lot of characters in Unicode that
+look a lot like &quot;a&quot;,
+leading to many interesting variants on &quot;Paypal.com&quot; and &quot;Gmail.com&quot;,
+which look indistinguishable to most humans --
+and turns out,
+most users of the web are indeed of the homo sapiens species.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

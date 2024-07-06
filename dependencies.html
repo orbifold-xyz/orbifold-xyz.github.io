@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Managing Dependencies</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Managing Dependencies</h1>
+Sun 02 September 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to <a class="reference external" href="https://twitter.com/MRice88">Mark Rice</a> for his helpful suggestions.
+Any mistakes or omissions that remain are my responsibility.)</p>
+<p>Some Python projects are designed to be libraries,
+consumed by other projects.
+These are most of the things people consider &quot;Python projects&quot;:
+for example, Twisted, Flask, and most other open source tools.
+However,
+things like <a class="reference external" href="https://github.com/mu-editor/mu">mu</a>
+are sometimes installed as an end-user artifact.
+More commonly,
+many web services are written as deployable Python applications.
+A good example is the issue tracking project
+<a class="reference external" href="https://trac.edgewall.org/">trac</a>.</p>
+<p>Projects that are deployed must be deployed with their dependencies,
+and with the dependencies of those dependencies,
+and so forth.
+Moreover,
+at deployment time,
+a <em>specific</em> version must be deployed.
+If a project declares a dependency of <code>flask&gt;=1.0.1</code>,
+for example,
+something needs to decide whether to deploy <code>flask 1.0.1</code>
+or <code>flask 1.0.2</code>.</p>
+<p>For clarity,
+in this text,
+we will refer to the <em>declared</em> compatibility statements
+in something like <code>setup.py</code>
+(e.g., <code>flask&gt;=1.0.1</code>)
+as &quot;intent&quot; dependencies,
+since they document programmer intent.
+The <em>specific</em> dependencies that are eventually deployed
+will be referred as the &quot;expressed&quot; dependencies,
+since they are expressed in the actual deployed artifact
+(for example, a Docker image).</p>
+<p>Usually, &quot;intent&quot; dependencies are defined in <code>setup.py</code>.
+This does not <em>have</em> to be the case,
+but it almost always is:
+since there is usually some &quot;glue&quot; code at the top,
+keeping everything together,
+it makes sense to treat it as a library --
+albeit,
+one that sometimes is not uploaded to any package index.</p>
+<p>When producing the deployed artifact,
+we need to decide on how to generate the expressed dependencies.
+There are two competing forces.
+One is the desire to be current:
+using the latest version of Django means getting all the latest bug fixes,
+and means getting fixes to future bugs will require moving less versions.
+The other is the desire to avoid changes:
+when deploying a small bug fix,
+changing all library versions to the
+newest ones might introduce a lot of change.</p>
+<p>For this reason,
+most projects will check in the &quot;artifact&quot;
+(often called <code>requirements.txt</code>)
+into source control,
+produce actual deployed versions from that,
+and some procedure to update it.</p>
+<p>A similar story can be told about the development dependencies,
+often defined as <a class="reference external" href="https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies">extra</a> <code>[dev]</code> dependencies in
+<code>setup.py</code>,
+and resulting in a file <code>dev-requirements.txt</code> that
+is checked into source control.
+The pressures are a little different,
+and indeed,
+sometimes nobody bothers to check in <code>dev-requirements.txt</code>
+even when checking in <code>requirements.txt</code>,
+but the basic dynamic is similar.</p>
+<p>The worst procedure is probably &quot;when someone remembers to&quot;.
+This is not usually anyone's top priority,
+and most developers are busy with their regular day-to-day task.
+When an upgrade is <em>necessary</em> for some reason --
+for example, a bug fix is available,
+this can mean a lot of disruption.
+Often this disruption manifests in that just upgrading one library
+does not work.
+It now depends on newer libraries,
+so the entire dependency graph has to be updated,
+all at once.
+All intermediate &quot;deprecation warnings&quot; that might have been there
+for several months have been skipped over,
+and developers are suddenly faced with several breaking upgrades,
+all at once.
+The size of the change only grows with time,
+and becomes less and less surmountable,
+making it less and less likely that it will be done,
+until it ends in a case of complete bitrot.</p>
+<p>Sadly,
+however,
+&quot;when someone remembers to&quot;
+is the <em>default</em> procedure in the absence of any explicit procedure.</p>
+<p>Some organizations,
+having suffered through the disadvantages of &quot;when someone remembers to&quot;,
+decide to go to the other extreme:
+avoiding to check in the <code>requirements.txt</code> completely,
+and generating it on every artifact build.
+However,
+this means causing a lot of unnecessary churn.
+It is impossible to fix a small bug without making sure that the
+code is compatible with the latest versions of all libraries.</p>
+<p>A better way to approach the problem is to have an explicit process
+of recalculating the expressed dependencies from the intent dependencies.
+One approach is to manufacture,
+with some cadence,
+code change requests that update the <code>requirements.txt</code>.
+This means they are resolved like all code changes:
+review, running automated tests, and
+whatever other local processes are implemented.</p>
+<p>Another is to do those on a calendar based event.
+This can be anything from a  manually-strongly-encouraged
+&quot;update Monday&quot;,
+where on Monday morning,
+one of a developer tasks is to generate a <code>requirements.txt</code>
+updates for all projects they are responsible for,
+to including it as part of a time-based release process:
+for example,
+generating it on a cadence that aligns with agile &quot;sprints&quot;,
+as part of the release of the code changes in a particular sprints.</p>
+<p>When updating <em>does</em> reveal an incompatibility
+it needs to be resolved.
+One way is to update the local code:
+this certainly is the best thing to do when the problem is that the library
+changed an API or changed an internal implementation detail that was being
+used accidentally (...or intentionally).
+However,
+sometimes the new version has a bug in it that needs to be fixed.
+In that case,
+the <em>intent</em> is now to avoid that version.
+It is best to express the intent exactly as that:
+<code>!=&lt;bad version&gt;</code>.
+This means when an even newer version is released,
+hopefully fixing the bug,
+it will be used.
+If a new version is released without the bug fix,
+we add another <code>!=</code> clause.
+This is painful,
+and intentionally so.
+Either we need to get the bug fixed in the library,
+stop using the library,
+or fork it.
+Since we are falling further and further behind the latest version,
+this is introducing risk into our code,
+and the increasing <code>!=</code> clauses will indicate this pain:
+and encourage us to resolve it.</p>
+<p>The most important thing is to choose a <em>specific</em> process for updating
+the expressed dependencies,
+clearly document it
+and consistently follow it.
+As long as such a process is chosen, documented and followed,
+it is possible to avoid the bitrot issue.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Using Twisted to Massively Parallelize Web Clients</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Using Twisted to Massively Parallelize Web Clients</h1>
+Mon 13 April 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>The Twisted Requests
+(<tt class="docutils literal">treq</tt>)
+package is an HTTP client built on the popular
+Twisted library that is used for web requests.
+Async libraries offer the ability to do large amounts of network
+requests in parallel with relatively little CPU impact.
+This can be useful in HTTP clients that need to make several
+requests before they have all the information they need.</p>
+<p>This post shows an example of a problem like this,
+and how to solve it using
+<tt class="docutils literal">treq</tt>.</p>
+<p>I enjoy playing the real-time strategy game Clash Royale.
+Clash Royale is a mobile strategy player-vs-player game where
+players play cards in an arena to win.
+Each card has different strengths and weaknesses,
+and different players prefer different cards.
+Clash Royale remembers which card a player plays the most;
+this is their &quot;favorite&quot; card.
+Players come together in clans where they can help each other.
+Supercell,
+Clash Royale's developer,
+released an HTTP-based API where different statistics can be queried.</p>
+<p>How can we write a program that will output the most popular favorite
+cards in a clan?</p>
+<p>If you want to follow along,
+you will need to register an account.
+If you register an account,
+create an API token via the Clash Royale developer portal.
+Then choose &quot;Create New Key&quot; under your profile,
+and enter a name, description, and a valid IP address.
+(An exact address is required.)
+Since you should never save an API key in your code,
+keep it as a separate file in <tt class="docutils literal"><span class="pre">~/.crtoken</span></tt>:</p>
+<pre class="code literal-block">
+$ ls ~/.crtoken
+/home/moshez/.crtoken
+</pre>
+<p>To make it easier to see what is going on,
+let's start with this introductory program that prints
+<tt class="docutils literal">Hello world</tt>,
+and then we'll talk through what it does:</p>
+<pre class="code literal-block">
+import collections, json, os, sys, urllib.parse
+from twisted.internet import task, defer
+import treq
+
+with open(os.path.expanduser(&quot;~/.crtoken&quot;)) as fpin:
+    token = fpin.read().strip()
+
+def main(reactor):
+    print(&quot;Hello world&quot;)
+    return defer.succeed(None)
+
+task.react(main, sys.argv[1:])
+</pre>
+<p>This imports many more modules than we need for the
+<tt class="docutils literal">&quot;Hello world&quot;</tt>
+example.
+We will need these modules for the final version of the program,
+which will accomplish the more complex task of asynchronously querying an API.
+After the import,
+the program reads the token from the file and stores it in the variable token.
+(We are not going to do anything with the token right now,
+but it's good to see that code.)
+Next there is a main function that accepts a Twisted reactor.
+A reactor is sort of like an interface to the machinery
+of the Twisted package.
+In this case
+the function <tt class="docutils literal">main</tt> is sent as a parameter
+to
+<tt class="docutils literal">task.react</tt>,
+and,
+which will call
+<tt class="docutils literal">main</tt>
+with the reactor
+and any arguments we give --
+the command-line arguments,
+in this case.</p>
+<p>The <tt class="docutils literal">main</tt> function returns a
+<tt class="docutils literal">defer.succeed(None)</tt>.
+This is how it returns a value of the right type:
+a deferred value,
+but one that already has been &quot;fired&quot; or &quot;called.&quot;
+Because of that,
+the program will exit immediately after printing Hello world,
+as we need.</p>
+<p>Next, we will look at the concepts of async functions and
+<tt class="docutils literal">ensureDeferred</tt>:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     print(&quot;Hello world&quot;, clan)
+
+def main(reactor, clan):
+    return defer.ensureDeferred(get_clan_details(clan))
+
+task.react(main, sys.argv[1:])
+</pre>
+<p>In this program,
+which should start with the same imports,
+we moved all the logic to the async function
+<tt class="docutils literal">get_clan_details</tt>.
+Just like a regular function,
+an async function has an implicit
+<tt class="docutils literal">return None</tt> at the end.
+However, async functions,
+sometimes called co-routines,
+are a different type than
+<tt class="docutils literal">Deferred</tt>.
+In order to let Twisted,
+which has existed since Python 1.5.2,
+use this modern feature,
+we must adapt the co-routine using
+<tt class="docutils literal">ensureDeferred</tt>.</p>
+<p>While we could write all the logic without using co-routines,
+using the async syntax will allow us to write code that is
+easier to understand,
+and we will need to move a lot less of the code into embedded callbacks.</p>
+<p>The next concept to introduce is that of
+<tt class="docutils literal">await</tt>.
+Later, we will
+<tt class="docutils literal">await</tt>
+a network call,
+but for simplicity,
+right now,
+we will await on a timer.
+Twisted has a special function,
+<tt class="docutils literal">task.deferLater</tt>,
+which will call a function with given parameters after some time has passed.</p>
+<p>The following program will take five seconds to complete:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan, reactor):
+     out = await task.deferLater(
+         reactor,
+         5,
+         lambda clan: f&quot;Hello world {clan}&quot;,
+         clan
+     )
+     print(out)
+
+def main(reactor, clan):
+    return defer.ensureDeferred(get_clan_details(clan, reactor))
+
+task.react(main, sys.argv[1:])
+</pre>
+<p>A note about types:
+<tt class="docutils literal">task.deferLater</tt>
+returns a
+<tt class="docutils literal">Deferred</tt>,
+as do most Twisted functions that do not have the value already available.
+When running the Twisted event loop,
+we can <tt class="docutils literal">await</tt> on both <tt class="docutils literal">Deferred</tt> values and co-routines.</p>
+<p>The function
+<tt class="docutils literal">task.deferLater</tt>
+will wait five seconds and then call our
+<tt class="docutils literal">lambda</tt>,
+calculating the string to print out.</p>
+<p>Now we have all the Twisted building blocks needed to write an efficient
+clan-analysis program!</p>
+<p>Since we will be using the global reactor,
+we no longer need to accept the reactor as a parameter in the function that
+calculates these statistics.
+The way to use the token is as a &quot;bearer&quot; token in the headers:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+    headers={b'Authorization': b'Bearer '+token.encode('ascii')}
+</pre>
+<p>We want clan tags to be sent,
+which will be strings.
+Clan tags begin with <tt class="docutils literal">#</tt>,
+so they must be quoted before they're put in URLs.
+This is because <tt class="docutils literal">#</tt> has the special meaning &quot;URL fragment&quot;:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     clan = urllib.parse.quote(clan)
+</pre>
+<p>The first step is to get the details of the clan, including the clan members:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     res = await treq.get(&quot;https://api.clashroyale.com/v1/clans/&quot; + clan,
+                          headers=headers)
+</pre>
+<p>Notice that we have to await the
+<tt class="docutils literal">treq.get</tt>
+call.
+We have to be explicit about when to wait and get information
+since it is an asynchronous network call.
+Just using the <tt class="docutils literal">await</tt> syntax to call a <tt class="docutils literal">Deferred</tt> function
+does not let us take full power of asynchronicity
+(we will see how to do it later).</p>
+<p>Next,
+after getting the headers,
+we need to get the content.
+The <tt class="docutils literal">treq</tt> library gives us a helper method that parses the JSON directly:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     content = await res.json()
+</pre>
+<p>The content includes some metadata about the clan,
+which is not interesting for our current purposes,
+and a <tt class="docutils literal">memberList</tt> field that contains the clan members.
+Note that while it has some data about the players,
+the current favorite card is not part of it.
+It does include the unique &quot;player tag&quot; that we can use to
+retrieve further data.</p>
+<p>We collect all player tags,
+and,
+since they also begin with <tt class="docutils literal">#</tt>,
+we URL-quote them:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     player_tags = [urllib.parse.quote(player['tag'])
+                    for player in content['memberList']]
+</pre>
+<p>Finally,
+we come to the real power of treq and Twisted:
+generating all requests for player data at once!
+That can really speed up tasks like this one,
+which queries an API over and over again.
+In cases of APIs with rate-limiting, this can be problematic.</p>
+<p>There are times when we need to be considerate to our API owners
+and not run up against any rate limits.
+There are techniques to support rate-limiting explicitly in Twisted,
+but they are beyond the scope of this post.
+(One important tool is <tt class="docutils literal">defer.DeferredSemaphore</tt>.)</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     requests = [treq.get(&quot;https://api.clashroyale.com/v1/players/&quot; + tag,
+                          headers=headers)
+                 for tag in player_tags]
+</pre>
+<p>Remember that requests do not return the JSON body directly.
+Earlier,
+we used <tt class="docutils literal">await</tt> so that we did not have to worry about exactly what the
+requests return.
+They actually return a <tt class="docutils literal">Deferred</tt>.
+A <tt class="docutils literal">Deferred</tt> can have an attached callback that
+will modify the <tt class="docutils literal">Deferred</tt>.
+If the callback returns a <tt class="docutils literal">Deferred</tt>,
+the final value of the <tt class="docutils literal">Deferred</tt> will be
+the value of the returned <tt class="docutils literal">Deferred</tt>.</p>
+<p>So, to each deferred, we attach a callback that will
+retrieve the JSON of the body:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     for request in requests:
+         request.addCallback(lambda result: result.json())
+</pre>
+<p>Attaching callbacks to
+<tt class="docutils literal">Deferreds</tt>
+is a more manual technique,
+which makes code that is harder to follow but uses the async
+features more efficiently.
+Specifically,
+because we are attaching all the callbacks at the same time,
+we do not need to wait for the network calls,
+which potentially can take a long time,
+to indicate how to post-process the result.</p>
+<p>From Deferreds to values</p>
+<p>We cannot calculate the most popular favorite cards until all
+results have been gathered.
+We have a list of
+<tt class="docutils literal">Deferreds</tt>,
+but what we want is a
+<tt class="docutils literal">Deferred</tt>
+that gets a list value.
+This inversion is exactly what the Twisted function
+<tt class="docutils literal">defer.gatherResults</tt> does:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     all_players = await defer.gatherResults(requests)
+</pre>
+<p>This seemingly innocent call is where we use the full power of Twisted.
+The
+<tt class="docutils literal">defer.gatherResults</tt>
+function immediately returns a deferred that will fire only when all the
+constituent Deferreds have fired and will fire with the result.
+It even gives us free error-handling:
+if any of the
+<tt class="docutils literal">Deferreds</tt>
+error out,
+it will immediately return a failed deferred,
+which will cause the <tt class="docutils literal">await</tt> to raise an exception.</p>
+<p>Now that we have all the players' details,
+we need to munch some data.
+We get to use one of Python's coolest built-ins,
+<tt class="docutils literal">collections.Counter</tt>.
+This class takes a list of things and counts how many times
+it has seen each thing,
+which is exactly what we need for vote counting or popularity contests:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     favorite_card = collections.Counter([player[&quot;currentFavouriteCard&quot;][&quot;name&quot;]
+                                          for player in all_players])
+</pre>
+<p>Finally, we print it:</p>
+<pre class="code literal-block">
+async def get_clan_details(clan):
+     # ...
+     print(json.dumps(favorite_card.most_common(), indent=4))
+</pre>
+<p>So, putting it all together, we have:</p>
+<pre class="code literal-block">
+import collections, json, os, sys, urllib.parse
+from twisted.internet import task, defer
+import treq
+
+with open(os.path.expanduser(&quot;~/.crtoken&quot;)) as fpin:
+    token = fpin.read().strip()
+
+
+async def get_clan_details(clan):
+     headers = headers={b'Authorization': b'Bearer '+token.encode('ascii')}
+     clan = urllib.parse.quote(clan)
+     res = await treq.get(&quot;https://api.clashroyale.com/v1/clans/&quot; + clan,
+                          headers=headers)
+     content = await res.json()
+     player_tags = [urllib.parse.quote(player['tag'])
+                    for player in content['memberList']]
+     requests = [treq.get(&quot;https://api.clashroyale.com/v1/players/&quot; + tag,
+                          headers=headers)
+                 for tag in player_tags]
+     for request in requests:
+         request.addCallback(lambda result: result.json())
+     all_players = await defer.gatherResults(requests)
+     favorite_card = collections.Counter([player[&quot;currentFavouriteCard&quot;][&quot;name&quot;]
+                                          for player in all_players])
+     print(json.dumps(favorite_card.most_common(), indent=4))
+
+def main(reactor, clan):
+    return defer.ensureDeferred(get_clan_details(clan))
+
+task.react(main, sys.argv[1:])
+</pre>
+<p>Thanks to the efficiency and expressive syntax of Twisted and <tt class="docutils literal">treq</tt>,
+this is all the code we need to make asynchronous calls to an API.
+If you were wondering about the outcome,
+my clan's list of favorite cards is Wizard, Mega Knight, Valkyrie,
+and Royal Giant,
+in descending order.</p>
+<p>(This post is based on the article I wrote for
+<a class="reference external" href="https://opensource.com/article/20/3/treq-python">opensource.com</a>)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

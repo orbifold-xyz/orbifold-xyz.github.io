@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Staying Safe with Open Source</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Staying Safe with Open Source</h1>
+Thu 24 January 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>A couple of months ago,
+a successful attack against the Node ecosystem
+resulted in stealing an undisclosed amount
+of bitcoins from
+<a class="reference external" href="https://blog.bitpay.com/npm-package-vulnerability-copay/">CoPay wallets</a>.</p>
+<p>The technical flow of the attack is well-summarized
+by the <a class="reference external" href="https://blog.npmjs.org/post/180565383195/details-about-the-event-stream-incident">NPM blog post</a>.
+Quick summary:</p>
+<ol class="arabic simple">
+<li><cite>nodemon</cite>, a popular way to run Node applications, depends on <cite>event-stream</cite>.</li>
+<li>The <cite>event-stream</cite> maintainer has not had time to maintain it.</li>
+<li><cite>right9control</cite> asked <cite>event-stream</cite> maintainer for commit privileges to help maintain it.</li>
+<li><cite>right9control</cite> added a dependency on a new library, <cite>flatmap-stream</cite>.</li>
+<li><cite>flatmap-stream</cite> contained malicious code to steal wallets.</li>
+</ol>
+<div class="section" id="obfuscation">
+<h2>Obfuscation</h2>
+<p>A <em>number</em> of methods were done to disguise the attack.</p>
+<p>The dependency was an added in a minor version,
+and a new version was immediately released.
+This meant that most projects,
+which pin to minor,
+would get the updates,
+while it stayed invisible on the main GitHub landing page,
+or the main npm landing page.</p>
+<p>The malicious code was only in the minified version of the library
+that was uploaded to <code>npm.org</code>.
+The non-minified source code on both GitHub and <code>npm.org</code>,
+as well as the minified code on GitHub,
+did not contain the malicious code.</p>
+<p>The malicious code was encrypted with a key that used the
+description of <em>other</em> packages in the dependency tree.
+That made it impossible to understand the attack
+without guessing which package decrypts it.</p>
+<p>The combination of all those methods meant that the
+problem remained undetected for <em>two months</em>.
+It was only luck that detected it:
+the decryption code was using a <a class="reference external" href="https://github.com/remy/nodemon/issues/1442">deprecated function</a>,
+and investigating the deprecation message led to the issue
+being figured out.</p>
+<p>This bears thinking about:
+if the code had been written <em>slightly better</em>,
+the problem would have <em>still</em> be happening now,
+and nobody would be the wiser.
+We should not discount the possibility that <em>currently</em>,
+someone who followed the same playbook
+but managed to use AES correctly is still attacking
+some package,
+and we have no idea.</p>
+</div>
+<div class="section" id="solutions-and-non-solutions">
+<h2>Solutions and Non-Solutions</h2>
+<p>I want to discuss some non-solutions in trying to understand
+how this problem came about.</p>
+<div class="section" id="better-vetting-of-maintainers">
+<h3>Better Vetting of Maintainers</h3>
+<p>It is true,
+the person who made this commit had an
+obviously-auto-generated username
+(<code>&lt;word&gt;-&lt;digit&gt;-&lt;word&gt;</code>)
+and made few contributions before getting control.
+But short of meeting people in person,
+I do not think this would work.</p>
+<p><em>Attackers adapt</em>.
+Ask for better usernames,
+they will generate
+&quot;&lt;firstname&gt;-&lt;lastname&gt;&quot;
+names.
+Are you going to disallow my GitHub username,
+<code>moshez</code>?
+Ask for more contributions,
+you will get some trivial-code-that's-uploaded-to-npm,
+autogenerated a bit to disguise it.
+Ask for longer commit history,
+they'll send fixes to trivial issues.</p>
+<p>Remember that this is a <em>distributed</em> problem,
+with each lead maintainer having to come up with a vetting procedure.
+Otherwise,
+you get usernames through the vetting process,
+and then you use those to spam maintainers,
+who now are <em>sure</em> they can trust those &quot;vetted&quot;.</p>
+<p>In short,
+this is one of the classical defenses
+that fails to take into considerations that attackers adapt.</p>
+</div>
+<div class="section" id="any-solution-that-depends-on-javascript-specific-things">
+<h3>Any Solution That Depends on JavaScript-specific Things</h3>
+<p>This attack could easily have been executed against
+PyPI
+or
+RubyGems.
+Any solution that relies on JavaScript's ability to
+have a <a class="reference external" href="https://medium.com/agoric/pola-would-have-prevented-the-event-stream-incident-45653ecbda99">least-access</a>-based solution only helps
+make sure that these attacks go elsewhere.</p>
+<p>It's not <em>bad</em> to do it.
+It just does not solve the root cause.</p>
+<p>This also means that &quot;stop relying on minified code&quot;
+is a non-solution in the world where we encourage
+Python engineers
+to
+<a class="reference external" href="https://hynek.me/articles/sharing-your-labor-of-love-pypi-quick-and-dirty/">upload wheels</a>.</p>
+</div>
+<div class="section" id="any-solution-that-depends-on-audit-code">
+<h3>Any Solution That Depends on &quot;Audit Code&quot;</h3>
+<p>A typical medium-sized JavaScript client app depends on
+some 2000 packages.
+Auditing each one,
+on each update,
+would make using third-packages untenable.
+This means that start-ups playing fast and loose with
+these rules would gain an advantage over those who do not.
+Few companies can afford that pay that much for security.</p>
+<p>Hell,
+we <a class="reference external" href="https://hackernoon.com/im-harvesting-credit-card-numbers-and-passwords-from-your-site-here-s-how-9a8cb347c5b5">knew this was a possibility</a>
+a few months before the <em>attack was initiated</em>
+and still nobody did code auditing.
+Starting now would mostly mean availability bias,
+which means it would be over as soon as another
+couple of months go by without a documented attack.</p>
+</div>
+<div class="section" id="partial-solution-open-source-sustainability">
+<h3>Partial Solution -- Open Source Sustainability</h3>
+<p>If we <a class="reference external" href="https://www.quansight.com/open-source-partnerships">could</a> <a class="reference external" href="https://tidelift.com/">just</a> <a class="reference external" href="https://twitter.com/jacobian/status/1086389182157733889">pay</a> maintainers,
+they would be slightly more comfortable maintaining
+packages and less desperate for help.
+This means that it would become <em>inherently</em>
+slightly harder to quickly become a new maintainer.</p>
+<p>However,
+it is worthwhile to consider that this still would not
+solve the subtler &quot;adding a new dependency&quot;
+attack described earlier:
+just making a &quot;good&quot; library and getting other libraries
+to depend on it.</p>
+</div>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>I do not know how to prevent the &quot;next&quot; attack.
+<a class="reference external" href="https://www.hillelwayne.com/post/stamping-on-eventstream/">Hillel</a> makes the point that a lot of &quot;root causes&quot;
+will only prevent almost-exact repeats,
+while failing to address trivial variations.
+Remember that <em>one trivial variation</em>,
+avoiding deprecation warnings,
+would have made this attack much more successful.</p>
+<p>I am concerned that,
+as an industry,
+we are not discussing this attack a mere
+<em>two months</em>
+after discovery and mitigation.
+We are vulnerable.
+We will be attacked again.
+We need to be prepared.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Running Modules</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Running Modules</h1>
+Mon 19 March 2018
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to <a class="reference external" href="https://blog.ganssle.io/">Paul Ganssle</a> for his suggestions and improvements.
+All mistakes that remain are mine.)</p>
+<p>When exposing a Python program as a command-line application,
+there are several ways to get the Python code to run.
+The oldest way,
+and the one people usually learn in tutorials,
+is to run
+<code>python some_file.py</code>.</p>
+<p>If the file is intended to be usable as both a module and as a
+command-line parameter,
+it will often have</p>
+<pre class="code literal-block">
+if __name__ == '__main__':
+    actually_run_main()
+</pre>
+<p>or similar code.</p>
+<p>This sometimes has surprising corner-case behavior,
+but even worse --
+<code>some_file.py</code> is not looked for in either
+<code>$PATH</code>
+or <code>sys.path</code>,
+it must be explicitly handed.
+It also changes the default Python path from including the current directory,
+to including the location of <code>some_file.py</code>.</p>
+<p>The new recommended modern way,
+of course,
+is to set <code>entry_points</code> in the <code>setup.py</code> file.
+When the distribution is installed,
+a console script is auto-generated and added to the same place
+the Python interpreter is found.
+This means that we need to think carefully about the other things
+that might have the same name on our <code>$PATH</code>
+to avoid collisions.</p>
+<p>There is a third way,
+which is subtle.
+When Python sees the <code>-m &lt;some name&gt;</code> option,
+it will look for a module or a package by that name.
+If it finds a module,
+it will run it with <code>__name__</code> being <code>&quot;__main__&quot;</code>
+in order to trigger the path that actually does something --
+again leading to some,
+if not all,
+issues discussed earlier.</p>
+<p><em>However</em> if it finds a package
+it will run its <code>__main__.py</code> module
+(still setting <code>__name__</code> to <code>&quot;__main__&quot;</code>)
+--
+not its <code>__init__.py</code>.</p>
+<p>This means that at the top of <cite>__main__.py</cite> we can invert the usual
+logic:</p>
+<pre class="code literal-block">
+if __name__ != '__main__':
+    raise ImportError(&quot;Module intended to be main, not imported&quot;,
+                      __name__)
+
+from . import main_function
+main_function()
+</pre>
+<p>This allows running <code>python -m &lt;some package&gt;</code>,
+but anyone who tried to accidentally import
+<code>&lt;some package&gt;.__main__</code> will get an error --
+as well they should!</p>
+<p>Among other things,
+this means we only care about our <code>sys.path</code>,
+not our <code>$PATH</code>.
+For example, this will work the same whether the package is installed
+to the global Python
+or <code>--user</code> installed.</p>
+<p>Finally,
+if an entrypoint is desired, one can easily be made to run
+<code>__main__</code>:</p>
+<pre class="code literal-block">
+entrypoint = toolz.compose(lambda _dummy: None,
+    functools.partial(runpy.run_module,
+                      &quot;&lt;some package&gt;&quot;,
+                      run_name='__main__'))
+</pre>
+<p>Using the builtin module <a class="reference external" href="https://docs.python.org/3/library/runpy.html">runpy</a>,
+the builtin module <a class="reference external" href="https://docs.python.org/3/library/functools.html">functools</a>
+and the third party module <a class="reference external" href="http://toolz.readthedocs.io/en/latest/api.html">toolz</a>.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

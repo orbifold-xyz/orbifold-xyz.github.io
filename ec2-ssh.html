@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - SSH to EC2</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>SSH to EC2</h1>
+Wed 30 August 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(Thanks to Donald Stufft for reviewing this post,
+and to Glyph Lefkowitz for inspiring much of it.)</p>
+<p>(JP Calderone wrote a <a class="reference external" href="http://as.ynchrono.us/2017/09/ssh-to-ec2-refrain.html">Twisted version</a> of this approach.)</p>
+<p>It is often the case that after creating an EC2 instance in AWS,
+the next step is SSHing.
+This might be because the machine is a development machine,
+or it might be tilling the ground for a different remote control:
+for example, setting up a <a class="reference internal" href="#salt">salt</a> minion.</p>
+<p>In those cases,
+many either press <code>y</code>
+when seeing SSH prompt them about an unknown host key,
+or even turn off host key verification altogether.
+This is convenient,
+quick,
+and very insecure.
+A man in the middle can use this to steal credentials --
+maybe not permanently,
+but enough to log in into any other machine with the same SSH key.</p>
+<p>The correct thing to do is to prepare the SSH configuration
+by retrieving the host key via the AWS API.
+Unfortunately, doing it is not trivial.</p>
+<p>Fortunately,
+it is a good example of how to use the AWS API from Python.</p>
+<pre class="code literal-block" id="salt">
+import sys
+import boto3
+
+client = boto3.client('ec2', region_name='us-west-2')
+resource = boto3.resource('ec2', region_name='us-west-2')
+
+output = client.get_console_output(InstanceId=sys.argv[1])
+result = output['Output']
+
+rsa = [line for line in result.splitlines()
+            if line.startswith('ssh-rsa')][0]
+
+instance = resource.Instance(sys.argv[1])
+known_hosts = '{},{} {}\n'.format(instance.public_dns_name,
+                                  instance.public_ip_address,
+                                  rsa)
+
+with open(os.path.expanduser('~/.ssh/known_hosts'), 'a') as fp:
+    fp.write(known_hosts)
+</pre>
+<p>Let's go through this script section by section.</p>
+<pre class="code literal-block">
+import sys
+import boto3
+</pre>
+<p>We import the <code>sys</code> module and
+the first-party AWS module <code>boto3</code>.</p>
+<pre class="code literal-block">
+client = boto3.client('ec2', region_name='us-west-2')
+resource = boto3.resource('ec2', region_name='us-west-2')
+</pre>
+<p>It is often confusing what functionality is in <code>client</code>
+and what is in <code>resource</code>.
+The only rule I learned in a year of using the AWS API
+is to look in both places, and create both a client and a resource.
+In general, <code>client</code> maps directly to AWS low-level REST API,
+while <code>resource</code> gives higher level abstractions.</p>
+<pre class="code literal-block">
+output = client.get_console_output(InstanceId=sys.argv[1])
+result = output['Output']
+</pre>
+<p>This is the meat of the script --
+we use the API to get the console output.
+These are the boot up messages from all services.
+When the SSH server starts up,
+it prints its key.
+All that is left now is to find it.</p>
+<pre class="code literal-block">
+rsa = [line for line in result.splitlines()
+            if line.startswith('ssh-rsa')][0]
+</pre>
+<p>This is a little hacky,
+but there is no nice way to do it.
+There are other possible heuristics.
+The nice thing is that if the heuristic fails,
+this will result in connection failure --
+not an insecure connection!</p>
+<pre class="code literal-block">
+instance = resource.Instance(sys.argv[1])
+known_hosts = '{},{} {}\n'.format(instance.public_dns_name,
+                                  instance.public_ip_address,
+                                  rsa)
+</pre>
+<p>We grab the IP and name through the resource,
+and format them in the right way for SSH to understand.</p>
+<pre class="code literal-block">
+with open(os.path.expanduser('~/.ssh/known_hosts'), 'a') as fp:
+    fp.write(known_hosts)
+</pre>
+<p>I chose to update <code>known_hosts</code> like this because originally this script
+was in a throw-away Docker image.
+In other cases, it might be wise to have a separate known hosts file
+for EC2 instances,
+or have an atomic update methodology.</p>
+<p>After running this code,
+it is possible to SSH without having to verify the host key.
+It is best to set the SSH options to fail if the host key is not there,
+for extra safety.</p>
+<p>An alternative approach is to use the AWS API to set the SSH secret key.
+However, this is, in general, even less trivial to do securely.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

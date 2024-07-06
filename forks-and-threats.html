@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Forks and Threats</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Forks and Threats</h1>
+Wed 19 February 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>What is a threat?
+From a game-theoretical perspective,
+a threat is an attempt to get a better result by saying:
+&quot;if you do not give me this result,
+I will do something that is bad <em>for both of us</em>&quot;.
+Note that it has to be bad for both sides:
+if it is
+<em>good</em>
+for the threatening side,
+they would do it anyway.
+While if it is
+<em>good</em>
+for the threatened side,
+it is not a threat.</p>
+<p>Threats rely on
+<em>credibility</em> and <em>reputation</em>:
+the threatening side has to be believed for the threat to be useful.
+One way to gain that reputation is to follow up on threats,
+and have that be a matter of public record.
+This means that the threatening side needs to take into account
+that they might have to act on the threat,
+thereby doing something
+<em>against their own interests</em>.
+This leads to the concept of a
+&quot;credible&quot;
+or
+&quot;proportionate&quot;
+threat.</p>
+<p>For most of our analysis,
+we will use the example of a teacher union striking.
+Similar analysis can be applied to nuclear war,
+or other cases.
+People mostly have positive feelings for teachers,
+and when teacher unions negotiate,
+they want to take advantage of those feelings.
+However,
+the one thing that leads people to be annoyed with teachers
+is a strike:
+this causes large amounts of unplanned scheduling crisis in people's lives.</p>
+<p>In our example,
+a teacher union striking over,
+say,
+a minor salary raise disagreement is not
+credible:
+the potential harm is small,
+while the strike will significantly harm the teachers'
+image.</p>
+<p>However,
+strikes are,
+to a first approximation,
+the only tool teacher unions have in their arsenal.
+Again,
+take the case of a minor salary raise.
+Threatening with a strike is so disproportional
+that there is no credibility.
+We turn to one of the fundamental insights of game theory:
+rational actors treat
+<em>utility</em>
+as
+<em>linear</em>
+in probability.
+So,
+while starting a strike that is twice as long is
+<em>not</em>
+twice as bad,
+increasing the probability of starting a strike
+from
+<em>0</em>
+to
+<em>1</em>
+is twice as bad
+(exactly!)
+as increasing the probability from
+<em>0</em>
+to
+<em>0.5</em>.</p>
+<p>(If you are a Bayesian who does not believe in 0 and 1 as probabilities,
+note that the argument works with approximations too:
+increasing the probability from a small <em>e</em> to <em>0.5</em> is approximately
+twice as bad as increasing it from <em>e</em> to <em>1-e</em>.)</p>
+<p>All one side has is a strike.
+Assume the disutility of a strike to that side is
+-1,000,000.
+Assume the utility of winning the salary negotiation is 1.
+They can threaten that if their position is not accepted,
+they will generate a random number,
+and if it is below <em>1/1,000,000</em>,
+they will start the strike.
+Now the threat is
+<em>credible</em>.
+But to be gain that reputation,
+this number has to be generated in public,
+in an uncertain way:
+otherwise,
+no reputation is gained for following up on threats.</p>
+<p>In practice,
+usually the randomness is generated by
+&quot;inflaming the base&quot;.
+The person in charge will give impassioned speeches on how important
+this negotiation is.
+With some probability,
+their base will pressure them to start the strike,
+without them being able to resist it.</p>
+<p>Specifically,
+note that often a strike is determined by a direct vote of the members,
+not the union leaders.
+This means that union leaders can credibly say,
+&quot;please do not vote for the strike, we are against it&quot;.
+With some probability,
+that depends on how much they inflamed the base,
+the membership will ignore the request.
+The more impassioned the speech,
+the higher the probability.
+By limiting their direct control over the decision to strike,
+union leaders gain the ability to threaten probabilistically.</p>
+<p>Nuclear war and union strikes are both well-studied topics in
+applied game theory.
+The explanation above is a standard part of many text books:
+in my case,
+I summarized the explanation
+from
+<a class="reference external" href="https://www.macmillanlearning.com/college/us/product/Games-Strategies-and-Decision-Making/p/1429239964">Games of Strategy</a>, pg. 487.</p>
+<p>What is not well studied are the dynamics of open source projects.
+There,
+we have a set of owners who can directly influence such decisions
+as which patches land,
+and when versions are released.
+More people will offer patches,
+or ask for a release to happen.
+The only credible threat they have is to fork the project
+if they do not like how it is managed.
+But forking is often a disproportinate threat:
+a patch not landing often just means an ugly work-around in user code.
+There is a cost,
+but the cost of maintaining a fork is much greater.</p>
+<p>But similar to a union strike,
+or launching a nuclear war,
+we can consider a
+&quot;probabilistic fork&quot;.
+Rant on twitter,
+or appropriate mailing lists.
+Link to the discussion,
+especially to places which make the owners not in the best light.
+Someone might decide to
+&quot;rage-fork&quot;.
+More rants,
+or more extreme rants,
+increase the probability.
+A fork has to be possible in the first place:
+this is why the best way to evaluate whether something is open source
+is to consider
+&quot;how possible is a fork&quot;.</p>
+<p>This is why the
+<em>possibility</em>
+of a fork changes the dynamics of a project,
+even if forks are rare:
+because the main thing that happens are
+&quot;low-probability maybe-forks&quot;.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

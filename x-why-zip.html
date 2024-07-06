@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - X Why Zip</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>X Why Zip</h1>
+Sat 24 June 2017
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p><a class="reference external" href="https://www.python.org/dev/peps/pep-0441/">PEP 441</a> resulted in the creation of the <a class="reference external" href="https://docs.python.org/3/library/zipapp.html">zipapp</a> module.
+The PEP says
+&quot;Python has had the ability to execute directories or ZIP-format archives as scripts since version 2.6 [...]
+This feature is not as popular as it should be mainly because it was not promoted as part of Python 2.6.&quot;
+So far, so true --
+the first time I saw the feature used in production,
+in Facebook,
+I was so shocked I had to take a <a class="reference external" href="https://www.facebook.com/FBSweetStop/">Sweet Stop</a> break.</p>
+<p>However, <a class="reference external" href="https://github.com/pantsbuild/pex/blob/acce05621f1fed977974e6502439b91cfede7d49/src/python/twitter/common/python/pexbuilder.py">more than a year</a> before the PEP was created,
+and even longer than the PEP was implemented,
+<a class="reference external" href="https://pex.readthedocs.io/en/stable/whatispex.html">the PEX format</a>
+was contributed to the Python community by Twitter.
+It was, indeed, not well promoted.
+Indeed the <a class="reference external" href="https://www.youtube.com/watch?v=NmpnGhRwsu0">lightning talk</a> by Brian Wickman
+(creator of PEX)
+wouldn't be given for two more years.</p>
+<p>However, at this point in time,
+PEX is a superior solution to zipapp in every single way:</p>
+<ul class="simple">
+<li>It supports both Python 2 and Python 3.</li>
+<li>It supports C extensions and non-zip-safe archives.</li>
+<li>It has been used in production, <a class="reference external" href="https://pex.readthedocs.io/en/stable/#pex">by many people</a>.</li>
+</ul>
+<p>The only advantage zipapp has? It is in the standard library.
+This used to be a big advantage.
+However, <a class="reference external" href="https://glyph.twistedmatrix.com/2016/08/python-packaging.html">Python packaging is good now</a> and the biggest difference is that a module in the standard library
+can change in backwards-compatible ways extremely slowly,
+and in ways that evolve bad interfaces even slower.
+A module on PyPI can get regular updates, regular releases and, most importantly,
+if it is bad -- it can be supplanted by a new module, and see users <a class="reference external" href="https://github.com/hynek/characteristic/blob/a1e7b39fbf77fd87ed16b58cf265108bc6edc5f3/README.rst">naturally move to the new solution</a>.</p>
+<p>ZipApp is a non-solution for a non-problem.
+The solution for the problem of this feature not being well known is to <em>talk about it more</em>.
+I, and <a class="reference external" href="https://www.youtube.com/watch?v=nwsCUfodq7I">other people</a>,  have given <a class="reference external" href="https://www.youtube.com/watch?v=f5nNzI8riNg">multiple</a> <a class="reference external" href="https://github.com/moshez/boredbot/blob/master/luggage/buildpex.py">talks</a> that involved the awesomeness of PEX
+(in SF Python, SF SRE, PyBay)
+and have written <a class="reference external" href="https://orbifold.xyz/python-docker.html">multiple posts</a> and <a class="reference external" href="https://github.com/moshez/sayhello">proofs of concept</a> on my GitHub.</p>
+<p>I have used PEX in production in three different companies,
+teaching my <a class="reference external" href="http://sedimental.org/the_packaging_gradient.html#depending_on_pre_installed_python">colleagues</a> about it as a side-effect.</p>
+<p>I wish more people would be giving talks,
+and writing posts.
+Using the standard library to reimplement a popular tool,
+that can iterate faster,
+not being bound to the Python release cycle,
+does not help anyone.</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

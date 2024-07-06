@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Or else:</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Or else:</h1>
+Thu 12 March 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>This was originally sent to my
+<a class="reference external" href="https://buttondown.email/moshez">newsletter</a>.
+I send one e-mail,
+always about Python,
+every other Sunday.
+If this blog post interests you, consider subscribing.</p>
+<p>The underappreciated <cite>else</cite> keyword in Python has three distinct uses.</p>
+<div class="section" id="if-else">
+<h2>if/else</h2>
+<p>On an <tt class="docutils literal">if</tt> statement, <tt class="docutils literal">else</tt> will contain code that runs
+if the condition is false.</p>
+<pre class="code literal-block">
+if anonymize:
+    print(&quot;Hello world&quot;)
+else:
+    print(&quot;Hello, name&quot;)
+</pre>
+<p>This is probably the least surprising use.</p>
+</div>
+<div class="section" id="loop-else">
+<h2>loop/else</h2>
+<p>The easiest to explain is
+<tt class="docutils literal">while/else</tt>:
+it works the same as <tt class="docutils literal">if/else</tt>,
+and runs when the condition is false.</p>
+<p>However,
+it does
+<em>not</em>
+run if the loop was broken out of using
+<tt class="docutils literal">break</tt>
+or an exception:
+it serves as something that runs on normal loop termination.</p>
+<p><tt class="docutils literal">for/else</tt> functions in the same way:
+it runs on normal loop termination,
+and not if the loop was broken out of using a break.</p>
+<p>For example, searching for an odd element in a list:</p>
+<pre class="code literal-block">
+for x in numbers:
+    if x % 2 == 1:
+        print(&quot;Found&quot;, x)
+        break
+else:
+    print(&quot;No odd found&quot;)
+</pre>
+<p>This is a powerful way to avoid sentinel values.</p>
+</div>
+<div class="section" id="try-except-else">
+<h2>try/except/else</h2>
+<p>When writing code that might raise an exception,
+we want to be able to catch it --
+but we want to avoid catching unanticipated exceptions.
+This means we want to protect as little code with
+<tt class="docutils literal">try</tt> as possible,
+but still have some code that runs only in the normal path.</p>
+<pre class="code literal-block">
+try:
+    before, after = things
+except ValueError:
+    part1 = things[0]
+    part2 = 0
+    after = 0
+else:
+    part1, part2 = before
+</pre>
+<p>This means that if
+<tt class="docutils literal">things</tt>
+does not have two items,
+this is a valid case we can recover from.
+However,
+if it does have two items,
+the first one must also have two items.
+If this is not the case,
+this snippet will raise <tt class="docutils literal">ValueError</tt>.</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

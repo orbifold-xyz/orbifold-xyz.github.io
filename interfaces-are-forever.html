@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Interfaces are forever</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Interfaces are forever</h1>
+Fri 12 July 2019
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>(The following talks about <tt class="docutils literal">zope.interface</tt> interfaces,
+but applies equally well to Java interfaces,
+Go interfaces,
+and probably other similar constructs.)</p>
+<p>When we write a function,
+we can sometimes change it in backwards-compatible ways.
+For example,
+we can loosen the type of a variable.
+We can restrict the type of the return value.
+We can add an optional argument.</p>
+<p>We can even have a backwards compatible path to make an argument required.
+We add an optional argument,
+and encourage people to change it.
+Then, in the next version,
+we make the default value be one that causes a warning.
+In a version after that,
+we make the value required.
+At each point,
+someone could write a library that worked with
+<em>at least</em>
+two consecutive versions.</p>
+<p>In a similar way,
+we can have a path to remove an argument.
+First make it optional.
+Then warn when it is passed in.
+Finally,
+remove it and make it an error to pass it in.</p>
+<p>As long as we do not intend to support inheritance,
+making backwards compatible changes to classes also works.
+For example,
+to remove a method we first have a version that warns when you call it,
+and then remove it in a succeeding version.</p>
+<p>However,
+what changes can we make to an <em>interface</em>?</p>
+<p>Assume we have an interface like:</p>
+<pre class="code literal-block">
+from zope.interface import Interface, implements
+
+class IFancyFormat(Interface):
+
+    def fancify_int(value: int) -&gt; str:
+        pass
+</pre>
+<p>It is a perfectly reasonable,
+if thin,
+interface.
+Implementing it seems like fun:</p>
+<pre class="code literal-block">
+&#64;implements(IFancyFormat)
+&#64;attr.s(auto_attribs=True)
+class FancySuffixer:
+    suffix: str
+
+    def fancify_int(self, value: int) -&gt; str:
+        return str(value) + self.suffix
+</pre>
+<p>Using it also seems like fun:</p>
+<pre class="code literal-block">
+def dashify_fancy_five(fancifier: IFancyFormat) -&gt; str:
+    return f&quot;---{fancifier.fancify_int(5)}---&quot;
+</pre>
+<p>These are very different kinds of fun,
+though!
+Probably the kind of fun that appeals to different people.
+The first implementation is in the <tt class="docutils literal">superfancy</tt> open-source library.
+The second one is in the <tt class="docutils literal">dash_five</tt> open-source library.
+Such is the beauty of open source:
+it takes all kinds of people.</p>
+<p>We cannot add a method to <tt class="docutils literal">IFancyFormat</tt>:
+the <tt class="docutils literal">superfancy</tt> library has a unit test that uses
+<tt class="docutils literal">verifyImplements</tt>,
+which will fail if we add a method.
+We cannot <em>remove</em> the method <tt class="docutils literal">fancify_int</tt>,
+since this will break <tt class="docutils literal">dash_five</tt>:
+the <tt class="docutils literal">mypy</tt> check will fail,
+since <tt class="docutils literal">IFancifySuffixer</tt> will not have that method.</p>
+<p>Similarly,
+we cannot make the parameter optional without breaking
+<tt class="docutils literal">superfancy</tt>,
+or loosen the return type without breaking <tt class="docutils literal">dash_five</tt>.
+Once we have published <tt class="docutils literal">IFancyFormat</tt> as an API,
+it cannot change.</p>
+<p>The only way to recover from a bad interface is to create a
+<em>new</em>
+interface,
+<tt class="docutils literal">IAwesomeFancyFormat</tt>.
+Then write conversion functions from and to <tt class="docutils literal">IFancyFormat</tt> and <tt class="docutils literal">IAwesomeFancyFormat</tt>.
+Then deprecate using the <tt class="docutils literal">IFancyFormat</tt> interface.
+Finally,
+we can remove the interface.
+Then we can alias <tt class="docutils literal">IFancyFormat == IAwesomeFancyFormat</tt>,
+and eventually,
+maybe even deprecate the name <tt class="docutils literal">IAwesomeFancyFormat</tt>.</p>
+<p>When publishing interfaces,
+one must be careful:
+to a first approximation,
+they are forever.</p>
+<p>(Thanks to Glyph Lefkowitz for his helpful suggestions.
+Any mistakes or issues that are left are my responsibility.)</p>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

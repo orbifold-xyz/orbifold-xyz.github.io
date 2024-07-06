@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Numbers in Python</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="./theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="./theme/bootstrap.min.css" rel="stylesheet">
+    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="./theme/local.css" rel="stylesheet">
+    <link href="./theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href=".">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="./pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+    <div class='article'>
+        <div class="content-title">
+            <h1>Numbers in Python</h1>
+Sun 26 April 2020
+
+by <a class="url fn" href="./author/moshe-zadka.html">Moshe Zadka</a>
+ 
+
+
+        </div>
+	
+        <div><p>Numbers in Python come in all shapes and forms.
+The reason different kind of representations of numbers exist is because
+they all have different trade-offs.
+These trade-offs are often surprising!</p>
+<div class="section" id="integers">
+<h2>Integers</h2>
+<p>The most surprising things about integers is how easily they stop being
+integers.
+Dividing two integers, for example,
+<code>4/3</code>,
+gives a float,
+and <code>(4/3)*3</code> is the
+<em>float</em>
+<code>4.0</code>.
+Even if a program has no floating point numbers coming in,
+all that is needed for floating point numbers to exist
+somewhere is a division operation.</p>
+</div>
+<div class="section" id="floats">
+<h2>Floats</h2>
+<p>Floats do not behave like numbers.
+Numbers obey certain mathematical properties:
+subtraction is the inverse to addition,
+addition is associative,
+and more.</p>
+<p>For example</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; 1 + 2 - 2 - 1
+0
+&gt;&gt;&gt; 0.1 + 0.2 - 0.2 - 0.1
+2.7755575615628914e-17
+</pre>
+<p>adding two numbers,
+and then subtracting them one at a time,
+does not result in the same value.</p>
+<p>They do not obey the associative law of addition,
+<code>a + (b + c) = (a + b) + c</code>:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; a = 2**-53
+&gt;&gt;&gt; (a + a) + 1 == a + (a + 1)
+False
+</pre>
+<p>These show just two of the corner cases that floating point numbers
+exhibit,
+which can be surprising.
+A full treatise on the ways that floating point behavior can be surprising
+is too big to fit in the margin of this blog post.</p>
+</div>
+<div class="section" id="fractions">
+<h2>Fractions</h2>
+<p>Many algorithms that look straightforward
+&quot;explode&quot;
+with exact fractions.
+Explosion usually starts as time explosion:
+the algorithm becomes &quot;quadratic&quot;:
+the time it takes is proportional not to the input length,
+but to the scare of the input's length.
+In other words, doubling the input size
+<em>quadruples</em>
+the time it takes.</p>
+<p>If enough time is spent,
+memory explosion is also possible:
+the space requirements increase,
+until all memory fills up.</p>
+<p>One weird protection against memory explosion
+is that usually it will take too long to get it,
+and the program will be killed for
+&quot;hanging&quot;.</p>
+<p>One such &quot;algorithm&quot; is addition.</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; print(set(type(p) for p in primes))
+&gt;&gt;&gt; one = fractions.Fraction(1)
+&gt;&gt;&gt; before = datetime.now()
+&gt;&gt;&gt; res = sum(one/p for p in primes[:10000])
+&gt;&gt;&gt; after = datetime.now()
+&gt;&gt;&gt; print(&quot;It took&quot;, after-before)
+&gt;&gt;&gt; print(&quot;Size of output&quot;, len(str(res)))
+&gt;&gt;&gt; print(&quot;Approximate value&quot;, float(res))
+{&lt;class 'int'&gt;}
+It took 0:01:16.033260
+Size of output 90676
+Approximate value 2.7092582487972945
+</pre>
+<p>This is just adding the inverses to some primes
+(I removed the first few from the list,
+and then chopped the list to be the next 10,000).
+On a nice laptop designed as a gaming rig,
+adding 10,000 numbers took
+over a minute,
+and resulted in an output that was over 90K!</p>
+<p>In comparison,
+running the same algorithm with floats is much more efficient:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; print(set(type(p) for p in primes))
+&gt;&gt;&gt; before = datetime.now()
+&gt;&gt;&gt; res = sum(1/p for p in primes[:10000])
+&gt;&gt;&gt; after = datetime.now()
+&gt;&gt;&gt; print(&quot;It took&quot;, after-before)
+&gt;&gt;&gt; print(&quot;Size of output&quot;, len(str(res)))
+&gt;&gt;&gt; print(&quot;Approximate value&quot;, float(res))
+{&lt;class 'int'&gt;}
+It took 0:00:00.000480
+Size of output 17
+Approximate value 2.709258248797317
+</pre>
+<p>The time it took is less than a millisecond,
+and some of that is possibly measurement error from
+<cite>datetime</cite>.
+This is around 10,000 times faster.
+The output can be saved in 17 bytes:
+a mere 1000 reduction in space.
+However, the result is inaccurate:</p>
+<pre class="code literal-block">
+Approximate value 2.7092582487972945
+Approximate value 2.709258248797317
+                    1234567891234
+</pre>
+<p>The results are off by less than <code>1e-14</code>.
+This would be like getting the distance to the moon wrong
+by one millimeter.
+In cases that do not involve sending a rocket to the moon with
+less than a millimeter
+(one grain of sand)
+tolerance,
+floats give a result that is precise enough
+and several orders of magnitude more efficient.</p>
+<p>A lot of the responses to this were along the lines of
+&quot;fractions are slow because they are implemented in Python&quot;.
+Python can be responsible for a 10x slowdown,
+but not 10,000x.
+There is a third-party module,
+<code>quicktions</code>,
+which implements fractions using Cython.</p>
+<p>Using <code>quicktions</code> was,
+indeed,
+quicker.
+It took the time down from a minute and sixteen seconds to
+to a minute and fifteen seconds on my laptop.</p>
+<p>Fundamentally,
+the problem is that this is a quadratic algorithm.
+I chose the inputs carefully:
+the worst case behavior for fraction addition is on prime numbers.
+But unless you can predict the inputs to an algorithm,
+you cannot rely on anything but the worst-case behavior.</p>
+</div>
+<div class="section" id="decimals">
+<h2>Decimals</h2>
+<p>Decimal numbers are useful when managing financial transactions.
+This is for the most boring reason possible:
+the laws governing finance are specified in decimals.
+However, all decimal point calculations in Python are governed
+by hidden global state:
+the <code>context</code>.
+The context determines precision,
+and is taken from the caricature of how action at a distance
+is problematic for APIs.</p>
+<p>Quoting the <a class="reference external" href="https://docs.python.org/3.8/library/decimal.html">documentation</a>
+(for Python 3.8):</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; getcontext().prec = 6
+&gt;&gt;&gt; Decimal(1) / Decimal(7)
+Decimal('0.142857')
+&gt;&gt;&gt; getcontext().prec = 28
+&gt;&gt;&gt; Decimal(1) / Decimal(7)
+Decimal('0.1428571428571428571428571429')
+</pre>
+<p>In practice,
+code might have hundreds of lines between setting the precision
+and doing a calculation.
+The calculation can be in another function,
+or even another file.</p>
+<p>The only safe way to use decimal numbers in Python is with
+<code>localcontext</code>:</p>
+<pre class="code literal-block">
+&gt;&gt;&gt; getcontext().prec = 6
+&gt;&gt;&gt; # 6853 lines elided
+... with localcontext() as ctx:
+...     ctx.prec = 10
+...     Decimal(1) / Decimal(7)
+...
+Decimal('0.1428571429')
+</pre>
+<p>As long as you are careful to use
+<cite>localcontext</cite>,
+decimals work pretty well.
+It is thread-safe and signal-safe.</p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>Before you do things with numbers in your code,
+stop and think.
+What types should you use?
+What do you want to happen?
+What tolerances are important?</p>
+<p>Not thinking means letting the corner cases in the code just happen.</p>
+<p>(Thanks to Adi Stav, Aaron Hall, and Avy Faingezicht for their
+feedback on an earlier draft.
+All issues and mistakes that remain are my responsibility.)</p>
+</div>
+</div>
+	
+        <hr>
+
+    </div>
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="./archives.html">Archives</a>
+                <li><a href="./tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="./category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href=".">Orbifolds and Other Games</a> &copy; Moshe Zadka 2024</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="./theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>

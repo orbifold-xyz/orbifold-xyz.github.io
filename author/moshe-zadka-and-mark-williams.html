@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Orbifolds and Other Games - Moshe Zadka and Mark Williams</title>
+    <meta name="description" content="">
+    <meta name="author" content="Moshe Zadka">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="../theme/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
+
+    <!-- So Firefox can bookmark->"abo this site" -->
+        <link href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate" title="Orbifolds and Other Games" type="application/atom+xml">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+    <div class="container">
+
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+             <span class="icon-bar"></span>
+         </a>
+
+        <a class="brand" href="..">Orbifolds and Other Games</a>
+
+        <div class="nav-collapse">
+        <ul class="nav">
+            
+            <li><a href="../pages/about.html">About</a></li>
+        </ul>
+        </div>
+        
+    </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content">
+    <div class="row">
+
+        <div class="span9">
+        
+
+        
+
+
+    <div class='article'>
+        <div class="content-title">
+            <a href="../python-dsl.html"><h1>Python as a DSL</h1></a>
+Mon 07 August 2017
+
+by <a class="url fn" href="../author/moshe-zadka-and-mark-williams.html">Moshe Zadka and Mark Williams</a>
+ 
+
+
+ 
+        </div>
+        
+        <div><p>This is a joint post by <a class="reference external" href="https://enotuniq.org/">Mark Williams</a> and <a class="reference external" href="https://orbifold.xyz/">Moshe Zadka</a>.
+You are probably reading it on one of our blogs --
+if so,
+feel free to look at the other blog.
+We decided it would be fun to write a post together
+and see how it turns out.
+We definitely had fun writing it,
+and we hope you have fun reading it.</p>
+<div class="section" id="introduction">
+<h2>Introduction</h2>
+<p>A Domain Specific Language is a natural solution to many problems.
+However, creating a new language from whole cloth is
+both surprisingly hard and,
+more importantly,
+surprisingly hard to get right.</p>
+<p>One needs to come up with a syntax that is easy to learn,
+easy to get right,
+hard to get wrong,
+and has the ability to give meaningful errors when incorrect input is given.
+One needs to carefully document the language,
+supplying at least a comprehensive reference, a tutorial,
+and a best practices guide
+all with examples.</p>
+<p>On top of this, one needs to write a toolchain for the language
+that is as high quality as the one users are used to from
+other languages.</p>
+<p>All of this raises a tempting question: can we use an existing language?
+In this manner, many languages have been used, or abused,
+as domain specific languages --
+Lisp variants (such as Scheme) were among the first to be drafted,
+but were quickly followed by languages like TCL, Lua, and Ruby.</p>
+<p>Python, being popular in quite a few niches,
+has also been used as a choice for things related to those niches --
+the configuration format for <a class="reference external" href="http://jupyter-notebook.readthedocs.io/en/latest/config.html">Jupyter</a>,
+the website structure specification in <a class="reference external" href="https://trypyramid.com/">Pyramid</a>
+the build directives for <a class="reference external" href="http://scons.org/">SCons</a>,
+and the target specification for <a class="reference external" href="http://www.pantsbuild.org/build_files.html">Pants</a>.</p>
+<p>In this post,
+we will show examples of Python as a Domain Specific Language
+(or DSL)
+and explain how to do it well --
+and how to avoid doing it badly.</p>
+<p>As programmers we use a variety of languages to solve problems.
+Usually these are &quot;general purpose&quot; languages, or languages whose
+design allows them to solve many kinds of problems equally well.
+Python certainly fits this description.  People use it to solve
+problems in astronomy and biology, to answer questions about data sets
+large and small, and to build games, websites, and DNS servers.</p>
+<p>Python programmers know how much value there is in generality.  But
+sometimes that generality makes solving a problem tedious or otherwise
+difficult. Sometimes, a problem or class of problems requires so much
+set up, or has so many twists and turns, that its obvious solution in
+a general purpose language becomes complicated and hard to understand.</p>
+<p><em>Domain specific languages</em> are languages that are tailored to solve
+specific problems.  They contain special constructions, syntax, or
+other affordances that organize patterns common to the problems they
+solve.</p>
+<p><a class="reference external" href="https://www.gnu.org/software/emacs/">Emacs</a> <a class="reference external" href="https://www.gnu.org/software/emacs/manual/html_node/elisp/Introduction.html#Introduction">Lisp</a>, or Elisp, is a Domain Specific Language focused on text
+editing.  Emacs users can teach Emacs to do novel things by extending
+the editor with Elisp.</p>
+<p>Here's an example of an Elisp function that swaps <tt class="docutils literal">'</tt> with <tt class="docutils literal">&quot;</tt> and
+vice-versa when the cursor is inside a Python string:</p>
+<pre class="code literal-block">
+(defun python-swap-quotes ()
+  &quot;Swap single and double quotes.&quot;
+  (interactive)
+  (save-excursion
+    (let ((state (syntax-ppss)))
+      (when (eq 'string (syntax-ppss-context state))
+        (let* ((left (nth 8 state))
+               (right (1- (scan-sexps left 1)))
+               (newquote (if (= ?' (char-after left))
+                             ?\&quot; ?')))
+          (dolist (loc (list left right))
+            (goto-char loc)
+            (delete-char 1)
+            (insert-char newquote 1)))))))
+</pre>
+<p>This is clearly Lisp code, and parts of it, such as defining a
+function with <code>defun</code> or variables with <code>let</code>, is not
+specific to text editing or even Emacs.</p>
+<p><code>(interactive)</code>, however, is a special extension to Elisp that
+makes the function that encloses it something a user can assign to a
+keyboard short cut or select from a menu inside Emacs.  Similarly,
+<code>(save-excursion ...)</code> ensures that file the user is editing and
+the location of the cursor is restored fter the code inside is run.
+This allows the function to jump around within a file or even multiple
+files without disturbing a user's place.</p>
+<p>Lots of Elisp code makes use of special extensions, but Python
+programmers don't complain about their absence, because they're of no
+use outside Emacs.  That specialization makes Elisp a DSL.</p>
+<p>The language of <a class="reference external" href="https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact">Dockerfiles</a> is also a domain specific language.
+Here's a <a class="reference external" href="https://github.com/docker-library/hello-world/blob/7d0ee592e4ed60e2da9d59331e16ecdcadc1ed87/amd64/hello-world/Dockerfile">simple hello world Dockerfile</a>:</p>
+<pre class="code literal-block">
+FROM scratch
+COPY hello /
+ENTRYPOINT [&quot;/hello&quot;]
+</pre>
+<p>The word that begins each line instructs Docker to perform some action
+on the arguments that follow, such as copying the file <cite>hello</cite> from
+the current directory into the image's root directory.  Some of these
+commands have meaning specifically to Docker, such as the <code>FROM</code>
+command to underlay the image being built with a base image.</p>
+<p>Note that unlike Elisp, Dockerfiles are not Turing complete, but both
+are DSLs.  Domain specificity is distinct from mathematical concepts
+like decidability.  It's a term we use to describe how specialized a
+language is to its problem domain, not a theoretical Computer Science
+term.</p>
+<p>Code written in a domain specific language should be clearer and
+easier to understand because the language focuses on the domain, while
+the programmer focuses on the specific problem.</p>
+<p>The Elisp code won't win any awards for elegance or robustness, but it
+benefits from the brevity of <code>(interactive)</code> and
+<code>(save-excursion ..)</code>.  Most of the function consists of the
+querying and computation necessary to find and rewrite Python string
+literals.  Similarly, the Dockerfile doesn't waste the reader's
+attention on irrelevant details, like <em>how</em> a base image is found and
+associated with the current image.  These DSLs keep their programs
+focused on their problem domains, making them easier to understand and
+extend.</p>
+</div>
+<div class="section" id="naive-usage-of-python-as-a-dsl">
+<h2>Naive Usage of Python as a DSL</h2>
+<p>Programmers describe things that hide complexity behind a dubiously
+simple facade as <em>magic</em>.  For some reason,
+when the idea of using Python as a DSL first comes up,
+many projects choose the strategy we will call
+&quot;magical execution context&quot;.
+It is more common in projects written in C/C++ which embed Python,
+but happens quite a bit in pure-Python projects.</p>
+<p>The prototypical code that creates a magical execution context
+might look something like:</p>
+<pre class="code literal-block">
+namespace = dict(DomainFunction1=my_domain_function1,
+                 DomainFunction2=my_domain_function2)
+with open('Domainspecificfile') as fp:
+    source = fp.read()
+exec(source, globals=namespace)
+do_something_with(namespace['special_name'])
+</pre>
+<p>Real-life DSLs usually have more names in their magical execution contexts
+(often ranging in the tens or sometimes hundreds),
+and DSL runtimes often have more complicated logic around finding
+the files they parse.
+However, this platonic example is useful to keep in mind when
+reading through the concrete examples.</p>
+<p>While various other projects were automatable with Python,
+SCons might be the oldest surviving project where
+Python is used as a configuration language.
+It also happens to be implemented <em>in</em> Python --
+but aside from making the choice of Python as a DSL easier to implement,
+it has no bearing on our discussion today.</p>
+<p>An <code>SCons</code> file might look like this:</p>
+<pre class="code literal-block">
+src_files = Split(&quot;&quot;&quot;main.c
+                     file1.c
+                     file2.c&quot;&quot;&quot;)
+Program('program', src_files)
+</pre>
+<p>Code can also be imported from other files:</p>
+<pre class="code literal-block">
+SConscript(['drivers/SConscript',
+            'parser/SConscript',
+            'utilities/SConscript'])
+</pre>
+<p>Note that it is not possible,
+via this method,
+to reuse any logic other than build settings across the files --
+a function defined in one of them is not available elsewhere else.</p>
+<p>At 12 years old, Django is another
+venerable Python project, and like the similarly venerable <a class="reference external" href="http://weblog.rubyonrails.org/2005/12/13/rails-1-0-party-like-its-one-oh-oh/">Ruby on
+Rails</a>, it's no stranger to magic.  Once upon a time, Django's
+database interaction APIs were magical enough that they constituted a
+kind of domain-specific language with a magical execution context.</p>
+<p>Like modern Django, you would define your models by subclassing a
+special class, but unlike modern Django, they were more than just
+plain old Python classes.</p>
+<p>A Django application in a module named <cite>best_sellers.py</cite> might have
+had a model that looked like this:</p>
+<pre class="code literal-block">
+from django.core import meta
+
+class Book(meta.Model):
+      name = meta.CharField(maxlength=70)
+      author = meta.CharField(maxlength=70)
+      sold = meta.IntegerField()
+      release_date = meta.DateTimeField(default=meta.LazyDate())
+
+      def get_best_selling_authors(self):
+          cursor = db.cursor()
+          cursor.execute(&quot;&quot;&quot;
+          SELECT author FROM books WHERE release_date &gt; '%s'
+          GROUP BY author ORDER BY sold DESC
+          &quot;&quot;&quot; % (db.quote(datetime.datetime.now() - datetime.timedelta(weeks=1)),))
+          return [row[0] for row in cursor.fetchall()]
+
+      def __repr__(self):
+          return self.full_name
+</pre>
+<p>A user would then use it by like so:</p>
+<pre class="code literal-block">
+from django.models.best_sellers import books
+print books.get_best_selling_authors()
+</pre>
+<p>Django transplated the <code>Book</code> model into its own magic
+<code>models</code> module and renamed it <code>books</code>.  Note the subtle
+transformation in the midst of more obvious magic: the <code>Book</code>
+model was lowercased and automatically pluralized.</p>
+<p>Two magic globals were injected into the model's instance methods:
+<code>db</code>, the current database connection, and <code>datetime</code>, the
+Python standard library module.  That's why our example module doesn't
+have to import them.</p>
+<p>The intent was to reduce boilerplate by exploiting Python's
+dynamicism.  The result, however, diverged from Python's expected
+behaviors and also invented new, idiosyncratic boilerplate; in
+particular, <a class="reference external" href="https://github.com/django/django/blob/674c0b353ceaace921eb3d1b5b0293b35a41ad2e/django/core/meta/__init__.py#L372-L388">the injection of special globals</a> prevented methods from
+accessing variables defined in their source modules, so <a class="reference external" href="https://github.com/django/django/blob/674c0b353ceaace921eb3d1b5b0293b35a41ad2e/django/models/auth.py#L151-L154">methods had
+to directly import any module they used</a>, forcing programmers to
+repeat themselves.</p>
+<p>Django's developers came to see these features as <a class="reference external" href="https://code.djangoproject.com/wiki/RemovingTheMagic">&quot;warts&quot;</a> and
+removed them before the 0.95 release.  It's safe to say that the
+&quot;magic-removal&quot; process succeeded in improving Django's usability.</p>
+<p>Python has well-documented built-ins.
+People who read Python code are, usually, familiar with those.
+Any symbol which is not a built-in or a reserved word is imported.</p>
+<p>Any DSL will have its own, extra built-ins.
+Ideally, those are well documented --
+but even when they are, this is a source of documentation separate from
+the host language.
+This code can never be used by something outside the DSL.
+A good example for such potential usage is for unit testing the code.
+Once a DSL catches on,
+it often inspires creation of vast amounts of code.
+The example of Elisp is particularly telling.</p>
+<p>Another problem with such code is that it's often not obvious
+what the code <em>itself</em> is allowed to import or call.
+Is it safe to do long-running operations?
+If logging to a file, is logging properly set-up?
+Will the code double log messages, or does it cache the first time it is used?
+As an example,
+there are a number of questions about how to share code between
+<code>SCons</code> on StackOverflow,
+with explanations about the trade-offs between using an
+<code>SConscript</code> file or using Python modules and <code>import</code>.</p>
+<p>Last, but not least, other Python code often implicitly assumes
+that functions and classes are defined by modules.
+This means that either it is ill-advised to write such in the DSL --
+perhaps defining classes might lead to a memory leak because
+the contents are used in <code>exec</code> multiple times --
+or, worse, that random functionality will break.
+For example, do tracebacks work correctly?
+Does pickle?</p>
+</div>
+<div class="section" id="a-new-hope">
+<h2>A New Hope</h2>
+<p>As seen from the examples of SCons and old, magical Django,
+naively using Python as a DSL is problematic.
+It gives up a lot of the benefits of using a pre-existing language,
+and results in something that is in the Python uncanny valley --
+just close enough to Python that the distinctions result
+in a sense of horror, not cuteness.</p>
+<p>One way to avoid the uncanny valley
+is to step further away
+and avoid confusion --
+implement a little language using PyParsing
+that is nothing like Python.
+But valleys have two sides.
+We can solve the problem by just using pure, unadulterated Python.
+It turns out that removing an import statement
+at the top of the file does <em>not</em> reduce
+much overhead when specializing to a domain.</p>
+<p>We explore, by example,
+good ways to use Python as DSL.
+We start by showing how even a well written module,
+taking advantage of some of the power of Python,
+can create a de-facto DSL.
+Taking it to the next level,
+frameworks (which call user code)
+can also be used to build DSLs in Python.
+Most powerfully, especially combined with libraries and frameworks,
+Python plugin systems can be used to avoid even the need
+for a user-controlled entry point,
+allowing DSLs which can be invoked from an arbitrary program.</p>
+<p>Python is a flexible language and
+subtle use of its features can result
+in a flexible DSL that still looks like Python.</p>
+<p>We explore four examples of such DSLs -- NumPy, Stan, Django ORM, and Pyramid.</p>
+<div class="section" id="numpy">
+<h3>NumPy</h3>
+<p>NumPy has the advantage of having been there since the dawn of Python,
+being preceded by the Numeric library, on which it was based.
+Using that long lineage, it has managed to exert some influence on adding
+some things to Python core's syntax -- the Ellipsis type and the <code>&#64;</code>
+operator.</p>
+<p>Taking advantage of both those,
+as well as combinations of things that already exist in Python,
+NumPy is basically a DSL for performing multi-dimensional calculations.</p>
+<p>As an example,</p>
+<pre class="code literal-block">
+x[4,...,5,:]
+</pre>
+<p>lowers the dimension of x by 2,
+killing the first and next-to-last dimension. How does it work?
+We can explore what happens using this proof-of-concept:</p>
+<pre class="code literal-block">
+class ItemGetterer(object):
+    def __getitem__(self, idx):
+        return idx
+
+x = ItemGetterer()
+print(x[4,...,5,:])
+</pre>
+<p>This prints <code>(4, Ellipsis, 5, slice(None, None, None))</code>.</p>
+<p>In NumPy, the <code>__getitem__</code> method expects tuples,
+and will parse them for numbers, the <code>Ellipsis</code> object
+and slice objects -- and then apply them to the number.</p>
+<p>In addition, overriding the methods corresponding to the
+arithmetic operators, known as <em>operator overloading</em>,
+allows users of NumPy to write code
+that looks like the corresponding math expression.</p>
+</div>
+<div class="section" id="stan">
+<h3>Stan</h3>
+<p>Stan is a way to produce XML documents
+using pure Python syntax.
+This is often useful in web frameworks,
+which need to produce HTML.</p>
+<p>For illustration, here is an example stan-based program&quot;&quot;</p>
+<pre class="code literal-block">
+from nevow import flat, tags, stan
+
+video = stan.Tag('video')
+
+aDocument = tags.html[
+                tags.head[
+                    tags.title[&quot;Title&quot;]
+                ],
+                tags.body[
+                    tags.h1[&quot;Heading&quot; ],
+                    tags.p(class_=&quot;life&quot;)[&quot;A paragraph about life.&quot;],
+                    video[&quot;Your video here!&quot;],
+                ]
+            ]
+with open('output.html', 'w') as fp:
+</pre>
+<p>The <code>tags</code> module has a few popular tags.
+Those are instances of the <code>stan.Tag</code> class.
+If a new tag is needed, for example the <code>&lt;video&gt;</code> tag above,
+one can be added locally.</p>
+<p>This is completely valid Python,
+without any magical execution contexts,
+in a regular importable module --
+which allows easy generation of HTML.</p>
+<p>As an example of the advantages of making this a regular Python
+execution context, we can see the benefits of dynamically generating
+HTML:</p>
+<pre class="code literal-block">
+from nevow import flat, tags
+bullets = [tags.li[&quot;bullet {}&quot;.format(i)] for i in range(10)]
+aDocument = tags.html[
+                tags.body[
+                    tags.ul[bullets]
+                ]
+            ]
+with open('output.html', 'w') as fp:
+    fp.write(flat.flatten(aDocument))
+</pre>
+<p>In more realistic scenarios,
+this would be based on a database call,
+or a call to some microservice.
+Because stan is just pure Python code,
+it is easy to integrate into whatever framework expects it --
+it can be returned from a function,
+or set as an object attribute.</p>
+<p>The line between
+&quot;taking advantage Python syntax and magic method overriding&quot;
+and &quot;abusing Python syntax&quot; is sometimes subtle
+and always at least partially subjective.
+However, Python does allow surprising flexibility
+when it comes using pieces of the syntax for new purposes.</p>
+<p>This gives great powers to mere library authors,
+without any need esoterica
+such as pushing and pulling variables into dictionaries
+before or after execing code.
+The <code>with</code> keyword, which we have not covered here,
+also often comes in handy for building DSLs in Python
+which do not need magic to work.</p>
+</div>
+<div class="section" id="django-orm">
+<h3>Django ORM</h3>
+<p>Operator overloading is one way Python allows programmers to imbue
+existing syntax with new, domain-specific semantics.  When those
+semantics describe data with a repeated structure, Python's class
+system provides a natural model, and <a class="reference external" href="http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example">*metaclasses*</a> allow you to
+extend that model to suite your purpose.  This makes them a power tool
+for implementing Python DSLs.</p>
+<p><em>Object-relational mapping</em> (ORM) libraries often use metaclasses to
+ease defining and querying database tables.  Django's <code>Model</code>
+class is the canonical example.  Note that the API we're about to
+describe is part of modern, post-magic-removal Django!</p>
+<p>Consider the models defined in <a class="reference external" href="https://docs.djangoproject.com/en/1.11/intro/tutorial02/#creating-models">Django's tutorial</a>:</p>
+<pre class="code literal-block">
+from django.db import models
+
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+</pre>
+<p>Each class encapsulates knowledge about and actions on a database
+table.  The class attributes map to columns and inter-table
+relationships which power <a class="reference external" href="https://docs.djangoproject.com/en/1.11/topics/db/queries/">data manipulation</a> and from which Django
+derives <a class="reference external" href="https://docs.djangoproject.com/en/1.11/intro/tutorial02/#activating-models">migrations</a>.  Django's models turn classes in a
+domain-specific language for database definitions and logic.</p>
+<p>Here's what the generated DML might look like:</p>
+<pre class="code literal-block">
+--
+-- Create model Choice
+--
+CREATE TABLE &quot;polls_choice&quot; (
+    &quot;id&quot; serial NOT NULL PRIMARY KEY,
+    &quot;choice_text&quot; varchar(200) NOT NULL,
+    &quot;votes&quot; integer NOT NULL
+);
+--
+-- Create model Question
+--
+CREATE TABLE &quot;polls_question&quot; (
+    &quot;id&quot; serial NOT NULL PRIMARY KEY,
+    &quot;question_text&quot; varchar(200) NOT NULL,
+    &quot;pub_date&quot; timestamp with time zone NOT NULL
+);
+</pre>
+<p><a class="reference external" href="https://github.com/django/django/blob/a51c4de1945be2225f20fad794cfb52d8f1f9236/django/db/models/base.py#L71">A metaclass</a> plays a critical role in this DSL by instrumenting
+<code>Model</code> subclasses.  It's this metaclass that <a class="reference external" href="https://github.com/django/django/blob/a51c4de1945be2225f20fad794cfb52d8f1f9236/django/db/models/base.py#L352-L360">adds the objects
+class attribute</a>, a <code>Manager</code> instance that mediates ORM
+queries, and the class-specific <cite>DoesNotExist</cite> and
+<cite>MultipleObjectsReturned</cite> <a class="reference external" href="https://github.com/django/django/blob/a51c4de1945be2225f20fad794cfb52d8f1f9236/django/db/models/base.py#L116-L133">exceptions</a>.</p>
+<p>Because metaclasses control class creation, they're an obvious way to
+inject these kinds of class-level attributes.  For the same reason,
+but less obviouly, they also provide a place to run initialization
+hooks that should run only once in a program's lifetime.  Classes are
+generally defined at module level.  Thus, classes are created when
+modules are created.  Because of Python's module caching, this means
+that metaclasses are usually run early and rarely.  Django's DSL makes
+use of this assumption to <a class="reference external" href="https://github.com/django/django/blob/a51c4de1945be2225f20fad794cfb52d8f1f9236/django/db/models/base.py#L315">register models with their applications</a>
+upon creation.</p>
+<p>Running code this soon can lead to strange issues, which make it
+tricky to use metaclasses correctly.  They also rely on subclassing,
+which is <a class="reference external" href="http://pyvideo.org/pycon-us-2013/the-end-of-object-inheritance-the-beginning-of.html">considered harmful</a>.  These things and their use in ORMs,
+which are <a class="reference external" href="http://seldo.com/weblog/2011/06/15/orm_is_an_antipattern">also considered harmful</a>, might seem to limit their
+usefulness.  However, a base class whose purpose is to inject a
+metaclass avoids many of the problems associated with subclassing, as
+little to no functionality will be inherited.  Django weighs the
+benefits of familiar syntax over the costs of subclassing, resulting
+in a data definition DSL that's ergonomic for Python programmers.</p>
+<p>Despite their complexity and shortcomings, metaclasses provide a
+succinct way to describe and manipulate all kinds of data, from <a class="reference external" href="http://scapy.readthedocs.io/en/stable/advanced_usage.html?highlight=metaclasses">wire
+protocols</a> to <a class="reference external" href="http://pythonhosted.org/dexml/">XML documents</a>.  They can be just the trick for
+data-focused DSLs.</p>
+</div>
+<div class="section" id="pyramid-1">
+<h3>Pyramid</h3>
+<p>Pyramid allows defining web application logic,
+as opposed to the routing details,
+anywhere.
+It will match up the function to the route based on the
+route name,
+as defined in the configuration router.</p>
+<pre class="code literal-block">
+# Removed imports
+
+## The function definition can go anywhere
+&#64;view_config(route_name='home')
+def my_home(context, request):
+    return 'OK'
+
+## This goes in whatever file we pass to our WSGI host
+config = Configurator()
+config.add_route('home', '/')
+config.scan('.')
+app = config.make_wsgi_app()
+</pre>
+<p>The builder pattern, as seen here, allows gradually creating an application.
+The methods on <code>Configurator</code>,
+as well as the decorators such as <code>view_config</code>,
+are effectively a DSL that helps build web applications.</p>
+</div>
+</div>
+<div class="section" id="plugins">
+<h2>Plugins</h2>
+<p>When code lives in real Python modules,
+and uses real Python APIs,
+it is sometimes useful for it to be executed automatically
+based on context.
+After all, one thing that DSL systems like SCons
+give us is automatically executing the <code>SConscript</code>
+when we run <code>scons</code> at the command line.</p>
+<p>One tool that can be used for this is a plugin system.
+While a comprehensive review of <a class="reference external" href="http://sedimental.org/plugin_systems.html">plugin systems</a>
+is beyond our scope here,
+we will give a few examples of using such systems
+for specific domains.</p>
+<p>One of the oldest plugin systems is <a class="reference external" href="https://twistedmatrix.com/documents/current/core/howto/plugin.html">twisted.plugin</a>.
+While it can be used as a generic plugin system,
+the main usage of it --
+and a good case study of using it as a plugin system for DSLs --
+is to extend the <code>twist</code> command line.
+These are also known as <code>tap</code> plugins,
+for historical reasons.</p>
+<p>Here is a minimal example of a Twisted tap plugin:</p>
+<pre class="code literal-block">
+# Removed imports
+&#64;implementer(IServiceMaker, IPlugin)
+class SimpleServiceMaker(object):
+    tapname = &quot;simple-dsl&quot;
+    description = &quot;The Simplest DSLest Plugin&quot;
+
+    class options(usage.Options):
+        optParameters = [[&quot;port&quot;, &quot;p&quot;, 1235, &quot;Port number.&quot;]]
+
+    def makeService(self, options):
+        return internet.TCPServer(int(options[&quot;port&quot;]),
+                                  Factory.forProtocol(Echo))
+
+serviceMaker = SimpleServiceMaker()
+</pre>
+<p>In order to be a <a class="reference external" href="https://twistedmatrix.com/documents/current/core/howto/tap.html">valid plugin</a>,
+this file must be placed under <code>twisted.plugins</code>.
+The <code>usage.Options</code> class defines a DSL,
+of sorts,
+for describing command-line options.
+We used only a small part of it here,
+but it is both powerful and flexible.</p>
+<p>Note that this is completely valid Python code --
+in fact, it will be imported as a module.
+This allows us to import it as well,
+and to test it using unit tests.</p>
+<p>In fact, because this is regular Python code,
+usually <code>serviceMakers</code> are created using a helper class --
+<code>twisted.application.service.ServiceMaker</code>.
+The definition above, while correct,
+is not idiomatic.</p>
+<p>The <code>gather</code> library does not have a DSL.
+It does, however,
+function well as an agnostic plugin discovery mechanism.
+Because of that,
+it can be built into other systems --
+that do provide a Pythonic DSL --
+to serve as the autodiscovery mechanism.</p>
+<pre class="code literal-block">
+# In  a central module:
+ITS_A_DSLISH_FUNCTION = gather.Collector()
+
+## Define the DSL as
+## -- functions that get two parameters
+##    -- conf holds some general configuration
+##    -- send_result is used to register the result
+def run_the_function_named(name, conf, send_result):
+    res = ITS_A_DSLISH_FUNCTION.collect()
+    return res[name](conf, result)
+
+# In a module registering a DSL function
+&#64;ITS_A_DSLISH_FUNCTION.register(name='my_dslish_name')
+def some_func(conf, send_result):
+    with conf.temp_stuff() as some_thing:
+         send_result(some_thing.get_value())
+</pre>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Python is a good language to use for DSLs.
+So good, in fact,
+that <a class="reference external" href="http://www.attrs.org/en/stable/">attrs</a>, a DSL for defining classes,
+has achieved enormous popularity.
+Operator overloading, decorators,
+the <code>with</code> operator and generators, among other things,
+combine to allow novel usage of the syntax in specific problem domains.
+The existence of a big body of documentation
+of the language and its best practices,
+along with a thriving community of practicioners,
+is also an asset.</p>
+<p>In order to take advantage of all of those,
+it is important to use Python as Python --
+avoid magical execution contexts
+and novel input search algorithms in favor
+of the powerful code organization model Python already has --
+modules.</p>
+<p>Most people who want to use Python as a DSL
+are also Python programmers.
+Consider allowing your program's users
+to use the same tools that have made you successful.</p>
+<p>As <a class="reference external" href="https://twistedmatrix.com/users/glyph/rant/extendit.html">Glyph</a> said in a related discussion,
+&quot;do you want to confuse, surprise,
+and annoy people who may be familiar with Python from elsewhere?&quot;
+Assuming the answer is &quot;no&quot;,
+consider using real modules as your DSL mechanism.</p>
+</div>
+</div>
+        <hr />
+    </div>
+		
+<div class="pagination">
+<ul>
+    <li class="prev disabled"><a href="#">&larr; Previous</a></li>
+
+    <li class="active"><a href="../author/moshe-zadka-and-mark-williams.html">1</a></li>
+
+    <li class="next disabled"><a href="#">&rarr; Next</a></li>
+
+</ul>
+</div>
+ 
+  
+        </div>
+        
+        <div class="span3">
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Site
+                </li>
+            
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
+
+
+
+                <li><a href="https://orbifold.xyz/feeds/all.atom.xml" rel="alternate">Atom feed</a></li>
+
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Categories
+                </li>
+                
+                <li><a href="../category/misc.html">misc</a></li>
+                   
+            </ul>
+            </div>
+
+
+            <div class="well" style="padding: 8px 0; background-color: #FBFBFB;">
+            <ul class="nav nav-list">
+                <li class="nav-header"> 
+                Links
+                </li>
+            
+                <li><a href="http://python.org/">Python.org</a></li>
+                <li><a href="http://cobordism.com/">Moshe'z</a></li>
+            </ul>
+            </div>
+
+
+
+        </div>  
+    </div>     </div> 
+<footer>
+<br />
+<p><a href="..">Orbifolds and Other Games</a> &copy; Moshe Zadka 2017</p>
+</footer>
+
+</div> <!-- /container -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../theme/bootstrap-collapse.js"></script>
+ 
+</body>
+</html>
